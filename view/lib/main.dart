@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mindpal_flutter_app/constants/routes.dart';
+import 'package:view/constants/route.dart';
 
 
 Future<void> main() async {
@@ -12,7 +12,7 @@ Future<void> main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: loginState == null ? Routes.first : Routes.baseview,
+    initialRoute: loginState == null ? Routes.accountView : Routes.baseview,
     routes: Routes.getRoutes(),
   ));
 }

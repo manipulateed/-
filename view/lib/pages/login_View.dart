@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:view/constants/route.dart';
+import 'package:view/services/login_svs.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -9,6 +10,8 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  String email = '452';
+  String password = '2424';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +58,7 @@ class _LoginViewState extends State<LoginView> {
                     onSaved: (String? value) {
                       // This optional block of code can be used to run
                       // code when the user saves the form.
+                      email = value.toString();
                     },
                     validator: (String? value) {
                       return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
@@ -81,6 +85,7 @@ class _LoginViewState extends State<LoginView> {
                       onSaved: (String? value) {
                         // This optional block of code can be used to run
                         // code when the user saves the form.
+                        password = value.toString();
                       },
                       validator: (String? value) {
                         return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
@@ -120,7 +125,9 @@ class _LoginViewState extends State<LoginView> {
                     onPrimary: Colors.white, // foreground
                   ),
                   onPressed: (){
-                    Navigator.pushReplacementNamed(context, Routes.throughview);
+                    Login_SVS login = new Login_SVS(email: email, password: password);
+                    login.sendData();
+                    //Navigator.pushReplacementNamed(context, Routes.throughview);
                   },
                   child: Text(
                     'LOGIN -->',
@@ -154,7 +161,9 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                   onPressed: (){
-                    Navigator.pushReplacementNamed(context, Routes.signupView);
+                    Login_SVS login = new Login_SVS(email: email, password: password);
+                    login.sendData();
+                    //Navigator.pushReplacementNamed(context, Routes.signupView);
                   },
                 ),
               ],

@@ -1,4 +1,6 @@
 import json
+from bson import ObjectId
+
 class User:
     def __init__(self, name, email, birth, password, sex):
         self.name = name
@@ -6,23 +8,15 @@ class User:
         self.birth = birth
         self.password = password
         self.sex = sex
+        # self.id = None
 
-    #helper
-    def update_name(self, new_name):
+    def update_name(self, helper, new_name):
         self.name = new_name
-      
-    #helper    
-    def update_password(self, new_pass):
+        return helper.update_user_field(self.id, 'Name', new_name)
+
+    def update_password(self, helper, new_pass):
         self.password = new_pass
-
-    #helper
-    def create_User(self):
-        pass
-
-    #login
-    @staticmethod
-    def get_User_by_Email_and_Password(email, password):
-        pass
+        return helper.update_user_field(self.id, 'Password', new_pass)
 
     def get_user_data(self):
         user_data = {
@@ -33,5 +27,14 @@ class User:
             "sex": self.sex
         }
         return json.dumps(user_data)
+
+    def set_id(self, id):
+        self.id = id
+
+    #login
+    @staticmethod
+    def get_User_by_Email_and_Password(email, password):
+        pass
+
 
 

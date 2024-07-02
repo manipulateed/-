@@ -1,29 +1,25 @@
 import json
 class Collect_List:
-    def __init__(self, id, name, collection):
-        self.id = id
+    def __init__(self, id, user_id, name, collection):
+        self.id = None
+        self.user_id = user_id
         self.name = name
         self.collection = collection
+
+    def set_id(self, id):
+        self.id = id
+
+    def get_id(self):
+        return self.id
 
     #helper
     def update_name(self, new_name):
         self.name = new_name
-      
-    @staticmethod   
-    def create_CL_by_UserId(user_id, name):
-        pass
-
-    #helper
-    def remove_CL(self):
-        pass
-
-    @staticmethod
-    def get_All_CL_by_UserId(user_id):
-        pass
 
     def get_CL_data(self):
         CL_data = {
-            "id": self.id,
+            "id": str(self.id),
+            "user_id": str(self.user_id),
             "name": self.name,
             "collection": self.collection
         }

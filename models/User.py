@@ -8,6 +8,12 @@ class User:
         self.password = password
         self.sex = sex
         self.id = None
+    
+    def set_id(self, id):
+        self.id = id
+
+    def get_id(self):
+        return self.id
 
     def update_name(self, helper, new_name):
         self.name = new_name
@@ -26,9 +32,6 @@ class User:
             "sex": self.sex
         }
         return json.dumps(user_data)
-
-    def set_id(self, id):
-        self.id = id
 
     #login
     @staticmethod

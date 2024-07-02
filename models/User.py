@@ -1,5 +1,4 @@
 import json
-from bson import ObjectId
 
 class User:
     def __init__(self, name, email, birth, password, sex):
@@ -8,7 +7,7 @@ class User:
         self.birth = birth
         self.password = password
         self.sex = sex
-        # self.id = None
+        self.id = None
 
     def update_name(self, helper, new_name):
         self.name = new_name
@@ -35,6 +34,7 @@ class User:
     @staticmethod
     def get_User_by_Email_and_Password(email, password):
         pass
+    # login 寫在helper
 
 
 

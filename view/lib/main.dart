@@ -12,7 +12,7 @@ Future<void> main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: loginState == null ? Routes.loginview : Routes.baseview,
+    initialRoute: loginState == null ? Routes.baseview : Routes.loginview,
     routes: Routes.getRoutes(),
   ));
 }

@@ -34,6 +34,7 @@ class _ChatViewState extends State<ChatView> {
   Widget build(BuildContext context) {
     return Scaffold(
 
+
       body: Stack(
         children: [
           Chat(
@@ -79,6 +80,13 @@ class _ChatViewState extends State<ChatView> {
           ),
         ],
       ),
+      floatingActionButton:
+        FloatingActionButton(
+          onPressed: _showImprovementOptions,
+          child: Icon(Icons.list),
+          backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 
@@ -115,7 +123,61 @@ class _ChatViewState extends State<ChatView> {
     _addMessage(replyMessage); // 插入對方的回覆訊息
 
   }
+  void _showImprovementOptions() {
+    List<String> options = [
+      '休息和恢復',
+      '冰敷',
+      '热敷',
+      '輕度運動',
+      '放鬆運動',
+      '按摩',
+      '營養食補',
+      '伸展和肌肉訓練',
+      // 添加更多改善方向...
+    ];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('改善方向'),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: options.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _buildOptionButton(options[index]);
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('關閉'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 定義 _buildOptionButton 方法
+  Widget _buildOptionButton(String label) {
+    return ElevatedButton(
+      onPressed: () {
+        // 在這裡處理按鈕點擊事件
+        print('Selected option: $label');
+        Navigator.of(context).pop(); // 點擊按鈕後關閉對話框
+      },
+      child: Text(label),
+    );
+  }
 }
+
+
 
 
 

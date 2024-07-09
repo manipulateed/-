@@ -1,20 +1,6 @@
 from pymongo import MongoClient
 import json
 
-# class MongoDBMgr:
-#     def __init__(self, db_name, host='localhost', port=27017):
-#         """初始化MongoDB連接"""
-#         self.client = MongoClient(host, port)
-#         self.db = self.client[db_name]
-
-#     def get_collection(self, collection_name):
-#         """獲取指定名稱的集合"""
-#         return self.db[collection_name]
-
-#     def close(self):
-#         """關閉MongoDB連接"""
-#         self.client.close()
-
 class MongoDBMgr:
     def __init__(self, db_name, uri):
         """初始化MongoDB連接"""

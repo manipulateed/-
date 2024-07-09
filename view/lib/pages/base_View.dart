@@ -17,6 +17,7 @@ class _BaseViewState extends State<BaseView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Center(
           child: Text(
@@ -31,29 +32,48 @@ class _BaseViewState extends State<BaseView> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(
+              Icons.home,
+              color: Color(0xFFB2DFDB),
+              size: 50,
+            ),
             label: 'Home',
-            backgroundColor: Colors.lightGreen,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Business',
-            backgroundColor: Colors.green,
+            icon: Icon(
+              Icons.star,
+              color: Color(0xFFB2DFDB),
+              size: 50,
+            ),
+            label: 'Star',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'School',
-            backgroundColor: Colors.purple,
+            icon: Icon(
+              Icons.message,
+              color: Color(0xFFB2DFDB),
+              size: 50,
+            ),
+            label: 'Talk',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: Icon(
+              Icons.calendar_today_outlined,
+              color: Color(0xFFB2DFDB),
+              size: 50,
+            ),
+            label: 'Calender',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.settings,
+              color: Color(0xFFB2DFDB),
+              size: 50,
+            ),
             label: 'Settings',
-            backgroundColor: CupertinoColors.systemPurple,
           ),
         ],
-
         currentIndex: currentPageIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.teal[200],
         onTap: (int index) {
           setState(() {
             currentPageIndex = index;

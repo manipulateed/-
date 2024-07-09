@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:view/constants/route.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:view/widgets/button/goto_Signup_or_Login.dart';
+
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
 
@@ -18,57 +20,48 @@ class _SignupViewState extends State<SignupView> {
   );
   @override
   Widget build(BuildContext context) {
+    bool see = false;
+    bool see2 = false;
+    String password = '';
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.green[50],
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            height: 160,
+            height: 230,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/signup_1.png'),
-                fit: BoxFit.cover,
+                image: AssetImage('assets/Signup.png'),
+                fit: BoxFit.fill,
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(0, 5, 0, 0),
-            child: Text('Create Account',
+            padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+            child: Text('Sign up',
                 style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
           ),
-          SizedBox(height: 16,),
-          SizedBox(
-            width: 300,
-            child: TextFormField(
-              decoration: const InputDecoration(
-                icon: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
-                  child: Icon(Icons.person_2_outlined),
-                ),
-                hintText: 'What your Name?',
-                labelText: 'NAME',
-              ),
-              onSaved: (String? value) {
-                // This optional block of code can be used to run
-                // code when the user saves the form.
-              },
-              validator: (String? value) {
-                return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-              },
-            ),
+          Divider(
+            height: 0,
+            thickness: 3,
+            indent: 30,
+            endIndent: 290,
+            color: Color(0xFFA5D6A7),
           ),
-          SizedBox(height: 16,),
-          SizedBox(
-              width: 300,
+          SizedBox(height: 30,),
+          Center(
+            child: SizedBox(
+              width: 350,
               child: TextFormField(
                 decoration: const InputDecoration(
                   icon: Padding(
                     padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
-                    child: Icon(Icons.mail_outline),
+                    child: Icon(Icons.person_2_outlined),
                   ),
-                  hintText: 'Give it a Email!',
-                  labelText: 'EMAIL',
+                  hintText: 'What your Name?',
+                  labelText: 'NAME',
                 ),
                 onSaved: (String? value) {
                   // This optional block of code can be used to run
@@ -79,148 +72,159 @@ class _SignupViewState extends State<SignupView> {
                 },
               ),
             ),
-          SizedBox(height: 16,),
-          SizedBox(
-              width: 300,
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  icon: Padding(
-                    padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
-                    child: Icon(Icons.lock_outline),
-                  ),
-                  hintText: 'Give it a password!',
-                  labelText: 'PASSWORD',
-                ),
-                onSaved: (String? value) {
-                  // This optional block of code can be used to run
-                  // code when the user saves the form.
-                },
-                validator: (String? value) {
-                  return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-                },
-              ),
           ),
           SizedBox(height: 16,),
-          SizedBox(
-            width: 300,
-            child: TextFormField(
-              decoration: const InputDecoration(
-                icon: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
-                  child: Icon(Icons.lock_outline),
-                ),
-                hintText: 'Write Password Again!',
-                labelText: 'COMFIRM PASSWORD',
-              ),
-              onSaved: (String? value) {
-                // This optional block of code can be used to run
-                // code when the user saves the form.
-              },
-              validator: (String? value) {
-                return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-              },
-            ),
-          ),
-          SizedBox(height: 16,),
-          SizedBox(
-            width: 300,
-            child: Stack(
-              children: [
-                TextFormField(
+          Center(
+            child: SizedBox(
+                width: 350,
+                child: TextFormField(
                   decoration: const InputDecoration(
                     icon: Padding(
                       padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
-                      child: Icon(Icons.calendar_month),
+                      child: Icon(Icons.mail_outline),
                     ),
-                    hintText: 'What your Birthday?',
-                    labelText: 'BIRTHDAY',
+                    hintText: 'Give it a Email!',
+                    labelText: 'EMAIL',
                   ),
-                  initialValue: _singleDatePickerValueWithDefaultValue.toString(),
                   onSaved: (String? value) {
                     // This optional block of code can be used to run
                     // code when the user saves the form.
                   },
-
                   validator: (String? value) {
                     return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
                   },
                 ),
-                Positioned(
-                  top: 25,
-                  right: 5,
-                  child: IconButton(
-                    icon: Icon(Icons.now_widgets_outlined),
-                    onPressed: (){
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) => Dialog(
-                              child: CalendarDatePicker2WithActionButtons(
-                                config: config,
-                                value: _singleDatePickerValueWithDefaultValue,
-                                onValueChanged: (dates) => setState(
-                                        () => _singleDatePickerValueWithDefaultValue = dates),
-                              )
-                          )
-                      );
+              ),
+          ),
+          SizedBox(height: 16,),
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Center(
+                child:SizedBox(
+                  width: 350,
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      icon: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
+                        child: Icon(Icons.lock_outline),
+                      ),
+                      hintText: 'Give it a password!',
+                      labelText: 'PASSWORD',
+                    ),
+                    initialValue: "**********",
+                    obscureText: see,
+                    onSaved: (String? value) {
+                      // This optional block of code can be used to run
+                      // code when the user saves the form.
+                      password = value.toString();
+                    },
+                    validator: (String? value) {
+                      return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
                     },
                   ),
                 ),
-              ],
-            )
+              ),
+              Positioned(
+                top: 15,
+                right: 20,
+                child: IconButton(
+                  icon: Icon(Icons.remove_red_eye_outlined),
+                  onPressed: (){
 
-          ),
-          SizedBox(height: 25,),
-          Container(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF81C784), // background
-                  foregroundColor: Colors.white, // foreground
+                  },
                 ),
-                onPressed: (){},
-                child: Text(
-                  'SIGU UP -->',
-                  style: TextStyle(
-                    color: Colors.white,
+              ),
+            ],
+          ),
+          SizedBox(height: 16,),
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Center(
+                child: SizedBox(
+                  width: 350,
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      icon: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
+                        child: Icon(Icons.lock_outline),
+                      ),
+                      hintText: 'Write Password Again!',
+                      labelText: 'COMFIRM PASSWORD',
+                    ),
+                    initialValue: "**********",
+                    obscureText: see2,
+                    onSaved: (String? value) {
+                      // This optional block of code can be used to run
+                      // code when the user saves the form.
+                      if (value.toString() != password){
+
+                      }
+                      else{
+
+                      }
+                    },
+                    validator: (String? value) {
+                      return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 15,
+                right: 20,
+                child: IconButton(
+                  icon: Icon(Icons.remove_red_eye_outlined),
+                  onPressed: (){
+
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 25,),
+          Center(
+            child: Container(
+              width: 330.0,
+              height: 100.0, // 這裡的高度設為100，以確保Padding有效果
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFA5D6A7), // 按鈕背景顏色
+                  ),
+                  onPressed: () {
+                    //Navigator.pushReplacementNamed(context, Routes.throughview);
+                  },
+                  child: Text(
+                    'Create an Account',
+                    style: TextStyle(
+                      color: Colors.white, // 將按鈕文字設為白色，以便與背景顏色對比
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          SizedBox(height: 40,),
+          SizedBox(height: 20,),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '有帳號了嗎?',
+                'Already have an Account!',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.greenAccent,
-                ),
-                child: Text(
-                  'LOG IN',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 15,
-                  ),
-                ),
-                onPressed: (){
-                  Navigator.pushReplacementNamed(context, Routes.loginview);
-                },
-              ),
+              GotoSignupOrLoginButton(message: 'Login').getButton(context, Routes.loginview),
             ],
-          ),
+          )
         ],
       ),
     );
   }
 }
-

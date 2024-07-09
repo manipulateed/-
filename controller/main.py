@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/login', methods=['POST'])
 def receive_data():
-    data = request.json
+    data = request.json #取得request到的json檔
     if data:
         print(f"Received data: {data}")
     else:

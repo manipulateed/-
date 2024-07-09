@@ -216,46 +216,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.0"
-  json_annotation:
-    dependency: transitive
-    description:
-      name: json_annotation
-      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.9.0"
-  leak_tracker:
-    dependency: transitive
-    description:
-      name: leak_tracker
-      sha256: "7f0df31977cb2c0b88585095d168e689669a2cc9b97c309665e3386f3e9d341a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.0.4"
-  leak_tracker_flutter_testing:
-    dependency: transitive
-    description:
-      name: leak_tracker_flutter_testing
-      sha256: "06e98f569d004c1315b991ded39924b21af84cf14cc94791b8aea337d25b57f8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.3"
-  leak_tracker_testing:
-    dependency: transitive
-    description:
-      name: leak_tracker_testing
-      sha256: "6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
-  linkify:
-    dependency: transitive
-    description:
-      name: linkify
-      sha256: "4139ea77f4651ab9c315b577da2dd108d9aa0bd84b5d03d33323f1970c645832"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.0"
   lints:
     dependency: transitive
     description:
@@ -292,26 +252,10 @@ packages:
     dependency: transitive
     description:
       name: path
-      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
+      sha256: "8829d8a55c13fc0e37127c29fedf290c102f4e40ae94ada574091fe0ff96c917"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.0"
-  path_drawing:
-    dependency: transitive
-    description:
-      name: path_drawing
-      sha256: "3bdd251dae9ffaef944450b73f168610db7e968e7b20daf0c3907f8b4aafc8a2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.1+1"
-  path_parsing:
-    dependency: transitive
-    description:
-      name: path_parsing
-      sha256: ee5c47c1058ad66b4a41746ec3996af9593d0858872807bcd64ac118f0700337
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
+    version: "1.8.3"
   path_provider_linux:
     dependency: transitive
     description:
@@ -573,22 +517,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  visibility_detector:
-    dependency: transitive
-    description:
-      name: visibility_detector
-      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.0+2"
-  vm_service:
-    dependency: transitive
-    description:
-      name: vm_service
-      sha256: "3923c89304b715fb1eb6423f017651664a03bf5f4b29983627c4da791f74a4ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "14.2.1"
   web:
     dependency: transitive
     description:
@@ -622,5 +550,5 @@ packages:
     source: hosted
     version: "5.4.1"
 sdks:
-  dart: ">=3.4.0 <4.0.0"
-  flutter: ">=3.22.0"
+  dart: ">=3.2.4 <4.0.0"
+  flutter: ">=3.16.6"

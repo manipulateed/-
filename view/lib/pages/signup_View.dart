@@ -176,8 +176,8 @@ class _SignupViewState extends State<SignupView> {
               padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF81C784), // background
-                  onPrimary: Colors.white, // foreground
+                  backgroundColor: Color(0xFF81C784), // background
+                  foregroundColor: Colors.white, // foreground
                 ),
                 onPressed: (){},
                 child: Text(
@@ -203,7 +203,7 @@ class _SignupViewState extends State<SignupView> {
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  primary: Colors.greenAccent,
+                  backgroundColor: Colors.greenAccent,
                 ),
                 child: Text(
                   'LOG IN',

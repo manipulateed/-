@@ -98,7 +98,7 @@ class _LoginViewState extends State<LoginView> {
                   right: 50,
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      primary: Colors.greenAccent,
+                      backgroundColor: Colors.greenAccent,
                     ),
                     child: Text(
                       'FORGET',
@@ -121,8 +121,8 @@ class _LoginViewState extends State<LoginView> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF81C784), // background
-                    onPrimary: Colors.white, // foreground
+                    backgroundColor: Color(0xFF81C784), // background
+                    foregroundColor: Colors.white, // foreground
                   ),
                   onPressed: (){
                     Login_SVS login = new Login_SVS(email: email, password: password);
@@ -151,7 +151,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 TextButton(
                   style: TextButton.styleFrom(
-                    primary: Colors.greenAccent,
+                    backgroundColor: Colors.greenAccent,
                   ),
                   child: Text(
                     'SIGN UP',

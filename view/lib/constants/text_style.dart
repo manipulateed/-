@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class UI_TextStyle{
@@ -21,5 +23,4 @@ class UI_TextStyle{
   static TextStyle AccountContext_TextStyle = TextStyle(
     fontSize: 20.0,
   );
-
 }

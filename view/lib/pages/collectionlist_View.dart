@@ -11,22 +11,23 @@ class CollectionListView extends StatefulWidget {
 }
 
 class _CollectionViewState extends State<CollectionListView> {
+  List<Map<String, List<String>>> collection_List = [
+    {'肩膀': ["放鬆動作", "重訓後舒緩"]},
+    {'手腕': ["三招解決", "手腕瑜珈"]}
+  ];
 
-  List<String> collection_List = ['大腿拉伸', '小腿拉伸'];
-
-  void getCollectionList() async{
-
+  void getCollectionList() async {
+    // 從伺服器獲取收藏清單的邏輯
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    void _updateCL(List<String> newList) {
+    void _updateCL(List<Map<String, List<String>>> newList) {
       setState(() {
         collection_List = newList;
       });
@@ -34,38 +35,42 @@ class _CollectionViewState extends State<CollectionListView> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.teal[50],
       appBar: AppBar(
         title: Center(
           child: Text(
             "我的收藏",
-            style: UI_TextStyle.Title_TextStyle
+            style: UI_TextStyle.Title_TextStyle,
           ),
         ),
+        backgroundColor: Colors.teal[50],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+      body: Stack(
         children: <Widget>[
-          SizedBox(
-            height: 700.0,
-            child:
-            Scrollbar(
-              child:ListView.builder(
-                  itemCount: collection_List.length,
-                  itemBuilder: (context, index) {
-                    CollectionListCard collectionListCard = CollectionListCard(name: collection_List[index]);
-                    return Padding(
-                      padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 0),
-                      child: collectionListCard.getCard()
-                    );
-                  }
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Expanded(
+                child: Scrollbar(
+                  child: ListView.builder(
+                    itemCount: collection_List.length,
+                    itemBuilder: (context, index) {
+                      CollectionListCard collectionListCard = CollectionListCard(context: collection_List[index]);
+                      return Padding(
+                        padding: EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
+                        child: collectionListCard.getCard(this.context),
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-          SizedBox(
-            height: 60.0,
-            width: 60.0,
-            child: AddCLButton(CL: collection_List, onUpdateCL: _updateCL).getButton(context)
+          Positioned(
+            bottom: 20.0,
+            right: MediaQuery.of(context).size.width / 2 - 25,
+            child: AddCLButton(CL: collection_List, onUpdateCL: _updateCL).getButton(context),
           ),
         ],
       ),

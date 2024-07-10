@@ -5,23 +5,22 @@ import 'package:quickalert/quickalert.dart';
 class AddCLButton {
   static String message = '';
 
-  List<String> CL = [];
-  dynamic Function(List<String>) onUpdateCL;
+  List<Map<String, List<String>>> CL = [];
+  dynamic Function(List<Map<String, List<String>>>) onUpdateCL;
 
   AddCLButton({
     required this.CL,
     required this.onUpdateCL,
   });
 
-  void _handlePressed(String newCL) {
+  void _handlePressed(Map<String, List<String>> newCL) {
     CL.add(newCL);
     onUpdateCL(CL);
   }
 
-  IconButton getButton(context){
-    return  IconButton(
-      style: UI_ButtonStyle.add_CL_ButtonStyle,
-      onPressed: () async{
+  FloatingActionButton getButton(context) {
+    return FloatingActionButton(
+      onPressed: () async {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.custom,
@@ -46,7 +45,7 @@ class AddCLButton {
               );
               return;
             }
-            if (CL.contains(message)) {
+            if (CL.any((element) => element.containsKey(message))) {
               await QuickAlert.show(
                 context: context,
                 type: QuickAlertType.warning,
@@ -57,18 +56,19 @@ class AddCLButton {
               );
               return;
             }
-            _handlePressed(message);
+            _handlePressed({message: []});
             Navigator.pop(context);
-            await Future.delayed(const Duration(milliseconds: 1000));
+            await Future.delayed(const Duration(milliseconds: 300));
             await QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
-              text: "Phone number '$message' has been saved!.",
+              text: "收藏清單 '$message' 已新增!",
             );
           },
         );
       },
-      icon: Icon(Icons.add),
+      child: Icon(Icons.add),
+      backgroundColor: Colors.green[100],
     );
   }
 }

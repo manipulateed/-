@@ -25,3 +25,4 @@ class Collection:
         return json.dumps(collection_data)
 
 
+# 應該不需要這個class

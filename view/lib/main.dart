@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:view/constants/route.dart';
 
 
@@ -13,6 +12,8 @@ Future<void> main() async {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     initialRoute: loginState == null ? Routes.baseview : Routes.loginview,
+
+
     routes: Routes.getRoutes(),
   ));
 }

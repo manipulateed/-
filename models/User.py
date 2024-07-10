@@ -34,6 +34,7 @@ class User:
         return json.dumps(user_data)
 
     #login
+    #######可註解
     @staticmethod
     def get_User_by_Email_and_Password(email, password):
         pass

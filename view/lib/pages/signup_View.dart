@@ -132,7 +132,20 @@ class _SignupViewState extends State<SignupView> {
                   icon: Icon(Icons.remove_red_eye_outlined),
                   onPressed: (){
 
+<<<<<<< HEAD
+          ),
+          SizedBox(height: 25,),
+          Container(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF81C784), // background
+                  foregroundColor: Colors.white, // foreground
+=======
                   },
+>>>>>>> 98aa717ca181f4c4f63b2d44ad764d67bec5f161
                 ),
               ),
             ],
@@ -220,7 +233,25 @@ class _SignupViewState extends State<SignupView> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
+<<<<<<< HEAD
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.greenAccent,
+                ),
+                child: Text(
+                  'LOG IN',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 15,
+                  ),
+                ),
+                onPressed: (){
+                  Navigator.pushReplacementNamed(context, Routes.loginview);
+                },
+              ),
+=======
               GotoSignupOrLoginButton(message: 'Login').getButton(context, Routes.loginview),
+>>>>>>> 98aa717ca181f4c4f63b2d44ad764d67bec5f161
             ],
           )
         ],

@@ -98,24 +98,9 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 Positioned(
                   top: 15,
-<<<<<<< HEAD
-                  right: 50,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.greenAccent,
-                    ),
-                    child: Text(
-                      'FORGET',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 15,
-                      ),
-                    ),
-=======
                   right: 20,
                   child: IconButton(
                     icon: Icon(Icons.remove_red_eye_outlined),
->>>>>>> 98aa717ca181f4c4f63b2d44ad764d67bec5f161
                     onPressed: (){
 
                     },
@@ -123,27 +108,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ],
             ),
-            SizedBox(height: 25,),
-<<<<<<< HEAD
-            Container(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF81C784), // background
-                    foregroundColor: Colors.white, // foreground
-                  ),
-                  onPressed: (){
-                    Login_SVS login = new Login_SVS(email: email, password: password);
-                    login.sendData();
-                    //Navigator.pushReplacementNamed(context, Routes.throughview);
-                  },
-                  child: Text(
-                    'LOGIN -->',
-                    style: TextStyle(
-                      color: Colors.white,
-=======
+            SizedBox(height: 25,)
             Center(
               child: Container(
                 width: 330.0,
@@ -165,7 +130,6 @@ class _LoginViewState extends State<LoginView> {
                         color: Colors.white, // 將按鈕文字設為白色，以便與背景顏色對比
                         fontSize: 18,
                       ),
->>>>>>> 98aa717ca181f4c4f63b2d44ad764d67bec5f161
                     ),
                   ),
                 ),
@@ -182,27 +146,7 @@ class _LoginViewState extends State<LoginView> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-<<<<<<< HEAD
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                  ),
-                  child: Text(
-                    'SIGN UP',
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontSize: 15,
-                    ),
-                  ),
-                  onPressed: (){
-                    Login_SVS login = new Login_SVS(email: email, password: password);
-                    login.sendData();
-                    //Navigator.pushReplacementNamed(context, Routes.signupView);
-                  },
-                ),
-=======
                 GotoSignupOrLoginButton(message: 'Sign up').getButton(context, Routes.signupView),
->>>>>>> 98aa717ca181f4c4f63b2d44ad764d67bec5f161
               ],
             )
           ],

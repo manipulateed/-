@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from models.MongoDBMgr import MongoDBMgr 
-from models.Chat_Record_Helper import Chat_Record_Helper  
+from models.Collect_List_Helper import Collect_List_Helper  
 from models.Collect_List import Collect_List
 
 app = Flask(__name__)
@@ -8,7 +8,7 @@ app = Flask(__name__)
 mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
 db_name = "酸通"
 mongo_mgr = MongoDBMgr(db_name,mongo_uri)
-cl_helper = Chat_Record_Helper(mongo_mgr)
+cl_helper = Collect_List_Helper(mongo_mgr)
 
 @app.route('/Collect_List_Controller/get_CL', methods=['GET'])
 def get_All_CL_by_UserId():
@@ -16,8 +16,8 @@ def get_All_CL_by_UserId():
     data = request.json
     if data:
         user_id = data.get('user_id')
-        cl_helper.get_All_CL_by_UserId(user_id)
-        return jsonify(success=True, user_id=user_id), 200
+        return_data = cl_helper.get_All_CL_by_UserId(user_id)
+        return jsonify(success=True, user_id=user_id , response = return_data), 200
     else:
         return jsonify(success=False, message="No data received"), 400
 
@@ -27,8 +27,8 @@ def get_CL_by_UserId_and_Name():
     if data:
         user_id = data.get('user_id')
         name = data.get('name')
-        cl_helper.get_CL_by_UserId_and_Name(user_id,name)
-        return jsonify(success=True, user_id=user_id, name=name), 200
+        return_data = cl_helper.get_CL_by_UserId_and_Name(user_id,name)
+        return jsonify(success=True, response = return_data), 200
     else:
         return jsonify(success=False, message="No data received"), 400
 
@@ -57,7 +57,8 @@ def update_CL_data():
         cl_id = data.get('cl_id')
         type = data.get('type')
         new_value = data.get('new_value')
-        cl_helper.update_CL_data(cl_id,type,new_value)
+        return_data = cl_helper.update_CL_data(cl_id,type,new_value)
+        return jsonify(success=True, response = return_data), 200
     else:
         return jsonify(success=False, message="No data received"), 400
 

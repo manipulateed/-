@@ -25,7 +25,9 @@ class Collect_List_Helper:
         elif type == 'remove_video':
             collection.update_one({'_id': cl_id}, {'$pull': {'Collect_Video': ObjectId(new_value)}})
         else:
-            print("Invalid field_name")
+            return {"success": False, "message": "invalid field name"}
+
+        return {"success": True, "message": "修改成功"}
         
 
     def remove_CL(self, cl_id):

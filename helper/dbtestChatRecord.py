@@ -1,5 +1,7 @@
 from MongoDBMgr import MongoDBMgr
-from helper.Chat_Record_Helper import Chat_Record
+import sys
+sys.path.insert(0,'/C:/Users/e2002/Desktop/畢業專題/bigproject/')
+from models.Chat_Record import Chat_Record
 
 uri = "mongodb+srv://evan:evan1204@sourpass88.8nozy6p.mongodb.net/"
 db_name = "酸通"
@@ -20,15 +22,15 @@ result = chat_record.save_to_db(mongo_mgr)
 print(result)
 
 # 更新 Message
-new_message = [
-    {"Role": "User", "Content": "我現在感覺好一些了", "Date": "2024-05-04", "Time": "10:00"},
-    {"Role": "AI", "Content": "很好！記得保持適當休息", "Date": "2024-05-04", "Time": "10:05"}
-]
-update_result = chat_record.update_message(mongo_mgr, new_message)
+# new_message = [
+#     {"Role": "User", "Content": "我現在感覺好一些了", "Date": "2024-05-04", "Time": "10:00"},
+#     {"Role": "AI", "Content": "很好！記得保持適當休息", "Date": "2024-05-04", "Time": "10:05"}
+# ]
+# update_result = chat_record.update_message(mongo_mgr, new_message)
 '''
 update_result = chat_record.update_message(mongo_mgr, {"Role": "User", "Content": "我現在感覺好一些了", "Date": "2024-05-04", "Time": "10:00"})
 
 update_result = chat_record.update_message(mongo_mgr, {"Role": "AI", "Content": "很好！記得保持適當休息", "Date": "2024-05-04", "Time": "10:05"})
 '''
 
-print(update_result)
+# print(update_result)

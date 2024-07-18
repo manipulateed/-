@@ -1,10 +1,10 @@
 import json
 class Muscle:
-    def __init__(self, id, name, describe, sour_reason):
+    def __init__(self, id, name, category, description):
         self.id = id
         self.name = name
-        self.describe = describe
-        self.sour_reason = sour_reason
+        self.category = category
+        self.description = description
       
     @staticmethod  
     def get_All_Muscle_by_AreaId(area_id):
@@ -15,8 +15,8 @@ class Muscle:
         muscle_data = {
             "id": self.id,
             "name": self.name,
-            "describe": self.describe,
-            "sour_reanson": self.sour_reason
+            "category": self.category,
+            "description": self.description
         }
         return json.dumps(muscle_data)
 

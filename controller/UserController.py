@@ -1,15 +1,16 @@
 from flask import Flask, request, jsonify
-from bson import ObjectId
-from pymongo import MongoClient
-from helper.User_Helper import UserHelper
+from models.MongoDBMgr import MongoDBMgr 
 from models.User import User
+from bigproject.helper.User_Helper import User_Helper
+from bson import ObjectId
+app
 
 app = Flask(__name__)
 
-# 假設你已經配置好MongoDB的連接
-client = MongoClient('mongodb://localhost:27017/')
-db_mgr = client['your_database_name']
-user_helper = UserHelper(db_mgr)
+mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
+db_name = "酸通"
+mongo_mgr = MongoDBMgr(db_name,mongo_uri)
+user_helper = User_Helper(mongo_mgr)
 
 @app.route('/api/user', methods=['POST'])
 def create_user():
@@ -35,7 +36,7 @@ def get_user():
     if not email or not password:
         return jsonify(status = '300', success=False, message='缺少必要的參數(email or password)')
 
-    user = UserHelper.get_user_by_email_and_password(db_mgr, email, password)
+    user = User_Helper.get_user_by_email_and_password(email, password)
     if user:
         user_data = {
             'id': str(user.get_id()),
@@ -57,7 +58,7 @@ def update_user(user_id):
     if not field_name or not new_value:
         return jsonify(success=False, message='欄位名稱和新值不能為空')
 
-    user = UserHelper.get_user_by_email_and_password(db_mgr, data.get('email'), data.get('password'))
+    user = UserHelper.get_user_by_email_and_password(data.get('email'), data.get('password'))
     if user and str(user.get_id()) == user_id:
         if field_name == 'Name':
             result = user.update_name(user_helper, new_value)

@@ -1,21 +1,39 @@
 import json
 class Video:
-    def __init__(self, id, name, url):
+    def __init__(self, id, title, description, url):
         self.id = id
-        self.name = name
+        self.description = description
+        self.title = title
         self.url = url
 
     def set_id(self, id):
         self.id = id
-    def set_name(self, name):
-        self.name = name
+    def set_title(self, title):
+        self.title = title
+    def set_description(self, description):
+        self.description = description
+    def set_url(self, url):
+        self.url = url
 
     def get_id(self):
         return self.id
-    def get_name(self):
-        return self.name
+    def get_title(self):
+        return self.title
+    def get_description(self):
+        return self.description
+    def get_url(self):
+        return self.url
     
-    #helper    
+    def get_video_data(self):
+        video_data = {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "url": self.url
+        }
+        return json.dumps(video_data)
+    '''
+    #helper
     def create_Video(self):
         pass
 
@@ -27,20 +45,14 @@ class Video:
     def get_All():
         pass
 
-    def get_video_data(self):
-        video_data = {
-            "id": self.id,
-            "name": self.name,
-            "url": self.url
-        }
-        return json.dumps(video_data)
     
     def get_video_data_dict(self):
         video_data = {
             "id": self.id,
-            "name": self.name,
+            "title": self.title,
             "url": self.url
         }
         return video_data
+        '''
 
 

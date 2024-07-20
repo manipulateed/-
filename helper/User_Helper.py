@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from bigproject.models.User import User
 
-class UserHelper:
+class User_Helper:
     def __init__(self, mongo_uri, db_name):
         self.client = MongoClient(mongo_uri)
         self.db = self.client[db_name]
@@ -49,7 +49,6 @@ class UserHelper:
                 password=user_data['Password'],
                 sex=user_data['Sex']
             )
-            user.set_id(user_data['_id'])
             return user
         else:
             return None

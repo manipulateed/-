@@ -131,7 +131,6 @@ class _SignupViewState extends State<SignupView> {
                 child: IconButton(
                   icon: Icon(Icons.remove_red_eye_outlined),
                   onPressed: (){
-
                   },
                 ),
               ),

@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+import sys
+sys.path.append(r'..')
 from models.MongoDBMgr import MongoDBMgr
 from models.Sour_Record_Helper import Sour_Record_Helper
 from models.Sour_Record import Sour_Record

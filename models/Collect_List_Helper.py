@@ -49,7 +49,7 @@ class Collect_List_Helper:
                 name=cl_data['Name'],
                 collection=cl_data['Collect_Video']
             )
-            cl_list.append(cl)
+            cl_list.append(cl.get_CL_data())
         return cl_list
     
     def get_CL_by_UserId_and_Name(self, user_id, name):

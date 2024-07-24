@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:view/widgets/card/collection_Card.dart';
 import 'package:view/widgets/button/add_CL_Button.dart';
 import 'package:view/constants/text_style.dart';
+import 'package:view/services/CollectionList_svs.dart';
 
+import 'package:view/models/CL.dart';
 class CollectionListView extends StatefulWidget {
   const CollectionListView({super.key});
 
@@ -18,11 +20,15 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void getCollectionList() async {
     // 從伺服器獲取收藏清單的邏輯
+    List<CollectList> CL = [];
+    CollectionList_SVS service = new CollectionList_SVS(CL:CL);
+    await service.getAllCL();
   }
 
   @override
   void initState() {
     super.initState();
+
   }
 
   @override
@@ -32,10 +38,10 @@ class _CollectionViewState extends State<CollectionListView> {
         collection_List = newList;
       });
     }
-
+    getCollectionList();
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.teal[50],
+      backgroundColor: Color.fromRGBO(250, 255, 251, 1),
       appBar: AppBar(
         title: Center(
           child: Text(
@@ -43,7 +49,7 @@ class _CollectionViewState extends State<CollectionListView> {
             style: UI_TextStyle.Title_TextStyle,
           ),
         ),
-        backgroundColor: Colors.teal[50],
+        backgroundColor: Color.fromRGBO(250, 255, 251, 1),
       ),
       body: Stack(
         children: <Widget>[

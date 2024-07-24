@@ -8,7 +8,7 @@ class Login_SVS{
   Login_SVS({required this.email, required this.password});
 
   Future<void> sendData() async {
-    final url = Uri.parse('http://192.168.0.133:8080/login');
+    final url = Uri.parse('http://172.20.10.3:8080/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

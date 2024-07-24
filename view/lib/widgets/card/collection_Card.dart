@@ -9,7 +9,7 @@ class CollectionListCard {
 
   Card getCard(context) {
     return Card(
-      color: Colors.teal[50],
+      color: Color.fromRGBO(250, 255, 251, 1),
       shape: RoundedRectangleBorder(
           side: BorderSide(
             // border color
@@ -58,7 +58,7 @@ class CollectionListCard {
                     height: 40,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(60)),
-                      color: Colors.teal[100],
+                      color: Color.fromRGBO(233, 245, 239, 1),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -71,8 +71,11 @@ class CollectionListCard {
                           ),
                         ),
                         IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.restore_from_trash)),
+                          onPressed: () {},
+                          icon: Icon(
+                              Icons.restore_from_trash),
+                              color: Color.fromRGBO(56, 107, 79 , 1),
+                        ),
                       ],
                     ),
                   ),

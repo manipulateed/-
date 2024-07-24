@@ -108,7 +108,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ],
             ),
-            SizedBox(height: 25,)
+            SizedBox(height: 25,),
             Center(
               child: Container(
                 width: 330.0,

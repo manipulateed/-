@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:view/pages/chat_View.dart';
 import 'package:view/pages/base_View.dart';
+import 'package:view/pages/chatroom_View.dart';
 import 'package:view/pages/home_View.dart';
+import 'package:view/pages/muscle_area_View.dart';
 import 'package:view/pages/through_View.dart';
 import 'package:view/pages/login_View.dart';
 import 'package:view/pages/signup_View.dart';
@@ -23,9 +25,10 @@ class Routes {
   static const String accountView = '/accountview';
   static const String calendarView = '/calendarview';
   static const String eventView = '/eventview';
-  static const List pages = [HomeView(),HomeView(),HomeView(),HomeView()];
   static const String collectView = '/collectview';
-  static const List pages = [HomeView(),CollectionListView(),HomeView(),HomeView(), AccountView()];
+  static const String muscle_areaView = '/muscleareaview';
+  static const String chatroomView = '/chatroomview';
+  static const List pages = [MuscleAreaView(),CollectionListView(),ChatroomView(),CalendarView(), AccountView()];
 
 
   static Map<String, WidgetBuilder> getRoutes() {
@@ -40,6 +43,8 @@ class Routes {
       calendarView: (context) => CalendarView(),
       //eventView: (context) => EventView(),
       collectView: (context)=> CollectionView(),
+      muscle_areaView: (context)=> MuscleAreaView(),
+      chatroomView: (context) => ChatroomView()
     };
   }
 }

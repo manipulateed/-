@@ -1,6 +1,7 @@
 from MongoDBMgr import MongoDBMgr
 import sys
-sys.path.insert(0,'/C:/Users/e2002/Desktop/畢業專題/bigproject/')
+#sys.path.insert(0,'/C:/Users/e2002/Desktop/畢業專題/bigproject/')
+sys.path.append(r'..')
 from models.Chat_Record import Chat_Record
 
 uri = "mongodb+srv://evan:evan1204@sourpass88.8nozy6p.mongodb.net/"

@@ -11,14 +11,33 @@ class Chat_Record_Helper:
     
     def save_to_db(self, chat_record):
         chat_collection = self.get_collection('Chat_Record')
-        chat_collection.insert_one({
+    
+        # 處理 Suggested_Videos
+        suggested_videos = []
+        for video in chat_record.suggested_videos:
+            suggested_video = {
+                "Keyword": video["Keyword"],
+                "Video_id": [ObjectId(vid) for vid in video["Video_id"]]
+            }
+        suggested_videos.append(suggested_video)
+
+        # 創建要插入的文檔
+        document = {
             "User_Id": ObjectId(chat_record.user_id),
+            "Name": chat_record.name,
             "Message": chat_record.message,
-            "Suggested_Video_Id": [ObjectId(vid) for vid in chat_record.suggested_video_ids],
-            "Possible_Reasons": chat_record.possible_reasons,
-            "Last_Update_TimeStamp": chat_record.timestamp
-        })
-        return {"success": True, "message": "聊天紀錄已成功存入資料庫"}
+            "Suggested_Videos": suggested_videos,
+            "Last_Update_TimeStamp": chat_record.timestamp,
+            "Finished": chat_record.finished
+        }
+
+        # 插入文檔
+        result = chat_collection.insert_one(document)
+
+        if result.inserted_id:
+            return {"success": True, "message": "聊天紀錄已成功存入資料庫", "id": str(result.inserted_id)}
+        else:
+            return {"success": False, "message": "存入資料庫時發生錯誤"}
       
     def update_message(self, chat_record, new_message):
         chat_record.update_message(new_message)

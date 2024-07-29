@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:view/constants/route.dart';
+import 'package:view/services/user_svs.dart';
+import 'package:view/models/User.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:view/widgets/button/goto_Signup_or_Login.dart';
 
@@ -11,6 +13,12 @@ class SignupView extends StatefulWidget {
 }
 
 class _SignupViewState extends State<SignupView> {
+
+  User user = User(
+    name:'',
+    email: '452',
+    password: '2424',
+  );
   List<DateTime?> _singleDatePickerValueWithDefaultValue = [
     DateTime.now().add(const Duration(days: 1)),
   ];
@@ -66,6 +74,7 @@ class _SignupViewState extends State<SignupView> {
                 onSaved: (String? value) {
                   // This optional block of code can be used to run
                   // code when the user saves the form.
+                  user.name = value.toString();
                 },
                 validator: (String? value) {
                   return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
@@ -89,6 +98,7 @@ class _SignupViewState extends State<SignupView> {
                   onSaved: (String? value) {
                     // This optional block of code can be used to run
                     // code when the user saves the form.
+                    user.email = value.toString();
                   },
                   validator: (String? value) {
                     return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
@@ -195,6 +205,9 @@ class _SignupViewState extends State<SignupView> {
                     backgroundColor: Color(0xFFA5D6A7), // 按鈕背景顏色
                   ),
                   onPressed: () {
+
+                    User_SVS userService = new User_SVS(user: user);
+                    userService.createUser();
                     //Navigator.pushReplacementNamed(context, Routes.throughview);
                   },
                   child: Text(

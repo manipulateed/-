@@ -13,6 +13,8 @@ import 'package:view/pages/account_View.dart';
 import 'package:view/pages/calendar_View.dart';
 import 'package:view/pages/event_View.dart';
 import 'package:view/pages/collection_View.dart';
+import 'package:view/pages/video_View.dart';
+
 
 class Routes {
 
@@ -28,6 +30,7 @@ class Routes {
   static const String collectView = '/collectview';
   static const String muscle_areaView = '/muscleareaview';
   static const String chatroomView = '/chatroomview';
+  static const String videoView = '/videoview';
   static const List pages = [MuscleAreaView(),CollectionListView(),ChatroomView(),CalendarView(), AccountView()];
 
 
@@ -44,7 +47,10 @@ class Routes {
       //eventView: (context) => EventView(),
       collectView: (context)=> CollectionView(),
       muscle_areaView: (context)=> MuscleAreaView(),
-      chatroomView: (context) => ChatroomView()
+      chatroomView: (context) => ChatroomView(),
+      videoView: (context) => VideoView()
+
+
     };
   }
 }

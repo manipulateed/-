@@ -42,6 +42,7 @@ class _SearchViewState extends State<SearchView> {
     }
 
     //加入id 這裡要改成 for(將time、reason、id加入陣列裡)
+    //這裡的toLowercase是將英文轉成小寫
     final results = <MapEntry<DateTime, String, String>>[];
     widget.events.forEach((date, events) {
       for (var record in SR) {

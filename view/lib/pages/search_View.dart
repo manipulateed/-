@@ -5,8 +5,9 @@ import 'package:flutter/painting.dart';
 import 'event_view.dart'; // 导入 EventView 组件
 
 class SearchView extends StatefulWidget {
-  final Map<DateTime, List<String>> events;
-
+  //final Map<DateTime, List<String>> events;
+  final List<SourRecord> evnets;
+  
   const SearchView({Key? key, required this.events}) : super(key: key);
 
   @override
@@ -15,7 +16,8 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   TextEditingController _searchController = TextEditingController();
-  List<MapEntry<DateTime, String>> _searchResults = [];
+  //將time、reason、id 加入 search result
+  List<MapEntry<DateTime, String, String>> _searchResults = [];
 
   @override
   void initState() {
@@ -39,9 +41,10 @@ class _SearchViewState extends State<SearchView> {
       return;
     }
 
-    final results = <MapEntry<DateTime, String>>[];
+    //加入id 這裡要改成 for(將time、reason、id加入陣列裡)
+    final results = <MapEntry<DateTime, String, String>>[];
     widget.events.forEach((date, events) {
-      for (var event in events) {
+      for (var record in SR) {
         if (event.toLowerCase().contains(query)) {
           results.add(MapEntry(date, event));
         }
@@ -53,13 +56,14 @@ class _SearchViewState extends State<SearchView> {
     });
   }
 
-
-  void _navigateToEventView(DateTime date, String event) {
+  //透過id進到event_view
+  void _navigateToEventView(String id) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventView(
-          selectedDay: date,
+          //selectedDay: date,
+          //event這裡要改
           events: widget.events[date]!,
         ),
       ),

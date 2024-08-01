@@ -28,10 +28,10 @@ helper = UserHelper(mongo_mgr)
 
 #----------------------------------------------------
 #get user by email & password
-email = "123@gmail"
-password = "123456789111"
-get_by_EP_result = helper.get_user_by_email_and_password(email,password)
-print(get_by_EP_result)
+# email = "123@gmail"
+# password = "123456789111"
+# get_by_EP_result = helper.get_user_by_email_and_password(email,password)
+# print(get_by_EP_result)
 
 
 

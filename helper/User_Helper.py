@@ -1,11 +1,10 @@
 from pymongo import MongoClient
 from bson import ObjectId
-from bigproject.models.User import User
+from models.User import User
 
 class User_Helper:
-    def __init__(self, mongo_uri, db_name):
-        self.client = MongoClient(mongo_uri)
-        self.db = self.client[db_name]
+    def __init__(self, db_mgr):
+        self.db_mgr = db_mgr
 
     def get_collection(self, collection_name):
         return self.db[collection_name]

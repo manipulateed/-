@@ -1,12 +1,12 @@
 import json
+import sys
+sys.path.append(r'..')
 
 class User:
-    def __init__(self, name, email, birth, password, sex):
+    def __init__(self, name, email, password):
         self.name = name
         self.email = email
-        self.birth = birth
         self.password = password
-        self.sex = sex
         self.id = None
     
     def set_id(self, id):
@@ -28,8 +28,6 @@ class User:
             "name": self.name,
             "email": self.email,
             "password": self.password,
-            "birthday": self.birth,
-            "sex": self.sex
         }
         return json.dumps(user_data)
 

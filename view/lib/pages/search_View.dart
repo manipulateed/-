@@ -47,6 +47,7 @@ class _SearchViewState extends State<SearchView> {
     widget.events.forEach((date, events) {
       for (var record in SR) {
         if (event.toLowerCase().contains(query)) {
+          //這裡要改
           results.add(MapEntry(date, event));
         }
       }

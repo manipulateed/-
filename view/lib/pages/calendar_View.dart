@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:view/services/Sour_Record_svs.dart';
 import 'event_view.dart';
-import 'search_View.dart'; // Import the new SearchView
+import 'search_View.dart';
+import 'package:view/models/Sour_Record.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({Key? key}) : super(key: key);
@@ -16,8 +18,40 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   TextEditingController _eventController = TextEditingController();
-  Map<DateTime, List<String>> _events = {};
+  String user_id = '';
+  String record_id='';
+
+  List<SourRecord> _event = [];
+
   bool _showEvents = true;
+  List<SourRecord> SR = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getAllSR();
+  }
+
+  void getAllSR() async {
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.getAllSR();
+    setState(() {
+      SR = service.SR;
+      _event = SR;
+      print('Events: $_event');
+    });
+
+    for(var record in _event){
+      user_id = '${record.userId}';
+    }
+  }
+
+  List<SourRecord> _getEventsForDay(DateTime day) {
+    return _event.where((record) {
+      DateTime recordDate = DateTime(record.time.year, record.time.month, record.time.day);
+      return isSameDay(recordDate, day);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +70,12 @@ class _CalendarViewState extends State<CalendarView> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SearchView(events: _events),
+                  builder: (context) => SearchView(user_id: user_id),
                 ),
               );
             }, // 設置按下按鈕時執行的函數
           ),
-
+          //新增日記
           IconButton(onPressed: _showAddEventDialog, icon: Icon(Icons.add))
         ],
       ),
@@ -59,21 +93,12 @@ class _CalendarViewState extends State<CalendarView> {
                 return isSameDay(_selectedDay, day);
               },
               onDaySelected: (selectedDay, focusedDay) {
-                if (selectedDay.year == focusedDay.year && selectedDay.month == focusedDay.month) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                    _showEvents = true;
-                  });
-                } else {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                    _showEvents = false;
-                  });
-                }
+                setState(() {
+                  _selectedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+                  _focusedDay = focusedDay;
+                  _showEvents = true;
+                });
               },
-
               onFormatChanged: (format) {
                 if (_calendarFormat != format) {
                   setState(() {
@@ -83,13 +108,13 @@ class _CalendarViewState extends State<CalendarView> {
               },
               onPageChanged: (focusedDay) {
                 _focusedDay = focusedDay;
-                _selectedDay = _selectedDay;
                 setState(() {
                   _showEvents = false;
                 });
               },
               eventLoader: (day) {
-                return _events[day] ?? [];
+                print('Loading events for day: $day');
+                return _getEventsForDay(day);
               },
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
@@ -122,45 +147,48 @@ class _CalendarViewState extends State<CalendarView> {
               ),
             ),
             SizedBox(height: 20),
-            if (_selectedDay != null ) ...[
-              SizedBox(height: 20),
-              InkWell(
-                onTap: () {
-                  if (_events[_selectedDay] != null && _events[_selectedDay]!.isNotEmpty) {
-                    _navigateToEventView();
-                  }
-                },
-                  child:
-                  _events[_selectedDay] != null && _events[_selectedDay]!.isNotEmpty && _showEvents
+            if (_selectedDay != null)
+              ...[
+                SizedBox(height: 20),
+                InkWell(
+                  child: _getEventsForDay(_selectedDay!).isNotEmpty && _showEvents
                       ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _events[_selectedDay]!.map((event) {
-                      return Card(
-                        color: Colors.green[50],
-                        shadowColor: Colors.white,
-                        margin: EdgeInsets.all(15),
-                        child: ListTile(
-                          title: Text(event),
+                    children: _getEventsForDay(_selectedDay!).map((event) {
+                      return GestureDetector(
+                        onTap: () {
+                          // 使用 event.id
+                          _navigateToEventView(event.id);
+                        },
+                        child: Card(
+                          color: Colors.green[50],
+                          shadowColor: Colors.white,
+                          margin: EdgeInsets.all(15),
+                          child: ListTile(
+                            title: Text(event.reason),
+                          ),
                         ),
                       );
                     }).toList(),
                   )
                       : SizedBox.shrink(),
                 ),
-
-            ],
+              ],
           ],
         ),
       ),
     );
   }
 
+  //新增紀錄
   void _showAddEventDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Event for ${DateFormat('yyyy-MM-dd').format(_selectedDay!)}'),
+          title: Text('${DateFormat('yyyy-MM-dd').format(_selectedDay!)}',
+          textAlign: TextAlign.center,
+          ),
           content: TextField(
             controller: _eventController,
             decoration: InputDecoration(labelText: 'Event'),
@@ -173,13 +201,33 @@ class _CalendarViewState extends State<CalendarView> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  _events.putIfAbsent(_selectedDay!, () => []).add(_eventController.text);
-                  _eventController.clear();
-                });
-                Navigator.pop(context);
-              },
+               onPressed: () {
+                 createSR(user_id, _eventController.text, _selectedDay!);
+                 Navigator.pop(context);
+                 setState(() {
+                   final newRecord = SourRecord(id:'', userId: user_id, videos: '', title: '', reason:_eventController.text , time: _selectedDay!);
+                   _event.add(newRecord);
+                   _eventController.clear();
+                 });
+
+                 //getAllSR();
+               },
+              //{
+              //   setState(() {
+              //     final newRecord = SourRecord(
+              //       id: 'new_id',
+              //       userId: user_id,
+              //       videos: '',
+              //       title: '',
+              //       reason: _eventController.text,
+              //       time: _selectedDay!,
+              //     );
+              //     _event.add(newRecord);
+              //     _eventController.clear();
+              //   });
+              //   Navigator.pop(context);
+              //   createSR(user_id, _eventController.text, _selectedDay!);
+              // },
               child: Text('Save'),
             ),
           ],
@@ -187,22 +235,27 @@ class _CalendarViewState extends State<CalendarView> {
       },
     );
   }
+  
+  void createSR(String user_id, String reason, DateTime time) async{
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.createSR(user_id, reason, "2024");
+  }
 
-  void _navigateToEventView() async {
+  void _navigateToEventView(String id) async {
+    //final events = _getEventsForDay(_selectedDay!);
     final updatedEvents = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventView(
-          selectedDay: _selectedDay!,
-          events: _events[_selectedDay!]!,
+          //events: events,
+          record_id: id,
         ),
       ),
     );
 
-
-  if (updatedEvents != null) {
+    if (updatedEvents != null) {
       setState(() {
-        _events[_selectedDay!] = updatedEvents;
+        _event = updatedEvents;
       });
     }
   }

@@ -1,11 +1,13 @@
 from bson import ObjectId
 import sys
 sys.path.append(r'..')
-from User import User 
+#from User import User
+import logging 
 
 class UserHelper:
     def __init__(self, db_mgr):
         self.db_mgr = db_mgr
+        self.logger = logging.getLogger(__name__)
 
     # def get_collection(self, collection_name):
     #     """獲取指定名稱的集合"""
@@ -38,17 +40,21 @@ class UserHelper:
 
     def get_user_by_email_and_password(self, email, password):
         users_collection = self.db_mgr.get_collection('User')
+        self.logger.info(f"Attempting to find user with email: {email}")
         user_data = users_collection.find_one({"Email": email, "Password": password})
         if user_data:
+            self.logger.info(f"User found: {user_data}")
             return {
                 "success": True,
                 "message": "取得成功",
                 "email": user_data['Email'],
+                "name": user_data['Name'],
                 "password": user_data['Password']
             }
         else:
+            self.logger.warning(f"User not found for email: {email}")
             return {
                 "success": False,
                 "message": "用戶不存在或密碼錯誤"
-        }
+            }
     # login

@@ -10,9 +10,53 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  String email = '452';
-  String password = '2424';
+  // String email = '452';
+  // String password = '2424';
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool see = true;
+
+  @override
+  void initState() { //初始值設定
+    super.initState();
+    _emailController.text = "123@gmail";  // 設置初始值（如果需要）
+    _passwordController.text = "123456789";  // 設置初始值（如果需要）
+  }
+
+  // 添加這個方法
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() async {
+    // String email = _emailController.text;
+    // String password = _passwordController.text;
+    // Login_SVS login = Login_SVS(email: email, password: password);
+    // login.sendData();
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    Login_SVS login = Login_SVS(email: email, password: password);
+    Map<String, dynamic> result = await login.sendData();
+
+    if (result['success']) {
+      // 登錄成功，導航到account.view.dart
+      Navigator.pushReplacementNamed(context, Routes.accountView);
+    } else {
+      // 登錄失敗，顯示錯誤消息
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message']),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +90,8 @@ class _LoginViewState extends State<LoginView> {
             Center(
                 child:SizedBox(
                   width: 350,
-                  child: TextFormField(
+                  child: TextField(
+                    controller: _emailController,
                     decoration: const InputDecoration(
                       icon: Padding(
                         padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
@@ -55,15 +100,15 @@ class _LoginViewState extends State<LoginView> {
                       hintText: 'Give it a Email!',
                       labelText: 'EMAIL',
                     ),
-                    initialValue: "demo@gamil.com",
-                    onSaved: (String? value) {
-                      // This optional block of code can be used to run
-                      // code when the user saves the form.
-                      email = value.toString();
-                    },
-                    validator: (String? value) {
-                      return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-                    },
+                    // initialValue: "demo@gamil.com",
+                    // onSaved: (String? value) {
+                    //   // This optional block of code can be used to run
+                    //   // code when the user saves the form.
+                    //   email = value.toString();
+                    //},
+                    // validator: (String? value) {
+                    //   return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
+                    // },
                   ),
                 ),
             ),
@@ -74,7 +119,8 @@ class _LoginViewState extends State<LoginView> {
                 Center(
                   child:SizedBox(
                   width: 350,
-                    child: TextFormField(
+                    child: TextField(
+                      controller: _passwordController,
                       decoration: const InputDecoration(
                         icon: Padding(
                           padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
@@ -83,16 +129,16 @@ class _LoginViewState extends State<LoginView> {
                         hintText: 'Give it a password!',
                         labelText: 'PASSWORD',
                       ),
-                      initialValue: "**********",
-                      obscureText: see,
-                      onSaved: (String? value) {
-                        // This optional block of code can be used to run
-                        // code when the user saves the form.
-                        password = value.toString();
-                      },
-                      validator: (String? value) {
-                        return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-                      },
+                      // initialValue: "**********",
+                      // obscureText: see,
+                      // onSaved: (String? value) {
+                      //   // This optional block of code can be used to run
+                      //   // code when the user saves the form.
+                      //   password = value.toString();
+                      // },
+                      // validator: (String? value) {
+                      //   return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
+                      // },
                     ),
                   ),
                 ),
@@ -119,11 +165,12 @@ class _LoginViewState extends State<LoginView> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFA5D6A7), // 按鈕背景顏色
                     ),
-                    onPressed: () {
-                      Login_SVS login = new Login_SVS(email: email, password: password);
-                      login.sendData();
-                      //Navigator.pushReplacementNamed(context, Routes.throughview);
-                    },
+                    // onPressed: () {
+                    //   Login_SVS login = new Login_SVS(email: email, password: password);
+                    //   login.sendData();
+                    //   //Navigator.pushReplacementNamed(context, Routes.throughview);
+                    // },
+                    onPressed: _handleLogin,
                     child: Text(
                       'Login',
                       style: TextStyle(
@@ -153,4 +200,29 @@ class _LoginViewState extends State<LoginView> {
         ),
     );
   }
+
+  // final TextEditingController _emailController = TextEditingController();
+  // final TextEditingController _passwordController = TextEditingController();
+  //
+  // Future<void> _login() async {
+  //   final loginService = Login_SVS(
+  //     email: _emailController.text,
+  //     password: _passwordController.text,
+  //   );
+  //
+  //   try {
+  //     final result = await loginService.login();
+  //     if (result['success']) {
+  //       Navigator.pushReplacementNamed(context, Routes.baseview);
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text(result['error'] ?? '登錄失敗')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('發生錯誤：$e')),
+  //     );
+  //   }
+  // }
 }

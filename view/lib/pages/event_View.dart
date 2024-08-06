@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:view/models/Sour_Record.dart';
+import 'package:view/services/Sour_Record_svs.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class EventView extends StatefulWidget {
-  final DateTime selectedDay;
-  final List<String> events;
+  //final List<SourRecord> events;
+  final String record_id ;
 
-  EventView({required this.selectedDay, required this.events});
+  EventView({required this.record_id});
 
   @override
   _EventViewState createState() => _EventViewState();
@@ -15,23 +18,59 @@ class EventView extends StatefulWidget {
 
 class _EventViewState extends State<EventView> {
   List<TextEditingController> _controllers = [];
+  List<SourRecord> _updatedEvents = [];
   bool _isEditing = false;
+  String day = '';
+  String reason='';
+  String title='';
+  String video='';
+  String id='';
 
   @override
   void initState() {
     super.initState();
-    widget.events.forEach((description) {
-      _controllers.add(TextEditingController(text: description));
-    });
+    getSR(widget.record_id);
   }
 
-  void _editEvent() {
+  List<SourRecord> SR = [];
+
+  //獲取單一痠痛內容
+  void getSR(id) async {
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.getSR(id);
     setState(() {
-      _isEditing = true;
+      SR = service.SR;
     });
+
+
+
+    for (var record in SR) {
+      day = '${record.time.year}-${record.time.month}-${record.time.day}';
+      reason = '${record.reason}';
+      title = '${record.title}';
+      video = '${record.videos}';
+      id = '${record.id}';
+
+      _controllers.add(TextEditingController(text: reason));
+
+      print(day+reason+title+video);
+    }
+
+    // _updatedEvents = widget.events.map((SR) {
+    //   _controllers.add(TextEditingController(text: reason));
+    //   return SourRecord(
+    //     id: SR.id,
+    //     userId: SR.userId,
+    //     videos: SR.videos,
+    //     title: SR.title,
+    //     reason: SR.reason,
+    //     time: SR.time,
+    //   );
+    // }).toList();
+
   }
 
-  void _saveEvent() {
+  void updateSR(String id,String new_value) async {
     bool isValid = true;
     for (var controller in _controllers) {
       if (controller.text.isEmpty) {
@@ -42,16 +81,16 @@ class _EventViewState extends State<EventView> {
     if (isValid) {
       setState(() {
         _isEditing = false;
-        // 更新事件描述列表
-        widget.events.clear();
-        widget.events.addAll(_controllers.map((controller) => controller.text));
       });
+      Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+      await service.updateSR(id,new_value);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Events saved successfully'),
           backgroundColor: Colors.green,
         ),
       );
+      //Navigator.pop(context, _updatedEvents);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -62,25 +101,23 @@ class _EventViewState extends State<EventView> {
     }
   }
 
-
-  void _deleteEvent() {
+  void _editEvent() {
     setState(() {
-      // 清空事件描述和控制器
-      widget.events.clear();
-      _controllers.clear();
+      _isEditing = true;
     });
-    // 返回上一頁並傳遞更新後的事件列表
-    Future.delayed(Duration.zero, () {
-      Navigator.pop(context, widget.events);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Events deleted successfully'),
-          backgroundColor: Colors.green,
-        ),
-    );
   }
 
+  void _deleteEvent(String id) async {
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.deleteSR(id);
+    Navigator.pop(context,);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Events deleted successfully'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
 
   void _confirmDelete(BuildContext context) {
     showDialog(
@@ -93,14 +130,14 @@ class _EventViewState extends State<EventView> {
             TextButton(
               child: Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(); // 关闭对话框
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text('Delete'),
               onPressed: () {
-                _deleteEvent();
-                Navigator.of(context).pop(); // 关闭对话框
+                _deleteEvent(id);
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -112,143 +149,127 @@ class _EventViewState extends State<EventView> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async {
-      // 在返回时执行保存操作
-      Navigator.pop(context, widget.events);
-      return true; // 允许返回
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        title: Text(
-          DateFormat('yyyy.MM.dd').format(widget.selectedDay),
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
-        ),
-        centerTitle: true,
-        actions: [
-          _isEditing?
-              IconButton(
-                  onPressed: _saveEvent,
-                  icon: Icon(Icons.save),
-                  tooltip: 'Save Event',
-              ):
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'edit') {
-                _editEvent();
-              } else if (value == 'delete') {
-                _confirmDelete(context);
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Text('編輯'),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Text('刪除',style: TextStyle(color: Colors.red),),
-                ),
-              ];
-            },
+      onWillPop: () async {
+        Navigator.pop(context,);
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            day,
+            //"Hello",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
           ),
-        ],
-      ),
-      body:Center(
-        child: Column(
-          //crossAxisAlignment: CrossAxisAlignment.start,
-          children:<Widget> [
-            SizedBox(height: 20,),
-            Text(
-              '痠痛原因',
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Color.fromRGBO(96, 178, 133, 1)),
+          centerTitle: true,
+          actions: [
+            _isEditing
+                ? IconButton(
+              onPressed: () => updateSR(id,"Hi"),
+              icon: Icon(Icons.save),
+              tooltip: 'Save Event',
+            )
+                : PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _editEvent();
+                } else if (value == 'delete') {
+                  _confirmDelete(context);
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Text('編輯'),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Text('刪除', style: TextStyle(color: Colors.red)),
+                  ),
+                ];
+              },
             ),
-            Column(
-              children: _controllers.map((controller) {
-                if (_isEditing) {
-                  return Column(
-                    children: _controllers.map((controller) {
-                      return Padding(
-                        padding: const EdgeInsets.all(30.0), // 设置左侧间距为20
-                        child: TextField(
-                          controller: controller,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            hintText: 'Enter rabbit number',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 20),
+              Text(
+                '痠痛原因',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
+              ),
+              Column(
+                children: _controllers.map((controller) {
+                  int index = _controllers.indexOf(controller);
+                  if (_isEditing) {
+                    return Padding(
+                      padding: const EdgeInsets.all(30.0),
+                      child: TextField(
+                        controller: controller,
+                        maxLines: null,
+                        decoration: InputDecoration(
+                          hintText: 'Enter reason',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  );
-                }
-                else{
+                      ),
+                    );
+                  } else {
                     return Container(
                       width: 400,
                       padding: EdgeInsets.fromLTRB(30.0, 16.0, 30.0, 16.0),
                       margin: EdgeInsets.symmetric(vertical: 30.0),
                       decoration: BoxDecoration(
-                        //color: Colors.green[100],
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        controller.text,
+                        reason,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20
-                        ),// 將文字置中
+                        style: TextStyle(fontSize: 20),
                       ),
                     );
                   }
-              }).toList(),
-            ),
+                }).toList(),
+              ),
 
-            Text(
-              '推薦影片',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Color.fromRGBO(96, 178, 133, 1)),
-            ),
 
-            Column(
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () async {
-                    String url = 'https://www.youtube.com/watch?v=XGRQMgQ0N-0&list=PL274L1n86T839P6Bqd3M2knHhLjU0wRMG&index=7';
-                    if (await canLaunchUrl(Uri.parse(url))) {
-                      await launchUrl(Uri.parse(url));
-                    }
-                    else {
-                      throw '無法打開 $url';
-                    }
-                  },
-                  child:
-                  Container(
-                    width: 200,
-                    padding: EdgeInsets.all(16.0),
-                    margin: EdgeInsets.symmetric(vertical: 30.0),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child:  Text(
-                      '這是一個超連結',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20
+              Text(
+                '推薦影片',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
+              ),
+              Column(
+                children: _controllers.map((controller) {
+                  return GestureDetector(
+                    onTap: () async {
+                      if (await canLaunchUrl(Uri.parse(video))) {
+                        await launchUrl(Uri.parse(video));
+                      } else {
+                        throw '無法打開 ${video}';
+                      }
+                    },
+                    child: Container(
+                      width: 200,
+                      padding: EdgeInsets.all(16.0),
+                      margin: EdgeInsets.symmetric(vertical: 30.0),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20),
                       ),
                     ),
-                  ),
-
-                ),
-              ],
-            )
-
-
-          ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 

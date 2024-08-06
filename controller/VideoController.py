@@ -35,7 +35,8 @@ def get_Video_by_VideoId():
     
 @app.route('/api/video/search_and_create', methods=['POST'])
 def search_and_create_videos():
-    data = request.json
+    data = request.args.get('data')
+    
     if not data or 'keyword' not in data:
         return jsonify({"success": False, "message": "缺少搜索關鍵詞"}), 400
     

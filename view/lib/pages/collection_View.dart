@@ -79,20 +79,23 @@ class _CollectionViewState extends State<CollectionView> {
               ],
             ),
             const SizedBox(height: 16.0),
-            Expanded(
-              child: ListView(
-                children: const [
-                  VideoEntry(
-                    title: '股四頭肌伸展',
-                    // imageUrl: 'https://img.youtube.com/vi/VIDEO_ID1/0.jpg',
-                    videoLength: '3:58',
-                  ),
-                  VideoEntry(
-                    title: '仰躺拉大腿後側',
-                    // imageUrl: 'https://img.youtube.com/vi/VIDEO_ID2/0.jpg',
-                    videoLength: '12:05',
-                  ),
-                ],
+            Container(
+              height: 200,
+              child: Expanded(
+                child: ListView(
+                  children: const [
+                    VideoEntry(
+                      title: '股四頭肌伸展',
+                      // imageUrl: 'https://img.youtube.com/vi/VIDEO_ID1/0.jpg',
+                      videoLength: '3:58',
+                    ),
+                    VideoEntry(
+                      title: '仰躺拉大腿後側',
+                      // imageUrl: 'https://img.youtube.com/vi/VIDEO_ID2/0.jpg',
+                      videoLength: '12:05',
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -3,11 +3,14 @@ import 'package:intl/intl.dart';
 import 'package:flutter/painting.dart';
 
 import 'event_view.dart'; // 导入 EventView 组件
+import 'package:view/services/Sour_Record_svs.dart';
+import 'package:view/models/Sour_Record.dart';
 
 class SearchView extends StatefulWidget {
-  final Map<DateTime, List<String>> events;
+  //final Map<DateTime, List<String>> events;
+  final String user_id;
 
-  const SearchView({Key? key, required this.events}) : super(key: key);
+  const SearchView({Key? key, required this.user_id}) : super(key: key);
 
   @override
   _SearchViewState createState() => _SearchViewState();
@@ -15,15 +18,28 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   TextEditingController _searchController = TextEditingController();
-  List<MapEntry<DateTime, String>> _searchResults = [];
+  //將time、reason、id 加入 search result
+  List<SourRecord> result = [];
+  List<SourRecord> _searchResults = [];
+  List<SourRecord> SR = [];
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_searchEvents);
+    getAllSR();
   }
 
   @override
+  void getAllSR() async {
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.getAllSR();
+    setState(() {
+      SR = service.SR;
+      //_event = SR;
+    });
+  }
+
   void dispose() {
     _searchController.removeListener(_searchEvents);
     _searchController.dispose();
@@ -39,28 +55,39 @@ class _SearchViewState extends State<SearchView> {
       return;
     }
 
-    final results = <MapEntry<DateTime, String>>[];
-    widget.events.forEach((date, events) {
-      for (var event in events) {
-        if (event.toLowerCase().contains(query)) {
-          results.add(MapEntry(date, event));
-        }
+    //加入id 這裡要改成 for(將time、reason、id加入陣列裡)
+    //這裡的toLowercase是將英文轉成小寫
+    //final results = <MapEntry<DateTime, String, String>>[];
+    // widget.events.forEach((date, events) {
+    //   for (var record in SR) {
+    //     if (event.toLowerCase().contains(query)) {
+    //       //這裡要改
+    //       results.add(MapEntry(date, event));
+    //     }
+    //   }
+    // });
+
+    for(var record in SR){
+      if(record.reason.contains(query)){
+        result.add(record);
       }
-    });
+    }
 
     setState(() {
-      _searchResults = results;
+      _searchResults = result;
     });
   }
 
-
-  void _navigateToEventView(DateTime date, String event) {
+  //透過id進到event_view
+  void _navigateToEventView(id) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventView(
-          selectedDay: date,
-          events: widget.events[date]!,
+          //selectedDay: date,
+          //event這裡要改
+          //events: SR,
+          record_id: id,
         ),
       ),
     );
@@ -98,57 +125,57 @@ class _SearchViewState extends State<SearchView> {
 
             SizedBox(height: 20),
             Expanded(
-              child: _searchResults.isEmpty
-                  ? Center(child: Text('搜尋結果將顯示於此。'))
-                  : ListView.builder(
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  final entry = _searchResults[index];
-                  //final dateStr = DateFormat('yMMMd', 'zh_TW').format(entry.key);
-                  return Card(
-                    color: Colors.green[50],
-                    shadowColor: Colors.white,
-                    margin: EdgeInsets.all(10),
-                   // 設置內邊距
-                    child: ListTile(
-                      leading: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Stack(
-                          children: <Widget>[
-                            Align(
-                              alignment: Alignment.topCenter,
-                              child: Text(
-                                DateFormat('MMM').format(entry.key).toUpperCase(), // 顯示月份縮寫
-                                style: TextStyle(color: Colors.grey, fontSize: 14.0, fontWeight: FontWeight.bold), // 文字顏色為灰色
+                child: _searchResults.isEmpty
+                    ? Center(child: Text('搜尋結果將顯示於此。'))
+                    : ListView.builder(
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    final entry = _searchResults[index];
+                    //final dateStr = DateFormat('yMMMd', 'zh_TW').format(entry.key);
+                    return Card(
+                      color: Colors.green[50],
+                      shadowColor: Colors.white,
+                      margin: EdgeInsets.all(10),
+                      // 設置內邊距
+                      child: ListTile(
+                        leading: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Stack(
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: Text(
+                                  DateFormat('MMM').format(entry.time).toUpperCase(), // 顯示月份縮寫
+                                  style: TextStyle(color: Colors.grey, fontSize: 14.0, fontWeight: FontWeight.bold), // 文字顏色為灰色
+                                ),
                               ),
-                            ),
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Text(
-                                DateFormat('d').format(entry.key), // 顯示日期
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Text(
+                                  DateFormat('d').format(entry.time), // 顯示日期
                                   style: TextStyle(color: Colors.green, fontSize: 24.0), // 文字顏色為白色
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
-                      title: Text(
-                        entry.value,
-                        style: TextStyle(fontSize: 16.0,), // 設置字體大小為 16
-                      ),
+                        title: Text(
+                          entry.reason,
+                          style: TextStyle(fontSize: 16.0,), // 設置字體大小為 16
+                        ),
 
-                      onTap: () => _navigateToEventView(entry.key, entry.value),
-                    ),
-                  );
-                },
-              )
+                        onTap: () => _navigateToEventView(entry.id),
+                      ),
+                    );
+                  },
+                )
 
             ),
           ],

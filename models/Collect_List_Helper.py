@@ -1,5 +1,8 @@
 from bson import ObjectId
-from Collect_List import Collect_List
+import sys
+sys.path.append(r'..')
+from models.Collect_List import Collect_List
+import re
 
 class Collect_List_Helper:
     def __init__(self, db_mgr):
@@ -43,11 +46,14 @@ class Collect_List_Helper:
         cl_data_list = collection.find({"User_Id": ObjectId(user_id)})
         cl_list = []
         for cl_data in cl_data_list:
+            # pattern = re.compile(r"ObjectId\('([0-9a-fA-F]{24})'\)")
+            # parsed_collection = pattern.findall(cl_data['Collect_Video'])
+            parsed_collection = [str(vid) for vid in cl_data['Collect_Video']]
             cl = Collect_List(
                 id=cl_data['_id'],
                 user_id=cl_data['User_Id'],
                 name=cl_data['Name'],
-                collection=cl_data['Collect_Video']
+                collection=parsed_collection
             )
             cl_list.append(cl.get_CL_data())
         return cl_list

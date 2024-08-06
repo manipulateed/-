@@ -5,6 +5,7 @@ import 'package:view/constants/text_style.dart';
 import 'package:view/services/CollectionList_svs.dart';
 
 import 'package:view/models/CL.dart';
+
 class CollectionListView extends StatefulWidget {
   const CollectionListView({super.key});
 
@@ -13,32 +14,67 @@ class CollectionListView extends StatefulWidget {
 }
 
 class _CollectionViewState extends State<CollectionListView> {
-  List<Map<String, List<String>>> collection_List = [
-    {'肩膀': ["放鬆動作", "重訓後舒緩"]},
-    {'手腕': ["三招解決", "手腕瑜珈"]}
-  ];
+  List<Map<String, List<String>>> collection_List = [];
 
-  void getCollectionList() async {
-    // 從伺服器獲取收藏清單的邏輯
-    List<CollectList> CL = [];
-    CollectionList_SVS service = new CollectionList_SVS(CL:CL);
-    await service.getAllCL();
-  }
-
+  // {'肩膀': ["放鬆動作", "重訓後舒緩"]},
+  // {'手腕': ["三招解決", "手腕瑜珈"]}
+  
   @override
   void initState() {
     super.initState();
+    getCollectionList();
+  }
 
+  void getCollectionList() async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
+    setState(() {
+      collection_List = collectList.map((cl) => {
+        cl.name: cl.collection
+      }).toList();
+    });
+  }
+
+  // void createCollectionList() async {
+  //   List<CollectList> CL = [];
+  //   CollectionList_SVS service = CollectionList_SVS(CL: CL);
+  //   await service.createCL();
+  // }
+  void createCollectionList(String newName) async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    bool success = await service.createCL("66435b426b52ed9b072dc0dd",newName);
+
+    if (success) {
+      getCollectionList();
+    } else {
+      print('創建收藏清單失敗');
+    }
+  }
+
+
+  void updateCollectionList(type, new_value) async {
+    List<CollectList> CL = [];
+    CollectionList_SVS service = CollectionList_SVS(CL: CL);
+    await service.updateCL(type, new_value);
+  }
+
+  void removeCollectionList() async {
+    List<CollectList> CL = [];
+    CollectionList_SVS service = CollectionList_SVS(CL: CL);
+    await service.removeCL();
   }
 
   @override
   Widget build(BuildContext context) {
-    void _updateCL(List<Map<String, List<String>>> newList) {
-      setState(() {
-        collection_List = newList;
-      });
+    // void _updateCL(List<Map<String, List<String>>> newList) {
+    //   setState(() {
+    //     collection_List = newList;
+    //   });
+    // }
+    void _updateCL(String addname) {
+      createCollectionList(addname);
     }
-    getCollectionList();
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Color.fromRGBO(250, 255, 251, 1),

@@ -2,13 +2,13 @@ import 'dart:convert';
 
 class Video {
   String id;
-  String name;
+  String name = "";
   String url;
 
   Video({
     required this.id,
-    required this.name,
-    required this.url,
+    this.name = "",
+    this.url = "",
   });
 
   // Helper method to create a video
@@ -29,12 +29,22 @@ class Video {
   }
 
   // Get video data as a JSON string
-  String getVideoData() {
+  Map<String, dynamic> getVideoData() {
     Map<String, dynamic> videoData = {
       "id": id,
       "name": name,
       "url": url,
     };
-    return jsonEncode(videoData);
+    return videoData;
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+    };
+  }
+  factory Video.fromJson(int json) {
+    return Video(
+      id: json.toString(),
+    );
   }
 }

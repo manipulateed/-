@@ -58,9 +58,9 @@ class Collect_List_Helper:
             cl_list.append(cl.get_CL_data())
         return cl_list
     
-    def get_CL_by_UserId_and_Name(self, user_id, name):
+    def get_CL_by_UserId_and_ClId(self, user_id, cl_id):
         collection = self.db_mgr.get_collection('Collect_List')
-        cl = collection.find_one({"User_Id": ObjectId(user_id), "Name": name})
+        cl = collection.find_one({"User_Id": ObjectId(user_id), "cl_id": ObjectId(cl_id)})
         if cl:
             return cl
         else:

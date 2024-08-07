@@ -1,10 +1,16 @@
 from flask import Flask, request, jsonify, blueprints
+import sys
+sys.path.append(r'..')
 from Collect_List_Controller import Collect_List_bp
+from Chat_Record_Controller import Chat_Record_bp
 from UserController import user_bp
+from Call_GPT import callGPT_bp
+
 app = Flask(__name__)
 app.register_blueprint(Collect_List_bp, url_prefix='')
-app.register_blueprint(user_bp, url_prefix='/user')
-
+# app.register_blueprint(user_bp, url_prefix='/user')
+# app.register_blueprint(Chat_Record_bp, url_prefix='')
+# app.register_blueprint(callGPT_bp, url_prefix='')
 
 @app.route('/login', methods=['POST'])
 def receive_data():

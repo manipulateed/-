@@ -3,6 +3,7 @@ import 'package:view/widgets/card/collection_Card.dart';
 import 'package:view/widgets/button/add_CL_Button.dart';
 import 'package:view/constants/text_style.dart';
 import 'package:view/services/CollectionList_svs.dart';
+import 'package:view/pages/Collection_View.dart';
 
 import 'package:view/models/CL.dart';
 
@@ -35,11 +36,6 @@ class _CollectionViewState extends State<CollectionListView> {
     });
   }
 
-  // void createCollectionList() async {
-  //   List<CollectList> CL = [];
-  //   CollectionList_SVS service = CollectionList_SVS(CL: CL);
-  //   await service.createCL();
-  // }
   void createCollectionList(String newName) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     bool success = await service.createCL("66435b426b52ed9b072dc0dd",newName);
@@ -51,17 +47,16 @@ class _CollectionViewState extends State<CollectionListView> {
     }
   }
 
-
   void updateCollectionList(type, new_value) async {
     List<CollectList> CL = [];
     CollectionList_SVS service = CollectionList_SVS(CL: CL);
     await service.updateCL(type, new_value);
   }
 
-  void removeCollectionList() async {
-    List<CollectList> CL = [];
-    CollectionList_SVS service = CollectionList_SVS(CL: CL);
-    await service.removeCL();
+  void removeCollectionList(String cl_id) async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    await service.removeCL(cl_id);
+    getCollectionList();
   }
 
   @override
@@ -99,9 +94,33 @@ class _CollectionViewState extends State<CollectionListView> {
                     itemCount: collection_List.length,
                     itemBuilder: (context, index) {
                       CollectionListCard collectionListCard = CollectionListCard(context: collection_List[index]);
-                      return Padding(
-                        padding: EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
-                        child: collectionListCard.getCard(this.context),
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CollectionView(
+                                userID: "66435b426b52ed9b072dc0dd",
+                                clID: collection_List[index].keys.first,
+                              ),
+                            ),
+                          );
+                        },
+                      child: Padding(
+                          padding: const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              collectionListCard.getCard(context),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.black),
+                                onPressed: () {
+                                  removeCollectionList(collection_List[index].keys.first);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),

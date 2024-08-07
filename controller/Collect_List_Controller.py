@@ -24,13 +24,13 @@ def get_All_CL_by_UserId():
         return jsonify(success=False, message="No data received"), 400
 
 @Collect_List_bp.route('/Collect_List_Controller/get_CL', methods=['GET'])
-def get_CL_by_UserId_and_Name():
+def get_CL_by_UserId_and_ClId():
     """取得單一收藏清單"""
-    data = request.json
+    data = request.get_json()
     if data:
         user_id = data.get('user_id')
-        name = data.get('name')
-        return_data = cl_helper.get_CL_by_UserId_and_Name(user_id,name)
+        cl_id = data.get('cl_id')
+        return_data = cl_helper.get_CL_by_UserId_and_ClId(user_id,cl_id)
         return jsonify(success=True, response = return_data), 200
     else:
         return jsonify(success=False, message="No data received"), 400
@@ -74,10 +74,10 @@ def update_CL_data():
 @Collect_List_bp.route('/Collect_List_Controller/remove_CL', methods=['DELETE'])
 def remove_CL():
     """刪除收藏清單"""
-    # data = request.json
-    cl_id = request.args.get('cl_id')
+    data = request.get_json()
+    # cl_id = request.args.get('cl_id')
     if cl_id:
-    #   cl_id = data.get('cl_id')
+        cl_id = data.get('cl_id')
         cl_helper.remove_CL(cl_id)
         return jsonify(success=True, cl_id=cl_id), 200
     else:

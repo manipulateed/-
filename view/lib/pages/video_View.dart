@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:view/models/Video.dart';
-
+import 'package:webview_flutter/webview_flutter.dart';
 class VideoView extends StatefulWidget {
   const VideoView({super.key});
 
@@ -80,6 +80,13 @@ class VideoCard extends StatelessWidget {
 
   late Video video;
   VideoCard({required this.video});
+
+  //把yt api抓到的url轉為可以embed的形式
+  String getEmbeddedUrl(String url) {
+    final videoId = Uri.parse(url).queryParameters['v'];
+    return 'https://www.youtube.com/embed/$videoId';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -88,43 +95,63 @@ class VideoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
-              children: [
-                Container(
-                  // 放影片
-                  height: 200.0,
-                  color: Colors.grey[300], // 預留位置的背景顏色
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+            Container(
+              height: 200.0,
+              child: WebView(
+                initialUrl: getEmbeddedUrl(video.url!),
+                javascriptMode: JavascriptMode.unrestricted,
+              ),
+
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                '伸展+滾筒 股四頭肌',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    video.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('加入收藏清單'),
+                            content: Text('將影片加入到哪個收藏清單？'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('清單1'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  // 加入到清單1的操作
+                                },
+                              ),
+                              TextButton(
+                                child: Text('清單2'),
+                                style: TextButton.styleFrom(
+                                  //backgroundColor: Colors.fromRGBO(95, 178, 132, 0.8),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  // 加入到清單2的操作
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                '伸展+滾筒 股四頭肌 舒緩影片',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                ),
-              ),
-            ),
-            SizedBox(height: 8.0),
+            SizedBox(height: 4.0),
           ],
         ),
       ),

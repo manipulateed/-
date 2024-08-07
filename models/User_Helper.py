@@ -16,7 +16,7 @@ class UserHelper:
     def create_user(self, user):
         user_collection = self.db_mgr.get_collection('User')
         if user_collection.find_one({"Email": user.email}):
-            return {"success": False, "message": "Email 已被註冊"}
+            return {"success": False, "message": "Email has existed"}
         else:
             user_data = {
                 "Name": user.name,
@@ -25,7 +25,7 @@ class UserHelper:
             }
             result = user_collection.insert_one(user_data)
             user.set_id(result.inserted_id)
-            return {"success": True, "message": "註冊成功"}
+            return {"success": True, "message": "signup success"}
 
     def update_user_field(self, user_id, field_name, new_value):
         user_collection = self.db_mgr.get_collection('User')
@@ -47,6 +47,7 @@ class UserHelper:
             return {
                 "success": True,
                 "message": "取得成功",
+                "id": str(user_data['_id']),  # 將 ObjectId 轉換為字符串
                 "email": user_data['Email'],
                 "name": user_data['Name'],
                 "password": user_data['Password']

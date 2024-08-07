@@ -30,6 +30,7 @@ def create_user():
 
     user = User(name=name, email=email, password=password)
     result = user_helper.create_user(user)
+    ######################這裡應該要在接收到helper傳來的false之後，判定為失敗#######################
     response = jsonify(status='200', success=True, message='create success', response=result)
     print(f"Sending response: {response.get_data(as_text=True)}")  # 打印响应
     return response
@@ -49,6 +50,7 @@ def get_user():
     user = user_helper.get_user_by_email_and_password(email, password) #尋找是否有這組信箱/密碼
     if user['success']:
         user_data = {
+            'id': str(user['id']),  # 將 ObjectId 轉換為字符串
             'email': user['email'],
             'name' : user['name'],
             'password' : user['password']
@@ -106,10 +108,10 @@ def get_user_byUserID():
     #        'name': user.name,
     #        'email': user.email,
     #    }
-        return jsonify(status = '200', success=True, message='用戶資料取得成功', response=user_data)
+        return jsonify(status = '200', success=True, message='get user data successfully', response=user_data)
 
     else:
-        return jsonify(status = '400', success=False, message='用戶名或密碼錯誤')
+        return jsonify(status = '400', success=False, message='get user data')
 
 
 @user_bp.route('/user/update_user', methods=['PUT'])

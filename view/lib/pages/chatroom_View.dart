@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:view/models/Chat_Record.dart';
+import 'package:view/services/chatrecord_svs.dart';
+import 'package:view/constants/route.dart';
+import 'package:quickalert/quickalert.dart';
 
 class ChatroomView extends StatefulWidget {
   const ChatroomView({super.key});
@@ -10,14 +13,37 @@ class ChatroomView extends StatefulWidget {
 
 class _ChatroomViewState extends State<ChatroomView> {
 
-  final List<ChatRecord> chatRecords = [
-    ChatRecord(title: '肩膀', date: '2024.03.03'),
-    ChatRecord(title: '手腕', date: '2024.03.03'),
-    ChatRecord(title: '腳踝', date: '2024.03.03'),
-  ];
+  // final List<ChatRecord> chatRecords = [
+  //   ChatRecord(title: '肩膀', date: '2024.03.03'),
+  //   ChatRecord(title: '手腕', date: '2024.03.03'),
+  //   ChatRecord(title: '腳踝', date: '2024.03.03'),
+  // ];
+  List<ChatRecord> chatrecords = [];
+
+  void get_ChatRecords() async{
+    Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
+    await service.getAllChatRecords();
+    setState(() {
+      chatrecords = service.chatrecords;
+    });
+  }
+
+  void createChatRecord(ChatRecord chatrecord) async{
+    chatrecords.add(chatrecord);
+    Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
+    await service.createChatRecord();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // 在這裡初始化你的聊天紀錄
+    get_ChatRecords();
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -43,8 +69,50 @@ class _ChatroomViewState extends State<ChatroomView> {
               child: Material(
                 color: Colors.white,
                 child: InkWell(
-                  onTap: () {
-                        // Handle new chat creation
+                  onTap: () async {
+                    String message= "";
+                    late ChatRecord chatRecord;
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.custom,
+                      barrierDismissible: true,
+                      confirmBtnText: '確認新增',
+                      title: '新增Chat Room',
+                      confirmBtnColor: Colors.green,
+                      widget: TextFormField(
+                        decoration: const InputDecoration(
+                          alignLabelWithHint: true,
+                          hintText: '請輸入名稱',
+                        ),
+                        textInputAction: TextInputAction.next,
+                        onChanged: (value) => chatRecord = new ChatRecord(id: "",userId: "", message: [], suggestedVideoIds: [], name: value, timestamp: "", finish: "no"),
+                      ),
+                      onConfirmBtnTap: () async {
+                        if (chatRecord.name.length < 5) {
+                          await QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.error,
+                            text: 'Please input something',
+                          );
+                          return;
+                        }
+                        if (chatrecords.any((element) => element.name == chatRecord.name)) {
+                          await QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.warning,
+                            text: '該名稱已存在!',
+                            confirmBtnText: '確認',
+                            title: '該名稱已存在!',
+                            confirmBtnColor: Colors.green,
+                          );
+                          return;
+                        }
+                        Navigator.pop(context);
+                        createChatRecord(chatRecord);
+                        await Future.delayed(const Duration(milliseconds: 300));
+                        Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
+                      },
+                    );
                   },
                   child:Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -68,9 +136,9 @@ class _ChatroomViewState extends State<ChatroomView> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: chatRecords.length,
+              itemCount: chatrecords.length,
               itemBuilder: (context, index) {
-                return ChatListItem(chatRecord: chatRecords[index]);
+                return ChatListItem(chatRecord: chatrecords[index]);
               },
             ),
           ),
@@ -99,17 +167,18 @@ class ChatListItem extends StatelessWidget {
             size: 40,
           ),
           title: Text(
-            chatRecord.title,
+            chatRecord.name,
             style: TextStyle(
                 color: Color.fromRGBO(56, 107, 79, 1)
             ),
           ),
           subtitle: Text(
-            chatRecord.date,
+            chatRecord.timestamp,
             style: TextStyle(
                 color: Color.fromRGBO(56, 107, 79, 0.5)
             ),),
           onTap: () {
+            Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
             // Handle chat item tap
           },
         ),
@@ -118,9 +187,9 @@ class ChatListItem extends StatelessWidget {
   }
 }
 
-class ChatRecord {
-  final String title;
-  final String date;
-
-  ChatRecord({required this.title, required this.date});
-}
+// class ChatRecord {
+//   final String title;
+//   final String date;
+//
+//   ChatRecord({required this.title, required this.date});
+// }

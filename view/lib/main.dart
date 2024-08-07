@@ -15,7 +15,7 @@ Future<void> main() async {
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: loginState == null ? Routes.baseview : Routes.loginview,
+    initialRoute: loginState == null ? Routes.loginview : Routes.loginview,
     routes: Routes.getRoutes(),
   ));
 }

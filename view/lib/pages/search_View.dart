@@ -29,13 +29,13 @@ class _SearchViewState extends State<SearchView> {
   void initState() {
     super.initState();
     _searchController.addListener(_searchEvents);
-    getAllSR();
+    getAllSR(widget.user_id);
   }
 
   @override
-  void getAllSR() async {
+  void getAllSR(String user_id) async {
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.getAllSR();
+    await service.getAllSR(user_id);
     setState(() {
       SR = service.SR;
       //_event = SR;
@@ -69,8 +69,8 @@ class _SearchViewState extends State<SearchView> {
   }
 
   //透過id進到event_view
-  void _navigateToEventView(id) {
-    Navigator.push(
+  void _navigateToEventView(id) async{
+    final updatedEvents = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EventView(
@@ -78,6 +78,11 @@ class _SearchViewState extends State<SearchView> {
         ),
       ),
     );
+
+    if (updatedEvents != null) {
+      getAllSR(widget.user_id);
+      _searchController.addListener(_searchEvents);
+    }
   }
 
   @override

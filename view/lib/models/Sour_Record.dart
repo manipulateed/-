@@ -1,7 +1,7 @@
 class SourRecord {
   final String id;
   final String userId;
-  final String videos;
+  final List<String> videos;
   final String title;
   final String reason;
   final DateTime time;
@@ -16,10 +16,19 @@ class SourRecord {
   });
 
   factory SourRecord.fromJson(Map<String, dynamic> json) {
+    var videosList = json['videos'];
+    List<String> videos = [];
+    if (videosList is List) {
+      videos = List<String>.from(videosList.map((video) => video.toString()));
+    } else if (videosList is String) {
+      videos = [videosList];  // If it's a single string, convert it to a list with one item
+    }
+
+
     return SourRecord(
       id: json['id'],
       userId: json['user_id'],
-      videos: json['videos'],
+      videos: videos,
       title: json['title'],
       reason: json['reason'],
       time: DateTime.parse(json['time']), // 解析字符串为 DateTime 对象

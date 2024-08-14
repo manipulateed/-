@@ -20,8 +20,8 @@ Name='最新的收藏9'
 collection = ''
 new_CL = Collect_List("",user_id, Name, collection)
 
-cl_helper.create_CL_by_UserId(new_CL)
-print(new_CL.get_CL_data())
+# cl_helper.create_CL_by_UserId(new_CL)
+# print(new_CL.get_CL_data())
 
 
 # # 移除收藏列表
@@ -32,15 +32,16 @@ print(new_CL.get_CL_data())
 videoName = '我的收藏清單'
 
 # # 獲取用戶所有收藏列表
-# all_cl = cl_helper.get_All_CL_by_UserId(user_id)
-# print(all_cl[1].get_user_id())
+all_cl = cl_helper.get_All_CL_by_UserId(user_id)
+print(all_cl[0])
+print(cl_helper.get_All_CL_by_UserId(user_id))
 # all_cl[1].remove_video(cl_helper,"66436c17b92ec708c91009a8")
 # cl_helper.remove_CL("668415feb88546a74f87af6c") 
 # id = all_cl[3].get_id()
 # cl_helper.remove_CL(id)
 # for cl in all_cl:
-    # new_cl = Collect_List("",user_id, Name, collection)
-    # print(cl.get_CL_data())
+#     new_cl = Collect_List("",user_id, Name, collection)
+#     print(cl.get_CL_data())
     # cl.update_name(cl_helper,"newName")
 # all_cl = cl_helper.get_All_CL_by_UserId(user_id)
 

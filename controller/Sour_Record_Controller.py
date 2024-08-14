@@ -23,6 +23,14 @@ sr_helper = Sour_Record_Helper(mongo_mgr)
 def get_all_sour_records_by_user_id():
     """取得所有痠痛紀錄"""
     user_id = request.args.get('user_id')
+    #user_id=ObjectId(user_id)
+    if user_id:
+        return_data = sr_helper.get_All_Sour_Record_by_UserId(user_id)   
+        return jsonify(success=True, user_id=user_id, response=return_data), 200
+    else:
+        return jsonify(success=False, message="No data received"), 400
+
+    '''   
     if user_id:
         return_data = [{
             "id": str(1),
@@ -47,7 +55,7 @@ def get_all_sour_records_by_user_id():
         return jsonify(success=True, user_id=user_id, response=result),200
     else:
         return jsonify(success=False, message = "No data received"),400    
-    
+    '''
     
     '''
     data = request.json
@@ -65,17 +73,8 @@ def get_sour_record_by_id():
     #取得單一痠痛紀錄
     id = request.args.get('id')
     if id:
-        return_data = [{
-            "id": str(1),
-            "user_id": str(20),
-            "videos": "https://",
-            "title": "緩解影片",
-            "reason": "痠痛原因",
-            "time": "2024-07-25"
-        }]
-        result = sr_helper.get_Sour_Record_by_Id(sr_helper, id)
-
-        return jsonify(success=True, id=id, response=result),200
+        result = sr_helper.get_Sour_Record_by_Id(id) 
+        return jsonify(success=True, response=result),200
     else:
         return jsonify(success=False, message = "No data received"),400    
 
@@ -116,13 +115,12 @@ def create_sour_record():
 
     user_id = request.args.get('user_id')
 
-    data = request.get_json() 
-    #user_id = data.get('user_id')       
+    data = request.get_json()     
     reason = data.get('reason')
     time =data.get('time')
 
-    new_Sour_Record = Sour_Record(user_id=user_id, reason=reason, time=time, video=null, title=null)
-    sr_helper.create_sour_record(sr_helper, new_Sour_Record)
+    new_Sour_Record = Sour_Record(id="1", user_id=user_id, reason=reason, time=time, videos=[], title="")
+    sr_helper.create_sour_record(new_Sour_Record)
 
     if data:
         print(user_id, reason, time)
@@ -161,15 +159,9 @@ def update_sour_record_data():
     field_name =data.get('field_name')
 
     if id:
-        return_data = [{
-            record_id,
-            new_value,
-            field_name
-        }]
+        result=sr_helper.update_sour_record(id, field_name, new_value)
 
-        sr_helper.update_sour_record(sr_helper, record_id, field_name, new_value)
-
-        print(id, new_value, field_name)
+        print(id, new_value, field_name, result)
         return jsonify(success=True, message = "成功"),200    
     else:
         print("failed")
@@ -190,7 +182,7 @@ def delete_sour_record():
     """刪除痠痛紀錄"""
     id = request.args.get('id')
     if id:
-         sr_helper.delete_sour_record(sr_helper, id)
+         result=sr_helper.delete_sour_record(id)
          return jsonify(success=True, sour_record_id=id), 200
     else:
         return jsonify(success=False, message="No data received"), 400

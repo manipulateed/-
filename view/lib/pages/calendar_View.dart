@@ -18,7 +18,7 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   TextEditingController _eventController = TextEditingController();
-  String user_id = '';
+  String user_id = '66435b426b52ed9b072dc0dd';
   String record_id='';
 
   List<SourRecord> _event = [];
@@ -29,12 +29,12 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   void initState() {
     super.initState();
-    getAllSR();
+    getAllSR(user_id);
   }
 
-  void getAllSR() async {
+  void getAllSR(String user_id) async {
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.getAllSR();
+    await service.getAllSR(user_id);
     setState(() {
       SR = service.SR;
       _event = SR;
@@ -202,11 +202,12 @@ class _CalendarViewState extends State<CalendarView> {
             ),
             TextButton(
                onPressed: () {
-                 createSR(user_id, _eventController.text, _selectedDay!);
+                 String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
+                 createSR(user_id, _eventController.text, time);
                  Navigator.pop(context);
+                 getAllSR(user_id);
+                 _selectedDay = _selectedDay!;
                  setState(() {
-                   final newRecord = SourRecord(id:'', userId: user_id, videos: '', title: '', reason:_eventController.text , time: _selectedDay!);
-                   _event.add(newRecord);
                    _eventController.clear();
                  });
 
@@ -236,9 +237,9 @@ class _CalendarViewState extends State<CalendarView> {
     );
   }
   
-  void createSR(String user_id, String reason, DateTime time) async{
+  void createSR(String user_id, String reason, String time) async{
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.createSR(user_id, reason, "2024");
+    await service.createSR(user_id, reason, time);
   }
 
   void _navigateToEventView(String id) async {
@@ -254,9 +255,7 @@ class _CalendarViewState extends State<CalendarView> {
     );
 
     if (updatedEvents != null) {
-      setState(() {
-        _event = updatedEvents;
-      });
+      getAllSR(user_id);
     }
   }
 }

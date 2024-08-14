@@ -42,8 +42,6 @@ class _EventViewState extends State<EventView> {
       SR = service.SR;
     });
 
-
-
     for (var record in SR) {
       day = '${record.time.year}-${record.time.month}-${record.time.day}';
       reason = '${record.reason}';
@@ -53,7 +51,7 @@ class _EventViewState extends State<EventView> {
 
       _controllers.add(TextEditingController(text: reason));
 
-      print(day+reason+title+video);
+      print("資料"+day+reason+title+video);
     }
 
     // _updatedEvents = widget.events.map((SR) {
@@ -110,7 +108,7 @@ class _EventViewState extends State<EventView> {
   void _deleteEvent(String id) async {
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
     await service.deleteSR(id);
-    Navigator.pop(context,);
+    Navigator.pop(context,true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Events deleted successfully'),
@@ -136,8 +134,8 @@ class _EventViewState extends State<EventView> {
             TextButton(
               child: Text('Delete'),
               onPressed: () {
-                _deleteEvent(id);
-                Navigator.of(context).pop();
+                _deleteEvent(widget.record_id);
+                Navigator.pop(context, true);
               },
             ),
           ],
@@ -150,7 +148,7 @@ class _EventViewState extends State<EventView> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context,);
+        Navigator.pop(context, true);
         return true;
       },
       child: Scaffold(
@@ -164,7 +162,15 @@ class _EventViewState extends State<EventView> {
           actions: [
             _isEditing
                 ? IconButton(
-              onPressed: () => updateSR(id,"Hi"),
+
+              onPressed: () {
+                // 收集所有 TextEditingController 中的文本内容，并将其作为 new_value 传递
+                String newValue = _controllers.map((controller) => controller.text).join(", ");
+                updateSR(widget.record_id, newValue);
+                setState(() {
+                  reason = newValue;
+                });
+              },
               icon: Icon(Icons.save),
               tooltip: 'Save Event',
             )

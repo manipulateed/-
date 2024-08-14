@@ -9,10 +9,6 @@ class UserHelper:
         self.db_mgr = db_mgr
         self.logger = logging.getLogger(__name__)
 
-    # def get_collection(self, collection_name):
-    #     """獲取指定名稱的集合"""
-    #     return self.db_mgr.get_collection(collection_name)
-
     def create_user(self, user):
         user_collection = self.db_mgr.get_collection('User')
         if user_collection.find_one({"Email": user.email}):
@@ -57,5 +53,34 @@ class UserHelper:
             return {
                 "success": False,
                 "message": "用戶不存在或密碼錯誤"
+            }
+
+    def get_user_by_id(self, user_id):
+        users_collection = self.db_mgr.get_collection('User')
+        self.logger.info(f"Attempting to find user with id: {user_id}")
+        try:
+            object_id = ObjectId(user_id)
+            user_data = users_collection.find_one({"_id": object_id})
+            if user_data:
+                self.logger.info(f"User found: {user_data}")
+                return {
+                    "success": True,
+                    "message": "取得成功",
+                    "id": str(user_data['_id']),
+                    "email": user_data['Email'],
+                    "name": user_data['Name'],
+                    "password": user_data['Password']
+                }
+            else:
+                self.logger.warning(f"User not found for id: {user_id}")
+                return {
+                    "success": False,
+                    "message": "找不到用戶"
+                }
+        except Exception as e:
+            self.logger.error(f"Error when fetching user by id: {str(e)}")
+            return {
+                "success": False,
+                "message": f"查詢用戶時發生錯誤: {str(e)}"
             }
     # login

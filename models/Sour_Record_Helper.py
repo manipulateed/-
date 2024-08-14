@@ -1,4 +1,7 @@
 from bson import ObjectId
+import sys
+sys.path.append('C:\\SP\\bigproject\\models')
+
 from Sour_Record import Sour_Record
 
 class Sour_Record_Helper:
@@ -9,7 +12,7 @@ class Sour_Record_Helper:
         sour_record_collection = self.db_mgr.get_collection('Sour_Record')
         sour_record_data = {
             "User_Id": ObjectId(sour_record.user_id),
-            "Videos": [ObjectId(video_id) for video_id in sour_record.videos],
+            "Videos": sour_record.videos,
             "Title": sour_record.title,
             "Reason": sour_record.reason,
             "Time": sour_record.time
@@ -18,12 +21,15 @@ class Sour_Record_Helper:
         sour_record.set_id(result.inserted_id)
         return {"success": True, "message": "痠痛紀錄創建成功"}
 
+
     def update_sour_record(self, record_id, field_name, new_value):
         sour_record_collection = self.db_mgr.get_collection('Sour_Record')
         result = sour_record_collection.update_one(
             {"_id": ObjectId(record_id)},
             {"$set": {field_name: new_value}}
         )
+        print(record_id, field_name, new_value)
+        print(result)
         if result.matched_count > 0:
             return {"success": True, "message": "更新成功" }
         else:
@@ -50,8 +56,10 @@ class Sour_Record_Helper:
                 time=document['Time'],
                 videos=document['Videos']
             )
-            all_records.append(record)
-        return all_records
+            all_records.append(record.get_Sour_Record_data())  # 转换为字典
+        return all_records  # 返回字典列表
+
+
     
     def get_Sour_Record_by_Id(self, sour_record_id):
         sour_record_collection = self.db_mgr.get_collection('Sour_Record')

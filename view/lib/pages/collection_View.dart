@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';  // 用於JSON解析
+import 'package:http/http.dart' as http;
+import 'package:view/services/CollectionList_svs.dart';
+import 'package:view/models/CL.dart';
 
 class CollectionView extends StatefulWidget {
   const CollectionView({super.key});
@@ -8,16 +12,48 @@ class CollectionView extends StatefulWidget {
 }
 
 class _CollectionViewState extends State<CollectionView> {
+  String userID = '';
+  String clID = '';
+  String clName = '';
+  List<String> collections = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final Map<String, dynamic> collectionItem = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+    userID = collectionItem['user_id'];
+    clID = collectionItem['id'];
+  }
+
+
+
+  Future<void> getOneCL() async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+
+    try {
+      CollectList collectList = await service.getCL(userID, clID);
+
+      setState(() {
+        clName = collectList.name;
+        collections = collectList.collection;
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(88),
-        child:AppBar(
+        child: AppBar(
           title: const Text(""),
-          flexibleSpace: const Center(
+          flexibleSpace: Center(
             child: Text(
-              '大腿',
+              clName,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20.0,
@@ -27,7 +63,9 @@ class _CollectionViewState extends State<CollectionView> {
           backgroundColor: Colors.green,
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_left),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context); // 返回上一頁
+            },
           ),
         ),
       ),
@@ -41,16 +79,16 @@ class _CollectionViewState extends State<CollectionView> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      '大腿',
+                      clName,
                       style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      '運動傷害\n2部影片',
+                      '運動傷害\n${collections.length}部影片',
                       style: TextStyle(
                         fontSize: 16.0,
                         color: Colors.grey,
@@ -79,23 +117,14 @@ class _CollectionViewState extends State<CollectionView> {
               ],
             ),
             const SizedBox(height: 16.0),
-            Container(
-              height: 200,
-              child: Expanded(
-                child: ListView(
-                  children: const [
-                    VideoEntry(
-                      title: '股四頭肌伸展',
-                      // imageUrl: 'https://img.youtube.com/vi/VIDEO_ID1/0.jpg',
-                      videoLength: '3:58',
-                    ),
-                    VideoEntry(
-                      title: '仰躺拉大腿後側',
-                      // imageUrl: 'https://img.youtube.com/vi/VIDEO_ID2/0.jpg',
-                      videoLength: '12:05',
-                    ),
-                  ],
-                ),
+            Expanded(
+              child: ListView(
+                children: collections.map((video) {
+                  return VideoEntry(
+                    title: video,
+                    videoLength: '未知時間', // 如果需要，可以改為實際的影片長度
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -107,7 +136,6 @@ class _CollectionViewState extends State<CollectionView> {
 
 class VideoEntry extends StatelessWidget {
   final String title;
-  // final String imageUrl;
   final String videoLength;
 
   const VideoEntry({super.key, required this.title, required this.videoLength});

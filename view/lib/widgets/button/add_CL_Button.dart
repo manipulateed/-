@@ -5,7 +5,7 @@ import 'package:quickalert/quickalert.dart';
 class AddCLButton {
   static String message = '';
 
-  List<Map<String, List<String>>> CL = [];
+  List<Map<String, dynamic>> CL = [];
   dynamic Function(String) onUpdateCL;
 
   AddCLButton({

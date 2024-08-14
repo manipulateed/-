@@ -4,6 +4,7 @@ import 'package:view/widgets/button/add_CL_Button.dart';
 import 'package:view/constants/text_style.dart';
 import 'package:view/services/CollectionList_svs.dart';
 import 'package:view/pages/Collection_View.dart';
+import 'package:view/constants/route.dart';
 
 import 'package:view/models/CL.dart';
 
@@ -15,7 +16,7 @@ class CollectionListView extends StatefulWidget {
 }
 
 class _CollectionViewState extends State<CollectionListView> {
-  List<Map<String, List<String>>> collection_List = [];
+  List<Map<String, dynamic>> collection_List = [];
 
   // {'肩膀': ["放鬆動作", "重訓後舒緩"]},
   // {'手腕': ["三招解決", "手腕瑜珈"]}
@@ -29,9 +30,16 @@ class _CollectionViewState extends State<CollectionListView> {
   void getCollectionList() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
+    // 打印 collectList 中的每一個 cl
+    for (var cl in collectList) {
+      print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
+    }
     setState(() {
       collection_List = collectList.map((cl) => {
-        cl.name: cl.collection
+        'id': cl.id,
+        'user_id': cl.userId,
+        'name': cl.name,
+        'collection': cl.collection,
       }).toList();
     });
   }
@@ -94,32 +102,19 @@ class _CollectionViewState extends State<CollectionListView> {
                     itemCount: collection_List.length,
                     itemBuilder: (context, index) {
                       CollectionListCard collectionListCard = CollectionListCard(context: collection_List[index]);
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CollectionView(
-                                userID: "66435b426b52ed9b072dc0dd",
-                                clID: collection_List[index].keys.first,
-                              ),
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(child: collectionListCard.getCard(context)),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.black),
+                              onPressed: () {
+                                removeCollectionList(collection_List[index]['id']);
+                              },
                             ),
-                          );
-                        },
-                      child: Padding(
-                          padding: const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              collectionListCard.getCard(context),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.black),
-                                onPressed: () {
-                                  removeCollectionList(collection_List[index].keys.first);
-                                },
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
                       );
                     },

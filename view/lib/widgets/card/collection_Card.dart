@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:view/constants/text_style.dart';
 import 'package:view/constants/route.dart';
+import 'dart:convert';
 
 class CollectionListCard {
-  Map<String, List<String>> context = {};
+  Map<String, dynamic> context = {};
 
   CollectionListCard({required this.context});
 
@@ -22,7 +23,11 @@ class CollectionListCard {
         children: <Widget>[
           ListTile(
             onTap: () {
-              Navigator.pushReplacementNamed(context, Routes.collectView);
+              Navigator.pushNamed(
+                context,
+                Routes.collectView,
+                arguments: this.context,
+              );
             },
             leading: Icon(
               Icons.elderly,
@@ -31,7 +36,7 @@ class CollectionListCard {
             title: Padding(
               padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
               child: Text(
-                this.context.keys.toList().first,
+                this.context['name'],
                 style: UI_TextStyle.CL_TextStyle,
               ),
             ),
@@ -48,7 +53,9 @@ class CollectionListCard {
             physics: NeverScrollableScrollPhysics(),
             itemCount: this.context.values.first.length,
             itemBuilder: (context, index) {
-              String key = this.context.keys.toList().first;
+              // String key = this.context.keys.toList().first;
+              // List<String> items = this.context[key]!;
+              String key = "collection";// 先嘗試解析為 List<dynamic>
               List<String> items = this.context[key]!;
 
               if (items.length > index) {

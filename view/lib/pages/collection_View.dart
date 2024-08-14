@@ -2,35 +2,38 @@ import 'package:flutter/material.dart';
 import 'dart:convert';  // 用於JSON解析
 import 'package:http/http.dart' as http;
 import 'package:view/services/CollectionList_svs.dart';
-
 import 'package:view/models/CL.dart';
 
-
 class CollectionView extends StatefulWidget {
-  final String userID;
-  final String clID;
-
-  const CollectionView({super.key, required this.userID, required this.clID});
+  const CollectionView({super.key});
 
   @override
   State<CollectionView> createState() => _CollectionViewState();
 }
 
 class _CollectionViewState extends State<CollectionView> {
+  String userID = '';
+  String clID = '';
   String clName = '';
   List<String> collections = [];
 
   @override
-  void initState() {
-    super.initState();
-    getOneCL();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final Map<String, dynamic> collectionItem = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+    userID = collectionItem['user_id'];
+    clID = collectionItem['id'];
   }
+
+
 
   Future<void> getOneCL() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    
+
     try {
-      CollectList collectList = await service.getCL(widget.userID, widget.clID);
+      CollectList collectList = await service.getCL(userID, clID);
 
       setState(() {
         clName = collectList.name;
@@ -133,7 +136,6 @@ class _CollectionViewState extends State<CollectionView> {
 
 class VideoEntry extends StatelessWidget {
   final String title;
-  // final String imageUrl;
   final String videoLength;
 
   const VideoEntry({super.key, required this.title, required this.videoLength});

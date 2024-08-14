@@ -1,54 +1,86 @@
 from flask import Flask, request, jsonify, Blueprint
-#from models.MongoDBMgr import MongoDBMgr 
+import sys
+sys.path.append(r'..')
+from models.MongoDBMgr import MongoDBMgr 
 #from models.User import User
-#from bigproject.helper.User_Helper import User_Helper
-#from bson import ObjectId
-
+from models.User_Helper import UserHelper
+from models.User import User
+from bson import ObjectId
 
 user_bp = Blueprint('user_bp',__name__)
 
-#mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
-#db_name = "酸通"
-#mongo_mgr = MongoDBMgr(db_name,mongo_uri)
-#user_helper = User_Helper(mongo_mgr)
+mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
+db_name = "酸通"
+mongo_mgr = MongoDBMgr(db_name,mongo_uri)
+user_helper = UserHelper(mongo_mgr)
 
 @user_bp.route('/user/create_user', methods=['POST'])
 def create_user():
-    #data = request.get_json()
-    #name = data.get('name')
-    #email = data.get('email')
-    #password = data.get('password')
-    #if not all([name, email, password]):
-    #    return jsonify(status = '300', success=False, message='欄位不能有空值')
+    data = request.get_json()
+    print(f"Received data: {data}")  # 添加這行來打印接收到的數據
 
-    #user = User(name=name, email=email, password=password)
-    #result = user_helper.create_user(user)
-    #return jsonify(result, status = '200')
-    return jsonify(status = '200', success=True, message='用戶資料取得成功')
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not all([name, email, password]):
+        response = jsonify(status = '200', success=True, message='something is empty')
+        print(f"Sending response: {response.get_data(as_text=True)}")  # 打印响应
+        return response
+
+    user = User(name=name, email=email, password=password)
+    result = user_helper.create_user(user)
+    ######################這裡應該要在接收到helper傳來的false之後，判定為失敗#######################
+    response = jsonify(status='200', success=True, message='create success', response=result)
+    print(f"Sending response: {response.get_data(as_text=True)}")  # 打印响应
+    return response
 
 
-@user_bp.route('/user/get_user', methods=['GET'])
+@user_bp.route('/user/login', methods=['POST'])
 def get_user():
+    data = request.get_json()
+    print(f"Received data: {data}")  # 添加這行來打印接收到的數據
     
-    email = request.args.get('email')
-    password = request.args.get('password')
+    email = data.get('email')
+    password = data.get('password')
 
     if not email or not password:
-        return jsonify(status = '300', success=False, message='缺少必要的參數(email or password)')
+        return jsonify(status = '300', success=False, message='need email or password')
 
-    user = User_Helper.get_user_by_email_and_password(email, password)
-    if user:
+    user = user_helper.get_user_by_email_and_password(email, password) #尋找是否有這組信箱/密碼
+    if user['success']:
         user_data = {
-            'id': str(user.get_id()),
-            'name': user.name,
-            'email': user.email,
+            'id': str(user['id']),  # 將 ObjectId 轉換為字符串
+            'email': user['email'],
+            'name' : user['name'],
+            'password' : user['password']
         }
-        return jsonify(status = '200', success=True, message='用戶資料取得成功', response=user_data)
+        response = jsonify(status='200', success=True, message='login success', response=user_data)
+        print(f"Sending response: {response.get_data(as_text=True)}")  # 打印响应
+        return response
     else:
-        return jsonify(status = '400', success=False, message='用戶名或密碼錯誤')
+        response = jsonify(status='400', success=False, message='login failed')
+        print(f"Sending response: {response.get_data(as_text=True)}")  # 打印响应
+        return response
+    # email = request.args.get('email')
+    # password = request.args.get('password')
+
+    # if not email or not password:
+    #     return jsonify(status = '300', success=False, message='缺少必要的參數(email or password)')
+
+    # user = user_helper.get_user_by_email_and_password(email, password) #尋找是否有這組信箱/密碼
+    # if user:
+    #     user_data = {
+    #         'id': str(user.get_id()),
+    #         'name': user.name,
+    #         'email': user.email,
+    #     }
+    #     return jsonify(status = '200', success=True, message='用戶資料取得成功', response=user_data)
+    # else:
+    #     return jsonify(status = '400', success=False, message='用戶名或密碼錯誤')
     
 
-
+#用在account
 @user_bp.route('/user/get_user_byUserID', methods=['GET'])
 def get_user_byUserID():
 
@@ -69,17 +101,17 @@ def get_user_byUserID():
     #if not email or not password:
     #    return jsonify(status = '300', success=False, message='缺少必要的參數(email or password)')
 
-    #user = User_Helper.get_user_by_email_and_password(email, password)
+    #user = UserHelper.get_user_by_email_and_password(email, password)
     #if user:
     #    user_data = {
     #        'id': str(user.get_id()),
     #        'name': user.name,
     #        'email': user.email,
     #    }
-        return jsonify(status = '200', success=True, message='用戶資料取得成功', response=user_data)
+        return jsonify(status = '200', success=True, message='get user data successfully', response=user_data)
 
     else:
-        return jsonify(status = '400', success=False, message='用戶名或密碼錯誤')
+        return jsonify(status = '400', success=False, message='get user data')
 
 
 @user_bp.route('/user/update_user', methods=['PUT'])
@@ -107,9 +139,7 @@ def update_user():
     else:
         return jsonify(status = '400', success=False, message='找不到用戶')
 
-
-
-
+#沒有delete user
 @user_bp.route('/user/delete_user', methods=['DELETE'])
 def delete_user():
     user_id = request.args.get('user_id')

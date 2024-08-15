@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/painting.dart';
-
 import 'event_view.dart'; // 导入 EventView 组件
 import 'package:view/services/Sour_Record_svs.dart';
 import 'package:view/models/Sour_Record.dart';
 
 class SearchView extends StatefulWidget {
-  //final Map<DateTime, List<String>> events;
+  //final Map<DateTime, List<String>> events; 刪
 
   final String user_id;
 
@@ -21,6 +20,7 @@ class _SearchViewState extends State<SearchView> {
   TextEditingController _searchController = TextEditingController();
   //將time、reason、id 加入 search result
 
+  //感覺可以把result刪了
   List<SourRecord> result = [];
   List<SourRecord> _searchResults = [];
   List<SourRecord> SR = [];
@@ -57,6 +57,7 @@ class _SearchViewState extends State<SearchView> {
       return;
     }
 
+    //這裡直接用_searchResults?
     for (var record in SR) {
       if (record.reason.contains(query)) {
         result.add(record);
@@ -81,8 +82,9 @@ class _SearchViewState extends State<SearchView> {
 
     if (updatedEvents != null) {
       getAllSR(widget.user_id);
+      // 改 _searchEvents() ;
       _searchController.addListener(_searchEvents);
-    }
+    }  
   }
 
   @override
@@ -122,7 +124,7 @@ class _SearchViewState extends State<SearchView> {
                         itemCount: _searchResults.length,
                         itemBuilder: (context, index) {
                           final entry = _searchResults[index];
-                          //final dateStr = DateFormat('yMMMd', 'zh_TW').format(entry.key);
+                          //final dateStr = DateFormat('yMMMd', 'zh_TW').format(entry.key); 刪
                           return Card(
                             color: Colors.green[50],
                             shadowColor: Colors.white,

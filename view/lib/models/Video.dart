@@ -41,7 +41,7 @@ class Video {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name ?? "",
+      'title': name ?? "",
       'url': url?? ""
     };
   }
@@ -49,7 +49,7 @@ class Video {
   factory Video.fromJson(Map<String, dynamic> json) {
     return Video(
       id: json['id'],
-      name: json['name'],
+      name: json['title'],
       url: json['url']
     );
   }

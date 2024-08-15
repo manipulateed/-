@@ -1,16 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
+import sys
+sys.path.append(r'..')
 from models.MongoDBMgr import MongoDBMgr 
 from models.Video import Video
 from models.Video_Helper import Video_Helper
 
 app = Flask(__name__)
-
+Video_bp = Blueprint('Video', __name__)
 mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
 db_name = "酸通"
 mongo_mgr = MongoDBMgr(db_name,mongo_uri)
 vd_helper = Video_Helper(mongo_mgr)
 
-@app.route('/api/video/create', methods = ['POST'])
+@Video_bp.route('/api/video/create', methods = ['POST'])
 def create_Video(): #-> check 是否已經存在資料庫裡了
     data = request.json
     if not data or 'url' not in data or 'title' not in data:
@@ -23,17 +25,16 @@ def create_Video(): #-> check 是否已經存在資料庫裡了
     else:
         return jsonify(result), 409  # 409 Conflict
 
-@app.route('/VideoController/get', methods = ['GET'])
+@Video_bp.route('/VideoController/get', methods = ['GET'])
 def get_Video_by_VideoId():
-    data = request.json
-    if data:
-        video_id = data.get('video_id')
+    video_id = request.args.get('video_id')
+    if video_id:
         vd_data = vd_helper.get_Video_Data_by_VideoID(video_id)
         return jsonify(status = '200', success = True, video_id = video_id, response = vd_data)
     else:
         return jsonify(status = '400', success = False, messsage = 'No data received')
     
-@app.route('/api/video/search_and_create', methods=['POST'])
+@Video_bp.route('/api/video/search_and_create', methods=['POST'])
 def search_and_create_videos():
     data = request.args.get('data')
     
@@ -54,5 +55,3 @@ def search_and_create_videos():
     else:
         return jsonify({"success": False, "message": "未找到任何視頻"}), 404
  
-if __name__ == '__main__':
-    app.run(debug=True)

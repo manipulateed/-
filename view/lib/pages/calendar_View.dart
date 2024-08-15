@@ -19,6 +19,7 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime? _selectedDay;
   TextEditingController _eventController = TextEditingController();
   String user_id = '66435b426b52ed9b072dc0dd';
+  //刪
   String record_id='';
 
   List<SourRecord> _event = [];
@@ -38,9 +39,11 @@ class _CalendarViewState extends State<CalendarView> {
     setState(() {
       SR = service.SR;
       _event = SR;
+      //刪
       print('Events: $_event');
     });
 
+    //刪
     for(var record in _event){
       user_id = '${record.userId}';
     }
@@ -76,6 +79,7 @@ class _CalendarViewState extends State<CalendarView> {
             }, // 設置按下按鈕時執行的函數
           ),
           //新增日記
+          //我想要改判斷有event=>不顯示，沒有event=>顯示
           IconButton(onPressed: _showAddEventDialog, icon: Icon(Icons.add))
         ],
       ),
@@ -113,6 +117,7 @@ class _CalendarViewState extends State<CalendarView> {
                 });
               },
               eventLoader: (day) {
+                //刪
                 print('Loading events for day: $day');
                 return _getEventsForDay(day);
               },
@@ -185,12 +190,14 @@ class _CalendarViewState extends State<CalendarView> {
     showDialog(
       context: context,
       builder: (context) {
+        //看看dialog要不要改style
         return AlertDialog(
           title: Text('${DateFormat('yyyy-MM-dd').format(_selectedDay!)}',
           textAlign: TextAlign.center,
           ),
           content: TextField(
             controller: _eventController,
+            //提示字可改
             decoration: InputDecoration(labelText: 'Event'),
           ),
           actions: [
@@ -198,7 +205,7 @@ class _CalendarViewState extends State<CalendarView> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: Text('取消'),
             ),
             TextButton(
                onPressed: () {
@@ -210,7 +217,7 @@ class _CalendarViewState extends State<CalendarView> {
                  setState(() {
                    _eventController.clear();
                  });
-
+                //刪
                  //getAllSR();
                },
               //{
@@ -229,14 +236,15 @@ class _CalendarViewState extends State<CalendarView> {
               //   Navigator.pop(context);
               //   createSR(user_id, _eventController.text, _selectedDay!);
               // },
-              child: Text('Save'),
+              child: Text('確認'),
             ),
           ],
         );
       },
     );
   }
-  
+
+  //把位子移上去
   void createSR(String user_id, String reason, String time) async{
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
     await service.createSR(user_id, reason, time);
@@ -248,7 +256,7 @@ class _CalendarViewState extends State<CalendarView> {
       context,
       MaterialPageRoute(
         builder: (context) => EventView(
-          //events: events,
+          //events: events,刪
           record_id: id,
         ),
       ),

@@ -8,8 +8,8 @@ class Sour_Record_SVS {
   Sour_Record_SVS({required this.SR});
 
   //獲取所有紀錄
-  Future<void> getAllSR() async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get_ALLSR?user_id=20');
+  Future<void> getAllSR(user_id) async {
+    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get_ALLSR?user_id='+user_id);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -23,23 +23,54 @@ class Sour_Record_SVS {
   }
 
   //取得單一痠痛紀錄
+
+  // Future<void> getSR(id) async {
+  //   final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get?id='+id);
+  //   final response = await http.get(url);
+  //
+  //   if (response.statusCode == 200) {
+  //     final content = jsonDecode(response.body);
+  //     print('Data get successfully: ${content["response"]}');
+  //     List<dynamic> responseData = content['response'];
+  //     SR = responseData.map((data) => SourRecord.fromJson(data)).toList();
+  //   } else {
+  //     print('Failed to get data: ${response.statusCode}');
+  //   }
+  // }
+
   Future<void> getSR(id) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get?id='+id);
+    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get?id=' + id);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final content = jsonDecode(response.body);
-      print('Data get successfully: ${content["response"]}');
-      List<dynamic> responseData = content['response'];
-      SR = responseData.map((data) => SourRecord.fromJson(data)).toList();
+      print('Data received: $content');
+
+      if (content is Map<String, dynamic> && content.containsKey('response')) {
+        var responseData = content['response'];
+
+        // Check if responseData is a List or Map
+        if (responseData is List) {
+          // If responseData is a List
+          SR = responseData.map((data) => SourRecord.fromJson(data)).toList();
+        } else if (responseData is Map) {
+          if (responseData is Map<String, dynamic>) {
+            SR = [SourRecord.fromJson(responseData)];
+          } else {
+            print('responseData is not a Map: $responseData');
+          }
+        }
+      }
     } else {
       print('Failed to get data: ${response.statusCode}');
     }
   }
 
+
+
   //修改痠痛原因
   Future<void> updateSR(String sour_record_id, String new_value) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/update?id=1');
+    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/update?id='+sour_record_id);
     final response = await http.put(
       url,
       headers: <String, String>{
@@ -47,7 +78,7 @@ class Sour_Record_SVS {
       },
       body: jsonEncode({
         'sour_record_id': sour_record_id,
-        'field_name': "attributs",
+        'field_name': "Reason",
         'new_value': new_value
       }),
     );
@@ -59,8 +90,8 @@ class Sour_Record_SVS {
   }
 
   //刪除痠痛紀錄
-  Future<void> deleteSR(String id,) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/delete?id=1');
+  Future<void> deleteSR(String id) async {
+    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/delete?id='+id);
     final response = await http.delete(
       url,
       headers: <String, String>{
@@ -79,7 +110,7 @@ class Sour_Record_SVS {
 
   //新增痠痛
   Future<void> createSR(String user_id, String reason, String time) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/create?user_id=20');
+    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/create?user_id='+user_id);
     final response = await http.post(
       url,
       headers: <String, String>{

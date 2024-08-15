@@ -5,17 +5,16 @@ import 'package:quickalert/quickalert.dart';
 class AddCLButton {
   static String message = '';
 
-  List<Map<String, List<String>>> CL = [];
-  dynamic Function(List<Map<String, List<String>>>) onUpdateCL;
+  List<Map<String, dynamic>> CL = [];
+  dynamic Function(String) onUpdateCL;
 
   AddCLButton({
     required this.CL,
     required this.onUpdateCL,
   });
 
-  void _handlePressed(Map<String, List<String>> newCL) {
-    CL.add(newCL);
-    onUpdateCL(CL);
+  void _handlePressed(String newName) {
+    onUpdateCL(newName);
   }
 
   FloatingActionButton getButton(context) {
@@ -41,7 +40,7 @@ class AddCLButton {
               await QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
-                text: 'Please input something',
+                text: '請輸入有效名稱',
               );
               return;
             }
@@ -56,7 +55,7 @@ class AddCLButton {
               );
               return;
             }
-            _handlePressed({message: []});
+            _handlePressed(message);
             Navigator.pop(context);
             await Future.delayed(const Duration(milliseconds: 300));
             await QuickAlert.show(

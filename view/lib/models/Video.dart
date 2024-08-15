@@ -37,14 +37,20 @@ class Video {
     };
     return videoData;
   }
+  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'name': name ?? "",
+      'url': url?? ""
     };
   }
-  factory Video.fromJson(int json) {
+  
+  factory Video.fromJson(Map<String, dynamic> json) {
     return Video(
-      id: json.toString(),
+      id: json['id'],
+      name: json['name'],
+      url: json['url']
     );
   }
 }

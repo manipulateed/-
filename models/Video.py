@@ -31,7 +31,7 @@ class Video:
             "description": self.description,
             "url": self.url
         }
-        return json.dumps(video_data)
+        return video_data
     '''
     #helper
     def create_Video(self):

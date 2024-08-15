@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class EventView extends StatefulWidget {
-  //final List<SourRecord> events;
+  //final List<SourRecord> events;刪
   final String record_id ;
 
   EventView({required this.record_id});
@@ -22,8 +22,10 @@ class _EventViewState extends State<EventView> {
   bool _isEditing = false;
   String day = '';
   String reason='';
+  //刪title
   String title='';
   String video='';
+  //id = widget.record_id
   String id='';
 
   @override
@@ -45,15 +47,19 @@ class _EventViewState extends State<EventView> {
     for (var record in SR) {
       day = '${record.time.year}-${record.time.month}-${record.time.day}';
       reason = '${record.reason}';
+      //刪title
       title = '${record.title}';
       video = '${record.videos}';
+      //前面寫過了
       id = '${record.id}';
 
       _controllers.add(TextEditingController(text: reason));
 
+      //等video寫好刪
       print("資料"+day+reason+title+video);
     }
 
+    //刪
     // _updatedEvents = widget.events.map((SR) {
     //   _controllers.add(TextEditingController(text: reason));
     //   return SourRecord(
@@ -84,15 +90,15 @@ class _EventViewState extends State<EventView> {
       await service.updateSR(id,new_value);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Events saved successfully'),
+          content: Text('編輯成功'),
           backgroundColor: Colors.green,
         ),
       );
-      //Navigator.pop(context, _updatedEvents);
+      //Navigator.pop(context, _updatedEvents);刪
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Event description cannot be empty'),
+          content: Text('未輸入內容'),
           backgroundColor: Colors.red,
         ),
       );
@@ -106,8 +112,10 @@ class _EventViewState extends State<EventView> {
   }
 
   void _deleteEvent(String id) async {
+    //這句是不是可以不用重複寫
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
     await service.deleteSR(id);
+    //感覺可以不用寫這句
     Navigator.pop(context,true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -123,16 +131,16 @@ class _EventViewState extends State<EventView> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this event?'),
+          content: Text('確定要刪除此紀錄?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('取消'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: Text('刪除'),
               onPressed: () {
                 _deleteEvent(widget.record_id);
                 Navigator.pop(context, true);
@@ -155,7 +163,7 @@ class _EventViewState extends State<EventView> {
         appBar: AppBar(
           title: Text(
             day,
-            //"Hello",
+            //"Hello",刪
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
           ),
           centerTitle: true,
@@ -215,7 +223,7 @@ class _EventViewState extends State<EventView> {
                         controller: controller,
                         maxLines: null,
                         decoration: InputDecoration(
-                          hintText: 'Enter reason',
+                          hintText: '輸入內容',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -245,6 +253,7 @@ class _EventViewState extends State<EventView> {
                 '推薦影片',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
               ),
+              //影片
               Column(
                 children: _controllers.map((controller) {
                   return GestureDetector(

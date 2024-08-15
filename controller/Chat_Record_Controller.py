@@ -1,48 +1,48 @@
 from flask import Flask, request, jsonify, Blueprint
 import sys
 sys.path.append(r'..')
-#from models.MongoDBMgr import MongoDBMgr
+from models.MongoDBMgr import MongoDBMgr
 from models.Chat_Record_Helper import Chat_Record_Helper
 from models.Chat_Record import Chat_Record
 from models.Message import Message
 from bson import ObjectId
 from datetime import datetime
-import sys
-sys.path.append(r'..')
+
 Chat_Record_bp = Blueprint('Chat_Record', __name__)
 
-mongo_uri = "mongodb+srv://username:password@your-cluster.mongodb.net/"
-db_name = "your_database_name"
-#mongo_mgr = MongoDBMgr(db_name, mongo_uri)
-#cr_helper = Chat_Record_Helper(mongo_mgr)
+mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
+db_name = "酸通"
+mongo_mgr = MongoDBMgr(db_name, mongo_uri)
+cr_helper = Chat_Record_Helper(mongo_mgr)
 
 @Chat_Record_bp.route('/Chat_Record_Controller/get_chat_records', methods=['GET'])
 def get_chat_records_by_user_id():
     """獲取用戶的所有聊天記錄"""
     data = request.args.get("user_id")
+
     if data:
-        user_id = data
-        message1 = Message("user","123456","12.31","12.45")
-        message2 = Message("ai","654321","12.31","12.45")
-        message = [message1.get_Message_data(), message2.get_Message_data()]
+        # user_id = data
+        # message1 = Message("user","123456","12.31","12.45")
+        # message2 = Message("ai","654321","12.31","12.45")
+        # message = [message1.get_Message_data(), message2.get_Message_data()]
 
-        suggested_videos = [{"伸展":[1,2,3]},{"姿勢":[6,9,8]}]       
-        formatted_suggested_videos = []
-        for video in suggested_videos:
-            key = list(video.keys())[0]
-            formatted_video = {
-                "Keyword": key,
-                "Video_id": video[key]
-            }
-            formatted_suggested_videos.append(formatted_video)
+        # suggested_videos = [{"伸展":[1,2,3]},{"姿勢":[6,9,8]}]       
+        # formatted_suggested_videos = []
+        # for video in suggested_videos:
+        #     key = list(video.keys())[0]
+        #     formatted_video = {
+        #         "Keyword": key,
+        #         "Video_id": video[key]
+        #     }
+        #     formatted_suggested_videos.append(formatted_video)
 
-        record1 = Chat_Record("1", 20, "大腿痠痛", message, formatted_suggested_videos, "12:23:56", "yes")
-        record2 = Chat_Record("2", 20, "小腿痠痛", message, formatted_suggested_videos, "12:23:56", "yes")
+        # record1 = Chat_Record("1", 20, "大腿痠痛", message, formatted_suggested_videos, "12:23:56", "yes")
+        # record2 = Chat_Record("2", 20, "小腿痠痛", message, formatted_suggested_videos, "12:23:56", "yes")
 
-        return_data = [record1.get_chat_record_data(), record2.get_chat_record_data()]
-
-        #return_data = cr_helper.get_all_chat_records_by_user_id(user_id)
-        return jsonify(success=True, user_id=user_id, response=return_data), 200
+        # return_data = [record1.get_chat_record_data(), record2.get_chat_record_data()]
+        #messages_data = [msg.get_Message_data() for msg in messages]
+        return_data = cr_helper.get_all_chat_records_by_user_id(data)
+        return jsonify(success=True, user_id=data, response=return_data), 200
     else:
         return jsonify(success=False, message="No data received"), 400
 
@@ -108,7 +108,19 @@ def update_chat_record():
         #chat_record = Chat_Record.query.filter_by(id=id).first()
         # 更新記錄的屬性
         user_id = data.get('user_id')
-        message = data.get('message')
+
+        messages = []
+        for item in data.get('message'):
+            character = item.get('character')
+            content = item.get('content')
+            date = item.get('date')
+            time = item.get('time')
+            
+            message = Message(character, content, date, time)
+            messages.append(message)
+
+        # For demonstration, converting the messages back to JSON to send in response
+        message = [msg.get_Message_data() for msg in messages]
         name = data.get('name')
 
         # 處理 Suggested_videos
@@ -131,13 +143,13 @@ def update_chat_record():
                 formatted_suggested_videos.append(formatted_video)
 
             suggested_videos = formatted_suggested_videos
-
+        print(suggested_videos)
         # 更新最後更新的時間戳
         timestamp = datetime.now().isoformat()
 
         finished = data.get('finished')
 
-        chat_record = Chat_Record(id, user_id, name, message, formatted_suggested_videos, timestamp, finished)
+        chat_record = Chat_Record(id, user_id, name, message, suggested_videos, timestamp, finished)
         # 保存更新後的記錄
         # result = cr_helper.save_to_db(chat_record)
         print(chat_record.get_chat_record_data())

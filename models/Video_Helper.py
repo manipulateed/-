@@ -1,5 +1,5 @@
 from bson import ObjectId
-from Video import Video
+from .Video import Video
 import requests
 
 class Video_Helper:
@@ -87,13 +87,14 @@ class Video_Helper:
             return {"success": False, "message": "找不到收藏列表"}
         
     def get_Video_Data_by_VideoID(self,video_id): #取得video資訊
-        video_collection = self.db_mgr.get_Collection('Video')
+        video_collection = self.db_mgr.get_collection('Video')
         video_data = video_collection.find_one({"_id":ObjectId(video_id)})
         if video_data:
             video = Video(
-                id=video_data["_id"],
-                name=video_data["name"],
-                url=video_data["url"]
+                id=str(video_data["_id"]),
+                title=video_data["title"],
+                url=video_data["url"],
+                description=video_data['description']
             )
             return video.get_video_data()
         else:

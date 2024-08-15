@@ -12,7 +12,7 @@ class Chatrecord_SVS{
   late User user;
 
   Future<void> getAllChatRecords() async {
-    final url = Uri.parse('http://172.20.10.3:8080/Chat_Record_Controller/get_chat_records?user_id=20');
+    final url = Uri.parse('http://172.20.10.3:8080/Chat_Record_Controller/get_chat_records?user_id=66435c496b52ed9b072dc0e4');
     final response = await http.get(
         url
     );
@@ -41,8 +41,8 @@ class Chatrecord_SVS{
     }
   }
 
-  Future<void> updateCL(type, new_value) async {
-    final url = Uri.parse('http://172.20.10.3:8080/Collect_List_Controller/update_CL?user_id=20');
+  Future<void> updateChatRecord() async {
+    final url = Uri.parse('http://172.20.10.3:8080/Chat_Record_Controller/update_chat_record?user_id=20');
 
     final response = await http.put(
       url,
@@ -50,10 +50,10 @@ class Chatrecord_SVS{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(
-        chatrecords.last.toJson(),
+        chatrecords[0].toJson(),
       ),
     );
-
+    print(chatrecords[0].toJson());
     if (response.statusCode == 200) {
       print('Data update successfully: ${response.body}');
     } else {

@@ -3,10 +3,12 @@ import 'package:view/widgets/card/collection_Card.dart';
 import 'package:view/widgets/button/add_CL_Button.dart';
 import 'package:view/constants/text_style.dart';
 import 'package:view/services/CollectionList_svs.dart';
+import 'package:view/services/Video_svs.dart';
 import 'package:view/pages/Collection_View.dart';
 import 'package:view/constants/route.dart';
 
 import 'package:view/models/CL.dart';
+import 'package:view/models/Video.dart';
 
 class CollectionListView extends StatefulWidget {
   const CollectionListView({super.key});
@@ -29,6 +31,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void getCollectionList() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
+    Video_SVS videoService = Video_SVS(videos: Video());
     List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
     // 打印 collectList 中的每一個 cl
     for (var cl in collectList) {
@@ -55,11 +58,11 @@ class _CollectionViewState extends State<CollectionListView> {
     }
   }
 
-  void updateCollectionList(type, new_value) async {
-    List<CollectList> CL = [];
-    CollectionList_SVS service = CollectionList_SVS(CL: CL);
-    await service.updateCL(type, new_value);
-  }
+  // void updateCollectionList(type, new_value) async {
+  //   List<CollectList> CL = [];
+  //   CollectionList_SVS service = CollectionList_SVS(CL: CL);
+  //   await service.updateCL(type, new_value);
+  // }
 
   void removeCollectionList(String cl_id) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
@@ -69,11 +72,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
   @override
   Widget build(BuildContext context) {
-    // void _updateCL(List<Map<String, List<String>>> newList) {
-    //   setState(() {
-    //     collection_List = newList;
-    //   });
-    // }
+    // removeCollectionList("66860a6a6a4b4baac976185c");
     void _updateCL(String addname) {
       createCollectionList(addname);
     }
@@ -111,6 +110,8 @@ class _CollectionViewState extends State<CollectionListView> {
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.black),
                               onPressed: () {
+                                String s =collection_List[index]['id'];
+                                print("clID:" + s);
                                 removeCollectionList(collection_List[index]['id']);
                               },
                             ),

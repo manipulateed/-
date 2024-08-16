@@ -3,6 +3,9 @@ import 'dart:convert';  // 用於JSON解析
 import 'package:http/http.dart' as http;
 import 'package:view/services/CollectionList_svs.dart';
 import 'package:view/models/CL.dart';
+import 'package:view/models/Video.dart';
+import 'package:view/pages/video_View.dart';
+import 'package:quickalert/quickalert.dart';
 
 class CollectionView extends StatefulWidget {
   const CollectionView({super.key});
@@ -22,12 +25,53 @@ class _CollectionViewState extends State<CollectionView> {
     super.didChangeDependencies();
 
     final Map<String, dynamic> collectionItem = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
     userID = collectionItem['user_id'];
     clID = collectionItem['id'];
+
+    getOneCL();
   }
 
+  void _editCLName() async {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.custom,
+      barrierDismissible: true,
+      confirmBtnText: '確認',
+      title: '編輯收藏清單名稱',
+      confirmBtnColor: Colors.green,
+      widget: TextFormField(
+        initialValue: clName,
+        decoration: const InputDecoration(
+          alignLabelWithHint: true,
+          hintText: '請輸入新的名稱',
+        ),
+        textInputAction: TextInputAction.done,
+        onChanged: (value) {
+          clName = value;
+        },
+      ),
+      onConfirmBtnTap: () async {
+        if (clName.length < 5) {
+          await QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            text: '請輸入有效名稱（至少 5 個字）',
+          );
+          return;
+        }
+        updateCollectionList("name",clName);
+        // 更新資料庫中的名稱
 
+        Navigator.pop(context);  // 關閉編輯對話框
+        await Future.delayed(const Duration(milliseconds: 300));
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          text: "收藏清單名稱已更新為 '$clName'!",
+        );
+      },
+    );
+  }
 
   Future<void> getOneCL() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
@@ -43,9 +87,14 @@ class _CollectionViewState extends State<CollectionView> {
       print('Error: $e');
     }
   }
+  void updateCollectionList(type, new_value) async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    await service.updateCL(clID, type, new_value);
+  }
 
   @override
   Widget build(BuildContext context) {
+    updateCollectionList("name","clName");
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(88),
@@ -101,14 +150,8 @@ class _CollectionViewState extends State<CollectionView> {
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.green),
                       onPressed: () {
+                        _editCLName();
                         // 編輯按鈕動作
-                      },
-                      iconSize: 40,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle, color: Colors.green),
-                      onPressed: () {
-                        // 新增按鈕動作
                       },
                       iconSize: 40,
                     ),

@@ -22,11 +22,11 @@ class Collect_List_Helper:
     def update_CL_data(self, cl_id, type, new_value):
         collection = self.db_mgr.get_collection('Collect_List')
         if type == 'name':
-            collection.update_one({'_id': cl_id}, {'$set': {'Name': new_value}})
+            collection.update_one({'_id': ObjectId(cl_id)}, {'$set': {'Name': new_value}})
         elif type == 'add_video':
-            collection.update_one({'_id': cl_id}, {'$addToSet': {'Collect_Video': ObjectId(new_value)}})
+            collection.update_one({'_id': ObjectId(cl_id)}, {'$addToSet': {'Collect_Video': ObjectId(new_value)}})
         elif type == 'remove_video':
-            collection.update_one({'_id': cl_id}, {'$pull': {'Collect_Video': ObjectId(new_value)}})
+            collection.update_one({'_id': ObjectId(cl_id)}, {'$pull': {'Collect_Video': ObjectId(new_value)}})
         else:
             return {"success": False, "message": "invalid field name"}
 
@@ -60,8 +60,23 @@ class Collect_List_Helper:
     
     def get_CL_by_UserId_and_ClId(self, user_id, cl_id):
         collection = self.db_mgr.get_collection('Collect_List')
-        cl = collection.find_one({"User_Id": ObjectId(user_id), "cl_id": ObjectId(cl_id)})
-        if cl:
-            return cl
-        else:
+        
+        cl_data = collection.find_one({"User_Id": ObjectId(user_id), "_id": ObjectId(cl_id)})
+        
+        # 檢查 cl_data 是否為 None
+        if cl_data is None:
+            print("查詢結果為空，沒有找到對應的收藏清單")
             return None
+
+        # 解析 Collect_Video
+        parsed_collection = [str(vid) for vid in cl_data.get('Collect_Video', [])]
+        
+        cl = Collect_List(
+            id=cl_data['_id'],
+            user_id=cl_data['User_Id'],
+            name=cl_data['Name'],
+            collection=parsed_collection
+        )
+        
+        return cl.get_CL_data()
+

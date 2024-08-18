@@ -2,7 +2,7 @@ import json
 from bson import ObjectId
 from datetime import datetime
 class Chat_Record:
-    def __init__(self,id ,user_id, name, message, suggested_videos,timestamp, finished):
+    def __init__(self,id,user_id, name, message, suggested_videos,timestamp, finished):
         self.id = id
         self.user_id = user_id
         self.name = name

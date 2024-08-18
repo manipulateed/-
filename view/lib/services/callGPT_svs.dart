@@ -22,18 +22,31 @@ class CallGPT_SVS{
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 302) {
         Map<String, dynamic> parsedData = jsonDecode(response.body);
-        if (!parsedData["end"]){
+        finish = parsedData["end"].toString();
+        this.response = parsedData['response'];
+
+        if (parsedData["end"]){
+          suggestMap = List<Map<String, List<Video>>>.from(
+            (parsedData['Suggested_Videos'] as List).map((item) {
+              Map<String, dynamic> mapItem = item as Map<String, dynamic>;
+              List<dynamic> videoIds = mapItem['Video_id'] as List<dynamic>;
+
+              return {
+                mapItem['Keyword'] as String: List<Video>.from(
+                    videoIds.map((id) => Video(id: id.toString()))
+                ),
+              };
+            }),
+          );
           print(parsedData);
           this.response = parsedData['response'];
-          print('Data create successfully: ${this.response}');
+          print('SuggestVideos get successfully: ${this.response}');
         }
-        else{
-
-        }
+        print('Data get successfully: ${this.response}');
       } else {
-        print('Failed to create data: ${response.statusCode}');
+        print('Failed to get data: ${response.statusCode}');
       }
     }
 

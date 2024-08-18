@@ -8,6 +8,7 @@ import 'package:view/models/Chat_Record.dart';
 import 'package:view/models/Video.dart';
 import 'package:view/constants/route.dart';
 import 'package:view/services/callGPT_svs.dart';
+import 'package:view/services/chatrecord_svs.dart';
 // For the testing purposes, you should probably use https://pub.dev/packages/uuid.
 String randomString() {
   final random = Random.secure();
@@ -48,30 +49,30 @@ class _ChatViewState extends State<ChatView> {
   }
   void getChatRecord(){
     for (var message in chatrecord.message) {
-      if (message["character"] == 'user') {
+      if (message["Role"] == 'User') {
         final textMessage = types.TextMessage(
           author: _user,//自己
           createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
           id: randomString(),//每一個message要有獨立的id
-          text: message["content"].toString(),//文字訊息
+          text: message["Content"].toString(),//文字訊息
         );
 
         _addMessage(textMessage);
-        print('User Message: ${message["content"]}');
-      } else if (message["character"] == 'ai') {
+        print('User Message: ${message["Content"]}');
+      } else if (message["Role"] == 'AI') {
         // AI 發送的訊息，執行相應的動作
         final textMessage = types.TextMessage(
           author:types.User(id: 'bot'),//自己
           createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
           id: randomString(),//每一個message要有獨立的id
-          text: message["content"].toString(),//文字訊息
+          text: message["Content"].toString(),//文字訊息
         );
 
         _addMessage(textMessage);
-        print('AI Message: ${message["content"]}');
+        print('AI Message: ${message["Content"]}');
       } else {
         // 其他角色的訊息處理
-        print('Other Message: ${message["content"]}');
+        print('Other Message: ${message["Content"]}');
       }
     }
   }
@@ -79,7 +80,18 @@ class _ChatViewState extends State<ChatView> {
   Future<Map<String, dynamic>> getReponse(String message)async{
     CallGPT_SVS service = CallGPT_SVS(message: message);
     await service.getDignose();
+
+    if (service.finish == "true"){
+      chatrecord.suggestedVideoIds = service.suggestMap;
+      chatrecord.finish = "yes";
+    }
+
     return service.response;
+  }
+
+  void updateRecord() async{
+    Chatrecord_SVS service = Chatrecord_SVS(chatrecords: [chatrecord]);
+    await service.updateChatRecord();
   }
 
   @override
@@ -118,7 +130,7 @@ class _ChatViewState extends State<ChatView> {
               //sentMessageBackgroundColor: Colors.blue,
             ),
           ),
-          Positioned(
+          if (chatrecord.finish == "yes")Positioned(
             top: 30,
             left: 20,
             child: FloatingActionButton(
@@ -163,9 +175,17 @@ class _ChatViewState extends State<ChatView> {
       //新增新訊息時，將資料插入到index 0的位置，並且setState刷新UI
       _messages.insert(0, message);
     });
-
   }
 
+  //將message轉成map
+  void convertMessageToMapandAddtoRecord(types.TextMessage message, String author) {
+    chatrecord.message.add({
+      'character': author,
+      'content': message.text,
+      'date': DateTime.fromMillisecondsSinceEpoch(int.parse(message.createdAt.toString())).toIso8601String().split('T')[0],
+      'time': DateTime.fromMillisecondsSinceEpoch(int.parse(message.createdAt.toString())).toIso8601String().split('T')[1],
+    });
+  }
 
   //當點擊send按鈕時，會從Chat Widget中觸發此函數並將訊息資料傳出。
   //根據資料內容可以創建新的`TextMessage`並加入訊息歷史列表中
@@ -178,6 +198,9 @@ class _ChatViewState extends State<ChatView> {
     );
     _addMessage(textMessage);
 
+    //將梁天記錄轉換成MAP並存到chatrecord中
+    convertMessageToMapandAddtoRecord(textMessage, "user");
+
     Map<String, dynamic> response = await getReponse(message.text);
 
     final replyMessage = types.TextMessage(
@@ -189,6 +212,11 @@ class _ChatViewState extends State<ChatView> {
       text: response["content"].toString(),
     );
     _addMessage(replyMessage); // 插入對方的回覆訊息
+
+    convertMessageToMapandAddtoRecord(replyMessage, "ai");
+
+    //更新醉心聊天紀錄
+    updateRecord();
     //_scrollToBottom();
   }
 

@@ -1,6 +1,7 @@
 import json
 from bson import ObjectId
-
+from .Chat_Record import Chat_Record
+from datetime import datetime
 class Chat_Record_Helper:
     def __init__(self, db_mgr):
         self.db_mgr = db_mgr
@@ -41,7 +42,7 @@ class Chat_Record_Helper:
       
     def update_message(self, chat_record, new_message):
         chat_record.update_message(new_message)
-        chat_collection = self.db_mgr.get_collection('Chat_Record')
+        chat_collection = self.get_collection('Chat_Record')
         result = chat_collection.update_one(
             {"User_Id": chat_record.user_id},
             {
@@ -55,21 +56,29 @@ class Chat_Record_Helper:
             return {"success": False, "message": "Message 更新失敗"}
         
     def get_all_chat_records_by_user_id(self, user_id):
-        chat_collection = self.db_mgr.get_collection('Chat_Record')
+        chat_collection = self.get_collection('Chat_Record')
         records = chat_collection.find({"User_Id": ObjectId(user_id)})
-        return [self._format_record(record) for record in records]
+        all = []
+        for record in records:
+            all.append(self._format_record(record))
+
+        print(all)
+        return all
     
     def get_Chat_Record_by_id(self, record_id):
         chat_collection = self.db_mgr.get_collection('Chat_Record')
         record_data = chat_collection.find_one({"_id": ObjectId(record_id)})
+
         return self._format_record(record_data) if record_data else None
     
     def _format_record(self, record):
         if record:
             record['_id'] = str(record['_id'])
             record['User_Id'] = str(record['User_Id'])
-            record['Suggested_Video_Id'] = [str(vid) for vid in record['Suggested_Video_Id']]
             
+            record['Name'] = str(record['Name'])
+            # message2 = Message("ai","654321","12.31","12.45")
+            # message = [message1.get_Message_data(), message2.get_Message_data()]
             # 完整格式化 Message 字段
             if 'Message' in record:
                 formatted_messages = []
@@ -84,12 +93,28 @@ class Chat_Record_Helper:
                     if isinstance(formatted_message['Date'], datetime):
                         formatted_message['Date'] = formatted_message['Date'].strftime("%Y-%m-%d")
                     if isinstance(formatted_message['Time'], datetime):
-                        formatted_message['Time'] = formatted_message['Time'].strftime("%H:%M")
+                        formatted_message['Time'] = formatted_message['Time'].strftime("%H:%M:%S")
                     formatted_messages.append(formatted_message)
                 record['Message'] = formatted_messages
+         
+            formatted_suggested_videos = []
+            for video in record['Suggested_Videos']:
+                keyword = video.get('Keyword', '')
+                video_ids = [str(vid) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
+                formatted_suggested_videos.append({
+                    "Keyword": keyword,
+                    "Video_id": video_ids
+                })
             
             # 格式化 Last_Update_TimeStamp
             if 'Last_Update_TimeStamp' in record:
                 record['Last_Update_TimeStamp'] = record['Last_Update_TimeStamp'].isoformat() if isinstance(record['Last_Update_TimeStamp'], datetime) else record['Last_Update_TimeStamp']
-
-        return record
+            
+            if str(record['Finished'] == "true"):
+                record['Finished'] = "yes"
+            else:
+                record['Finished'] = "no"
+                
+            
+            record1 = Chat_Record(record['_id'], record['User_Id'], record['Name'], record['Message'], formatted_suggested_videos, record['Last_Update_TimeStamp'], record['Finished'])
+        return record1.get_chat_record_data()

@@ -6,6 +6,8 @@ import 'package:view/models/CL.dart';
 import 'package:view/models/Video.dart';
 import 'package:view/pages/video_View.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:view/services/Video_svs.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class CollectionView extends StatefulWidget {
   const CollectionView({super.key});
@@ -29,6 +31,17 @@ class _CollectionViewState extends State<CollectionView> {
     clID = collectionItem['id'];
 
     getOneCL();
+  }
+
+  Future<List<Video>> _fetchVideos() async {
+    List<Video> clvideos = [];
+    for (var videoId in collections) {
+      Video video = Video(id: videoId);
+      Video_SVS videoService = Video_SVS(videos: video);
+      await videoService.getVideoById(videoId);
+      clvideos.add(videoService.videos);
+    }
+    return clvideos;
   }
 
   void _editCLName() async {
@@ -73,6 +86,30 @@ class _CollectionViewState extends State<CollectionView> {
     );
   }
 
+  // void _removeCLVideo(String videoID) async {
+  //   QuickAlert.show(
+  //     context: context,
+  //     type: QuickAlertType.confirm,
+  //     title: '移除影片',
+  //     text: '你確定要從收藏清單中移除這部影片嗎？',
+  //     confirmBtnText: '確認',
+  //     cancelBtnText: '取消',
+  //     confirmBtnColor: Colors.red,
+  //     onConfirmBtnTap: () async {
+  //       updateCollectionList("remove_video", videoID);
+  //       // 更新資料庫，將影片從收藏清單中移除
+  //
+  //       Navigator.pop(context); // 關閉確認對話框
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //       await QuickAlert.show(
+  //         context: context,
+  //         type: QuickAlertType.success,
+  //         text: "影片已從收藏清單中移除!",
+  //       );
+  //     },
+  //   );
+  // }
+
   Future<void> getOneCL() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
 
@@ -94,7 +131,6 @@ class _CollectionViewState extends State<CollectionView> {
 
   @override
   Widget build(BuildContext context) {
-    updateCollectionList("name","clName");
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(88),
@@ -161,13 +197,23 @@ class _CollectionViewState extends State<CollectionView> {
             ),
             const SizedBox(height: 16.0),
             Expanded(
-              child: ListView(
-                children: collections.map((video) {
-                  return VideoEntry(
-                    title: video,
-                    videoLength: '未知時間', // 如果需要，可以改為實際的影片長度
-                  );
-                }).toList(),
+              child: FutureBuilder(
+                future: _fetchVideos(), // 呼叫獲取影片的非同步方法
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator()); // 資料加載中顯示的進度條
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("加載影片時出錯了")); // 錯誤處理
+                  } else {
+                    List<Video> clvideos = snapshot.data as List<Video>;
+                    return ListView.builder(
+                      itemCount: clvideos.length,
+                      itemBuilder: (context, index) {
+                        return VideoCardInCL(video: clvideos[index], clID: clID);
+                      },
+                    );
+                  }
+                },
               ),
             ),
           ],
@@ -219,6 +265,154 @@ class VideoEntry extends StatelessWidget {
                 style: const TextStyle(fontSize: 16.0),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class VideoCardInCL extends StatefulWidget {
+  final Video video;
+  final String clID; // 添加 cl_id 作為參數
+
+  VideoCardInCL({required this.video, required this.clID}); // 在構造函數中傳入 cl_id
+
+  @override
+  _VideoCardInCLState createState() => _VideoCardInCLState();
+}
+
+
+
+class _VideoCardInCLState extends State<VideoCardInCL> {
+  late Video video;
+  late String clID;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    video = widget.video;
+    clID = widget.clID;
+    getVideo();
+  }
+
+  void updateCollectionList(type, new_value) async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    await service.updateCL(clID, type, new_value);
+  }
+
+
+  void _removeCLVideo() async {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.confirm,
+      title: '移除影片',
+      text: '你確定要從收藏清單中移除這部影片嗎？',
+      confirmBtnText: '確認',
+      cancelBtnText: '取消',
+      confirmBtnColor: Colors.red,
+      onConfirmBtnTap: () async {
+        // if (!mounted) return;  // 确保当前 widget 仍然挂载
+        try {
+          // Perform the removal action
+          updateCollectionList("remove_video", video.id);
+          print("updateCollectionList");
+12
+          // Close the confirmation dialog
+          Navigator.pop(context);
+          print("Close the confirmation dialog");
+          // Short delay before showing success message
+          await Future.delayed(const Duration(milliseconds: 300));
+
+          if (mounted) {
+            await QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              text: "影片已從收藏清單中移除!",
+            );
+            print("影片已從收藏清單中移除");
+          }
+        } catch (e) {
+          // Handle any errors that occur during the removal
+          if (mounted) {
+            await QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              text: "處理過程中出錯了",
+            );
+            print("處理過程中出錯了");
+          }
+        }
+      },
+      onCancelBtnTap: () {
+        if (mounted) {
+          Navigator.pop(context);  // Close the confirmation dialog if canceled
+        }
+      },
+    );
+  }
+
+
+
+  void getVideo() async {
+    Video_SVS service = Video_SVS(videos: video);
+    await service.getVideoById(video.id);
+    setState(() {
+      video = service.videos;
+      isLoading = false;
+    });
+  }
+
+  // 把 YouTube API 抓到的 URL 轉為可以嵌入的形式
+  String getEmbeddedUrl(String url) {
+    final videoId = Uri.parse(url).queryParameters['v'];
+    return 'https://www.youtube.com/embed/$videoId';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? Center(child: CircularProgressIndicator())
+        : Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 200.0,
+              child: WebView(
+                initialUrl: getEmbeddedUrl(video.url!),
+                javascriptMode: JavascriptMode.unrestricted,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      video.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                      softWrap: true,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      _removeCLVideo();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 4.0),
           ],
         ),
       ),

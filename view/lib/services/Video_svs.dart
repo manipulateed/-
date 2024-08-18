@@ -4,11 +4,11 @@ import 'package:view/models/Video.dart';
 
 class Video_SVS {
 
-  List<Video> videos = [];
+  late Video videos;
   Video_SVS({required this.videos});
   
   Future<void> createVideo(String name, String url) async {
-    final apiUrl = Uri.parse('http://192.168.1.113:8080/api/video/create');
+    final apiUrl = Uri.parse('http://192.168.1.105:8080/api/video/create');
     final response = await http.post(
       apiUrl,
       headers: <String, String>{
@@ -28,19 +28,19 @@ class Video_SVS {
   }
 
   Future<void> getVideoById(String videoId) async {
-    final apiUrl = Uri.parse('http://192.168.1.113:8080/VideoController/get?video_id=$videos[0].id');
+    final apiUrl = Uri.parse('http://192.168.1.105:8080/VideoController/get?video_id=$videoId');
     final response = await http.get(
       apiUrl,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-
+    print(videoId);
     if (response.statusCode == 200) {
       Map<String, dynamic> parsedData = jsonDecode(response.body);
       Map<String, dynamic> responses = parsedData['response'];
-      videos[0] = video[0].fromJson(response);
-      print('Video retrieved successfully: ${videos[0].toJson()}');
+      videos = Video.fromJson(responses);
+      print('Video retrieved successfully: ${videos.toJson()}');
     } else {
       print('Failed to retrieve video: ${response.statusCode}');
     }
@@ -48,7 +48,7 @@ class Video_SVS {
 
 
   Future<void> searchAndCreateVideos(String keyword, int maxResults) async {
-    final apiUrl = Uri.parse('http://192.168.1.113:8080/api/video/search_and_create');
+    final apiUrl = Uri.parse('http://192.168.1.105:8080/api/video/search_and_create');
     final response = await http.post(
       apiUrl,
       headers: <String, String>{

@@ -31,12 +31,42 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void getCollectionList() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    Video_SVS videoService = Video_SVS(videos: Video());
     List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
-    // 打印 collectList 中的每一個 cl
+
     for (var cl in collectList) {
       print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
+
+      // 建立一個新的 list 來存放 Video_Name
+      List<String> videoNames = [];
+
+      // 創建一個 Future 列表來等待所有的 video 請求
+      List<Future<void>> futures = [];
+
+      for (var videoId in cl.collection) {
+        futures.add(
+          Future<void>(() async {
+            Video video = Video(id: videoId);
+            Video_SVS videoService = Video_SVS(videos: video);
+
+            // 使用 Video_SVS 來獲取 video 的名稱
+            await videoService.getVideoById(videoId);
+            String videoName = videoService.videos.name;
+            print("videoName:"+videoName);
+
+            // 將 videoName 添加到 videoNames 列表中
+            videoNames.add(videoName);
+          }),
+        );
+      }
+
+      // 等待所有的影片請求完成後再進行更新
+      await Future.wait(futures);
+
+      // 將 cl.collection 更新為 videoNames
+      cl.collection = videoNames;
     }
+
+    // 在所有的影片名稱都更新完後再進行狀態刷新
     setState(() {
       collection_List = collectList.map((cl) => {
         'id': cl.id,
@@ -46,6 +76,8 @@ class _CollectionViewState extends State<CollectionListView> {
       }).toList();
     });
   }
+
+
 
   void createCollectionList(String newName) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
@@ -107,14 +139,12 @@ class _CollectionViewState extends State<CollectionListView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(child: collectionListCard.getCard(context)),
-                            IconButton(
-                              icon: Icon(Icons.delete, color: Colors.black),
-                              onPressed: () {
-                                String s =collection_List[index]['id'];
-                                print("clID:" + s);
-                                removeCollectionList(collection_List[index]['id']);
-                              },
-                            ),
+                            // IconButton(
+                            //   icon: Icon(Icons.delete, color: Colors.black),
+                            //   onPressed: () {
+                            //     removeCollectionList(collection_List[index]['id']);
+                            //   },
+                            // ),
                           ],
                         ),
                       );

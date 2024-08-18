@@ -9,9 +9,11 @@ from Call_GPT import callGPT_bp
 
 app = Flask(__name__)
 app.register_blueprint(Collect_List_bp, url_prefix='')
-app.register_blueprint(user_bp, url_prefix='/user')
+# app.register_blueprint(user_bp, url_prefix='/user')
 app.register_blueprint(Chat_Record_bp, url_prefix='')
 app.register_blueprint(callGPT_bp, url_prefix='')
+app.register_blueprint(Video_bp, url_prefix='')
+
 
 @app.route('/login', methods=['POST'])
 def receive_data():

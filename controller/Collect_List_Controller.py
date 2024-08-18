@@ -26,10 +26,12 @@ def get_All_CL_by_UserId():
 @Collect_List_bp.route('/Collect_List_Controller/get_CL', methods=['GET'])
 def get_CL_by_UserId_and_ClId():
     """取得單一收藏清單"""
-    data = request.get_json()
-    if data:
-        user_id = data.get('user_id')
-        cl_id = data.get('cl_id')
+    # data = request.get_json()
+    user_id = request.args.get('user_id')
+    cl_id = request.args.get('ClId')
+    if user_id and cl_id:
+        # user_id = data.get('user_id')
+        # cl_id = data.get('cl_id')
         return_data = cl_helper.get_CL_by_UserId_and_ClId(user_id,cl_id)
         return jsonify(success=True, response = return_data), 200
     else:
@@ -58,14 +60,14 @@ def create_CL_by_UserId():
 @Collect_List_bp.route('/Collect_List_Controller/update_CL', methods=['PUT'])
 def update_CL_data():
     """修改收藏清單"""
-    # data = request.json
-    cl_id = request.args.get('cl_id')
-    type =  request.args.get('type')
-    new_value =  request.args.get('new_value')
-    if cl_id:
-        # cl_id = data.get('cl_id')
-        # type = data.get('type')
-        # new_value = data.get('new_value')
+    data = request.json
+    # cl_id = request.args.get('cl_id')
+    # type =  request.args.get('type')
+    # new_value =  request.args.get('new_value')
+    cl_id = data.get('cl_id')
+    type = data.get('type')
+    new_value = data.get('new_value')
+    if cl_id and type and new_value:
         return_data = cl_helper.update_CL_data(cl_id,type,new_value)
         return jsonify(success=True, response = return_data), 200
     else:
@@ -75,9 +77,8 @@ def update_CL_data():
 def remove_CL():
     """刪除收藏清單"""
     data = request.get_json()
-    # cl_id = request.args.get('cl_id')
+    cl_id = data.get('cl_id')
     if cl_id:
-        cl_id = data.get('cl_id')
         cl_helper.remove_CL(cl_id)
         return jsonify(success=True, cl_id=cl_id), 200
     else:

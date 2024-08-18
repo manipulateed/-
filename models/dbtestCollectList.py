@@ -16,9 +16,15 @@ cl_helper = Collect_List_Helper(db_mgr)
 
 # 創建收藏列表
 user_id = "66435b426b52ed9b072dc0dd"
+cl_id = "6685fefabac4f8150822deb7"
 Name='最新的收藏9'
 collection = ''
-new_CL = Collect_List("",user_id, Name, collection)
+cl = cl_helper.get_CL_by_UserId_and_ClId(user_id,cl_id)
+return_data = cl_helper.update_CL_data(cl_id,"name","new_value")
+print(return_data)
+# if cl :
+#     print(cl.get_CL_data())
+# new_CL = Collect_List("",user_id, Name, collection)
 
 # cl_helper.create_CL_by_UserId(new_CL)
 # print(new_CL.get_CL_data())
@@ -29,12 +35,12 @@ new_CL = Collect_List("",user_id, Name, collection)
 # print(remove_result)
 
 # user_id=ObjectId("66435b426b52ed9b072dc0dd")
-videoName = '我的收藏清單'
+# videoName = '我的收藏清單'
 
 # # 獲取用戶所有收藏列表
-all_cl = cl_helper.get_All_CL_by_UserId(user_id)
-print(all_cl[0])
-print(cl_helper.get_All_CL_by_UserId(user_id))
+# all_cl = cl_helper.get_All_CL_by_UserId(user_id)
+# print(all_cl[0])
+# print(cl_helper.get_All_CL_by_UserId(user_id))
 # all_cl[1].remove_video(cl_helper,"66436c17b92ec708c91009a8")
 # cl_helper.remove_CL("668415feb88546a74f87af6c") 
 # id = all_cl[3].get_id()

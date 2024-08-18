@@ -2,11 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:view/constants/text_style.dart';
 import 'package:view/constants/route.dart';
 import 'dart:convert';
+import 'package:view/services/CollectionList_svs.dart';
 
 class CollectionListCard {
   Map<String, dynamic> context = {};
 
   CollectionListCard({required this.context});
+
+  void removeCollectionList(String cl_id) async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    await service.removeCL(cl_id);
+    // 顯示刪除成功的通知
+    ScaffoldMessenger.of(context["name"]).showSnackBar(
+      SnackBar(
+        content: Text('刪除成功'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    getCard(context);
+  }
 
   Card getCard(context) {
     return Card(
@@ -35,11 +49,27 @@ class CollectionListCard {
             ),
             title: Padding(
               padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
-              child: Text(
-                this.context['name'],
-                style: UI_TextStyle.CL_TextStyle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      this.context['name'],
+                      style: UI_TextStyle.CL_TextStyle,
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.black),
+                    onPressed: () {
+                      removeCollectionList(this.context['id']);
+                    },
+                  ),
+                ],
               ),
             ),
+
           ),
           Divider(
             height: 10,
@@ -70,24 +100,27 @@ class CollectionListCard {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                          child: Text(
-                            items[index],
-                            style: UI_TextStyle.Collection_TextStyle,
+                        Expanded(  // 使用 Expanded 包裝 Text 以確保它占據最大空間
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                            child: Text(
+                              items[index],
+                              style: UI_TextStyle.Collection_TextStyle,
+                              softWrap: true, // 啟用自動換行
+                              overflow: TextOverflow.ellipsis, // 如果超出範圍則使用省略號
+                            ),
                           ),
                         ),
                         IconButton(
                           onPressed: () {},
-                          icon: Icon(
-                              Icons.restore_from_trash),
-                              color: Color.fromRGBO(56, 107, 79 , 1),
+                          icon: Icon(Icons.restore_from_trash),
+                          color: Color.fromRGBO(56, 107, 79 , 1),
                         ),
                       ],
                     ),
                   ),
                 );
-              } else {
+              }else {
                 return Container(); // 確保不返回null
               }
             },

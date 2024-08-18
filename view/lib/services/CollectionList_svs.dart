@@ -20,9 +20,9 @@ class CollectionList_SVS{
     List<dynamic> responseList = content["response"];
     
     // 印出每一項資料以便調試
-    for (var item in responseList) {
-      print('Item: $item');
-    }
+    // for (var item in responseList) {
+    //   print('Item: $item');
+    // }
 
     List<CollectList> collectList = responseList.map((item) {
       try {
@@ -56,8 +56,8 @@ class CollectionList_SVS{
   }
 
 
-  Future<void> updateCL(type, new_value) async {
-    final url = Uri.parse('http://192.168.1.105:8080/Collect_List_Controller/update_CL?cl_id=66a767bf942cd90c930db069&type=name&new_value=UpdateName');
+  Future<void> updateCL(cl_id ,type, new_value) async {
+    final url = Uri.parse('http://192.168.1.105:8080/Collect_List_Controller/update_CL');
 
     final response = await http.put(
         url,
@@ -65,9 +65,9 @@ class CollectionList_SVS{
         'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({
-          'cl_id': "66a767bf942cd90c930db069",
+          'cl_id': cl_id,
           'type': type,
-          'new_valur': new_value
+          'new_value': new_value
         }),
     );
 

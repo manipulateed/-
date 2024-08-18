@@ -14,6 +14,7 @@ app.register_blueprint(Chat_Record_bp, url_prefix='')
 app.register_blueprint(callGPT_bp, url_prefix='')
 app.register_blueprint(Video_bp, url_prefix='')
 
+
 @app.route('/login', methods=['POST'])
 def receive_data():
     data = request.json #取得request到的json檔

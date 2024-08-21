@@ -2,7 +2,6 @@ class SourRecord {
   final String id;
   final String userId;
   final List<String> videos;
-  final String title;
   final String reason;
   final DateTime time;
 
@@ -10,7 +9,6 @@ class SourRecord {
     required this.id,
     required this.userId,
     required this.videos,
-    required this.title,
     required this.reason,
     required this.time,
   });
@@ -29,7 +27,6 @@ class SourRecord {
       id: json['id'],
       userId: json['user_id'],
       videos: videos,
-      title: json['title'],
       reason: json['reason'],
       time: DateTime.parse(json['time']), // 解析字符串为 DateTime 对象
     );
@@ -40,7 +37,6 @@ class SourRecord {
       'id': id,
       'user_id': userId,
       'videos': videos,
-      'title': title,
       'reason': reason,
       'time': time.toIso8601String(), // 将 DateTime 对象转换为字符串
     };

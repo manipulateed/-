@@ -13,7 +13,6 @@ class Sour_Record_Helper:
         sour_record_data = {
             "User_Id": ObjectId(sour_record.user_id),
             "Videos": sour_record.videos,
-            "Title": sour_record.title,
             "Reason": sour_record.reason,
             "Time": sour_record.time
         }
@@ -51,7 +50,6 @@ class Sour_Record_Helper:
             record = Sour_Record(
                 id=document['_id'],
                 user_id=document['User_Id'],
-                title=document['Title'],
                 reason=document['Reason'],
                 time=document['Time'],
                 videos=document['Videos']
@@ -69,7 +67,6 @@ class Sour_Record_Helper:
             sour_record = Sour_Record(
                 id=sour_record_data["_id"],
                 user_id=sour_record_data["User_Id"],
-                title=sour_record_data["Title"],
                 reason=sour_record_data["Reason"],
                 time=sour_record_data["Time"],
                 videos=sour_record_data.get("Videos", [])

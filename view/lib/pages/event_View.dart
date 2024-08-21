@@ -45,7 +45,6 @@ class _EventViewState extends State<EventView> {
     for (var record in SR) {
       day = '${record.time.year}-${record.time.month}-${record.time.day}';
       reason = '${record.reason}';
-      title = '${record.title}';
       video = '${record.videos}';
       id = '${record.id}';
 

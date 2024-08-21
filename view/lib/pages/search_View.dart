@@ -81,7 +81,7 @@ class _SearchViewState extends State<SearchView> {
 
     if (updatedEvents != null) {
       getAllSR(widget.user_id);
-      _searchController.addListener(_searchEvents);
+      _searchEvents();
     }
   }
 
@@ -103,11 +103,11 @@ class _SearchViewState extends State<SearchView> {
                 prefixIcon: Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear(); // 清除文本
-                        },
-                      )
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear(); // 清除文本
+                  },
+                )
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -119,63 +119,63 @@ class _SearchViewState extends State<SearchView> {
                 child: _searchResults.isEmpty
                     ? Center(child: Text('搜尋結果將顯示於此。'))
                     : ListView.builder(
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final entry = _searchResults[index];
-                          //final dateStr = DateFormat('yMMMd', 'zh_TW').format(entry.key);
-                          return Card(
-                            color: Colors.green[50],
-                            shadowColor: Colors.white,
-                            margin: EdgeInsets.all(10),
-                            // 設置內邊距
-                            child: ListTile(
-                              leading: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: Stack(
-                                  children: <Widget>[
-                                    Align(
-                                      alignment: Alignment.topCenter,
-                                      child: Text(
-                                        DateFormat('MMM')
-                                            .format(entry.time)
-                                            .toUpperCase(), // 顯示月份縮寫
-                                        style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 14.0,
-                                            fontWeight:
-                                                FontWeight.bold), // 文字顏色為灰色
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        DateFormat('d')
-                                            .format(entry.time), // 顯示日期
-                                        style: TextStyle(
-                                            color: Colors.green,
-                                            fontSize: 24.0), // 文字顏色為白色
-                                      ),
-                                    ),
-                                  ],
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    final entry = _searchResults[index];
+                    //final dateStr = DateFormat('yMMMd', 'zh_TW').format(entry.key);
+                    return Card(
+                      color: Colors.green[50],
+                      shadowColor: Colors.white,
+                      margin: EdgeInsets.all(10),
+                      // 設置內邊距
+                      child: ListTile(
+                        leading: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Stack(
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: Text(
+                                  DateFormat('MMM')
+                                      .format(entry.time)
+                                      .toUpperCase(), // 顯示月份縮寫
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14.0,
+                                      fontWeight:
+                                      FontWeight.bold), // 文字顏色為灰色
                                 ),
                               ),
-                              title: Text(
-                                entry.reason,
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                ), // 設置字體大小為 16
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Text(
+                                  DateFormat('d')
+                                      .format(entry.time), // 顯示日期
+                                  style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 24.0), // 文字顏色為白色
+                                ),
                               ),
-                              onTap: () => _navigateToEventView(entry.id),
-                            ),
-                          );
-                        },
-                      )),
+                            ],
+                          ),
+                        ),
+                        title: Text(
+                          entry.reason,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ), // 設置字體大小為 16
+                        ),
+                        onTap: () => _navigateToEventView(entry.id),
+                      ),
+                    );
+                  },
+                )),
           ],
         ),
       ),

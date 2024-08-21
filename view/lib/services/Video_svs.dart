@@ -28,7 +28,7 @@ class Video_SVS {
   }
 
   Future<void> getVideoById(String videoId) async {
-    final apiUrl = Uri.parse('http://192.168.1.105:8080/VideoController/get?video_id=$videoId');
+    final apiUrl = Uri.parse('http://172.20.10.3:8080/VideoController/get?video_id=$videoId');
     final response = await http.get(
       apiUrl,
       headers: <String, String>{

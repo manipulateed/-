@@ -1,6 +1,4 @@
 from flask import Flask, request, jsonify, Blueprint
-import sys
-sys.path.append(r'..')
 from models.MongoDBMgr import MongoDBMgr
 from models.Chat_Record_Helper import Chat_Record_Helper
 from models.Chat_Record import Chat_Record
@@ -63,7 +61,7 @@ def create_chat_record():
     data = request.json
     if data:
         id = ""
-        user_id = data.get('user_id')
+        user_id = request.args.get("user_id")
         message = data.get('message')
 
         name = data.get('name')
@@ -91,7 +89,8 @@ def create_chat_record():
         finished = data.get('finished')
         
         chat_record = Chat_Record(id, user_id, name, message, formatted_suggested_videos, timestamp, finished)
-        #result = cr_helper.save_to_db(chat_record)
+        result = cr_helper.save_to_db(chat_record)
+        chat_record.id = result['id']
         print(chat_record.get_chat_record_data())
         return jsonify(success=True, response=chat_record.get_chat_record_data()), 200
     else:
@@ -151,9 +150,13 @@ def update_chat_record():
 
         chat_record = Chat_Record(id, user_id, name, message, suggested_videos, timestamp, finished)
         # 保存更新後的記錄
-        # result = cr_helper.save_to_db(chat_record)
-        print(chat_record.get_chat_record_data())
-        return jsonify(success=True, response=chat_record.get_chat_record_data()), 200
+        result = cr_helper.update_message(chat_record, message[-1])
+        if (result['success']):
+           print(chat_record.get_chat_record_data())
+           return jsonify(success=True, response=chat_record.get_chat_record_data()), 200
+        else:
+            print(result['message'])
+            return jsonify(success=False, message="No data received"), 500 
     else:
         return jsonify(success=False, message="No data received"), 400    
 '''

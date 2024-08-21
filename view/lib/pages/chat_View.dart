@@ -49,7 +49,7 @@ class _ChatViewState extends State<ChatView> {
   }
   void getChatRecord(){
     for (var message in chatrecord.message) {
-      if (message["Role"] == 'User') {
+      if (message["Role"] == 'User' || message["Role"] == 'user') {
         final textMessage = types.TextMessage(
           author: _user,//自己
           createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
@@ -59,7 +59,7 @@ class _ChatViewState extends State<ChatView> {
 
         _addMessage(textMessage);
         print('User Message: ${message["Content"]}');
-      } else if (message["Role"] == 'AI') {
+      } else if (message["Role"] == 'AI'|| message["Role"] == 'ai') {
         // AI 發送的訊息，執行相應的動作
         final textMessage = types.TextMessage(
           author:types.User(id: 'bot'),//自己
@@ -81,7 +81,7 @@ class _ChatViewState extends State<ChatView> {
     CallGPT_SVS service = CallGPT_SVS(message: message);
     await service.getDignose();
 
-    if (service.finish == "true"){
+    if (service.finish == "True"){
       chatrecord.suggestedVideoIds = service.suggestMap;
       chatrecord.finish = "yes";
     }
@@ -126,11 +126,9 @@ class _ChatViewState extends State<ChatView> {
               userAvatarNameColors: [Colors.black],
               receivedMessageBodyTextStyle: TextStyle(color: Colors.black),
               sentMessageBodyTextStyle: TextStyle(color: Colors.white),
-              //receivedMessageBackgroundColor: Colors.grey[300]!,
-              //sentMessageBackgroundColor: Colors.blue,
             ),
           ),
-          if (chatrecord.finish == "yes")Positioned(
+          if (chatrecord.finish == "yes") Positioned(
             top: 30,
             left: 20,
             child: FloatingActionButton(
@@ -138,37 +136,11 @@ class _ChatViewState extends State<ChatView> {
               child: Icon(Icons.list),
               backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
             ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //       Navigator.pop(context);     // 處理點擊事件
-            //    },
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
-            //   ),
-            //   child: Text(
-            //     '<',
-            //     textAlign: TextAlign.center,
-            //     style: TextStyle(
-            //       color: Colors.white,
-            //       fontFamily: 'Indie Flower',
-            //       fontSize: 32,
-            //       fontWeight: FontWeight.normal,
-            //     ),
-            //   ),
-            // ),
           ),
         ],
       ),
-      // floatingActionButton:
-      //   FloatingActionButton(
-      //     onPressed: _showImprovementOptions,
-      //     child: Icon(Icons.list),
-      //     backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
-      //   ),
-      //   floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-    );
+   );
   }
-
 
   void _addMessage(types.Message message) {
     setState(() {
@@ -199,7 +171,9 @@ class _ChatViewState extends State<ChatView> {
     _addMessage(textMessage);
 
     //將梁天記錄轉換成MAP並存到chatrecord中
-    convertMessageToMapandAddtoRecord(textMessage, "user");
+    convertMessageToMapandAddtoRecord(textMessage, "User");
+
+    updateRecord();
 
     Map<String, dynamic> response = await getReponse(message.text);
 
@@ -213,11 +187,10 @@ class _ChatViewState extends State<ChatView> {
     );
     _addMessage(replyMessage); // 插入對方的回覆訊息
 
-    convertMessageToMapandAddtoRecord(replyMessage, "ai");
+    convertMessageToMapandAddtoRecord(replyMessage, "AI");
 
     //更新醉心聊天紀錄
     updateRecord();
-    //_scrollToBottom();
   }
 
   void _showImprovementOptions() {

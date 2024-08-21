@@ -28,14 +28,15 @@ class ChatRecord {
           ? message.map((msg) => Map<String, dynamic>.from(msg)).toList()
           : [], // 確保 message 為 List
       'suggested_videos': suggestedVideoIds.isNotEmpty
-          ? suggestedVideoIds.map((map) {
-        return map.map((keyword, videos) {
-          return MapEntry(
-            keyword,
-            videos.map((video) => video.id).toList(),
-          );
-        });
-      }).toList()
+          ? suggestedVideoIds.map((item) {
+              String keyword = item.keys.first;
+              List<Video> videos = item[keyword] ?? [];
+
+              return {
+                'Keyword': keyword,
+                'Video_id': videos.map((video) => video.toJson()).toList(),
+              };
+            }).toList()
           : [], // 確保 suggested_videos 為 List
       'name': name?? '',
       'last_update_timestamp': timestamp?? '',

@@ -13,11 +13,6 @@ class ChatroomView extends StatefulWidget {
 
 class _ChatroomViewState extends State<ChatroomView> {
 
-  // final List<ChatRecord> chatRecords = [
-  //   ChatRecord(title: '肩膀', date: '2024.03.03'),
-  //   ChatRecord(title: '手腕', date: '2024.03.03'),
-  //   ChatRecord(title: '腳踝', date: '2024.03.03'),
-  // ];
   List<ChatRecord> chatrecords = [];
 
   void get_ChatRecords() async{
@@ -178,7 +173,7 @@ class ChatListItem extends StatelessWidget {
                 color: Color.fromRGBO(56, 107, 79, 0.5)
             ),),
           onTap: () {
-            Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
+            Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord).then((val)=> val?get_ChatRecords():null) ;
             // Handle chat item tap
           },
         ),
@@ -186,10 +181,3 @@ class ChatListItem extends StatelessWidget {
     );
   }
 }
-
-// class ChatRecord {
-//   final String title;
-//   final String date;
-//
-//   ChatRecord({required this.title, required this.date});
-// }

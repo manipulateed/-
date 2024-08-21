@@ -40,7 +40,7 @@ class Chat_Record_Helper:
         else:
             return {"success": False, "message": "存入資料庫時發生錯誤"}
       
-    def update_message(self, chat_record, new_message):
+    def update_message(self, chat_record):
         print(chat_record.get_chat_record_data())
         condition = {"_id": ObjectId(chat_record.id)}
 

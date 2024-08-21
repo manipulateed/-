@@ -219,16 +219,9 @@ def summary(message):
                                 "Video_id": video_ids})
             else:
                 print(response['message'])
-    
-        
+
+    #清除記憶資料    
     memory.clear()
-        # print(f"Searching for keyword: {keyword}")
-        # #调用 search_YT_video 函数并传入关键词
-        # videos = search_YT_video(keyword)
-        # #输出搜索结果
-        # print(f"Search results for {keyword}:")
-        # for video in videos:
-        #     print(video)
 
     return jsonify({"Suggested_Videos": suggested_Videos, "end": True, "response": message1.get_Message_data()})
 

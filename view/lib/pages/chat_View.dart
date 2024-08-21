@@ -19,7 +19,6 @@ String randomString() {
 class ChatView extends StatefulWidget {
   const ChatView({Key? key}) : super(key: key);
 
-
   @override
   //_ChatViewState createState() => _ChatViewState();
   State<ChatView> createState() => _ChatViewState();
@@ -27,12 +26,15 @@ class ChatView extends StatefulWidget {
 
 
 class _ChatViewState extends State<ChatView> {
+
   final List<types.Message> _messages = [];//歷史訊息列表
   final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');//user 自己
   //final _chatBot = const types.User(id: 'chatBot_id'); // 假設有一個不同的對方用戶 ID
   late ChatRecord chatrecord;
+
   final ScrollController _scrollController = ScrollController();
 
+  #取得前一頁傳遞進來的 資料
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -40,6 +42,7 @@ class _ChatViewState extends State<ChatView> {
     if (_messages.length == 0)
       getChatRecord();
   }
+
   void _scrollToBottom() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
@@ -105,6 +108,12 @@ class _ChatViewState extends State<ChatView> {
           padding: EdgeInsets.fromLTRB(halfScreenWidth,0,0,0),
           child: Text(chatrecord.name),
         ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: (){
+            Navigator.pop(context, true);
+          }
+        )
       ),
       body: Stack(
         children: [

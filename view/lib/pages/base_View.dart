@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:view/constants/route.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class BaseView extends StatefulWidget {
   const BaseView({super.key});
@@ -13,6 +14,13 @@ class _BaseViewState extends State<BaseView> {
 
   final List _pages = Routes.pages;
   int currentPageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    FlutterNativeSplash.remove();
+  }
+
 
   @override
   Widget build(BuildContext context) {

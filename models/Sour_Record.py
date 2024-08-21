@@ -1,10 +1,9 @@
 import json
 class Sour_Record:
-    def __init__(self, id, user_id, videos , title, reason, time):
+    def __init__(self, id, user_id, videos , reason, time):
         self.id = id
         self.user_id = user_id
         self.videos = videos
-        self.title = title
         self.reason = reason
         self.time = time
       
@@ -14,8 +13,6 @@ class Sour_Record:
         self.user_id = user_id
     def set_videos(self ,videos):
         self.videos = videos
-    def set_title(self, title):
-        self.title = title
     def set_reason(self, reason):
         self.reason = reason
     def set_time(self, time):
@@ -28,8 +25,6 @@ class Sour_Record:
         return self.user_id
     def get_videos(self):
         return self.videos
-    def get_title(self):
-        return self.collection
     def get_reason(self):
         return self.reason
     def get_time(self):
@@ -44,7 +39,6 @@ class Sour_Record:
             "id": str(self.id), 
             "user_id": str(self.user_id),
             "videos": str(self.videos),
-            "title": self.title,
             "reason": self.reason,
             "time": self.time
         }

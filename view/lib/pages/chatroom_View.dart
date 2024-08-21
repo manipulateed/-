@@ -13,14 +13,9 @@ class ChatroomView extends StatefulWidget {
 
 class _ChatroomViewState extends State<ChatroomView> {
 
-  // final List<ChatRecord> chatRecords = [
-  //   ChatRecord(title: '肩膀', date: '2024.03.03'),
-  //   ChatRecord(title: '手腕', date: '2024.03.03'),
-  //   ChatRecord(title: '腳踝', date: '2024.03.03'),
-  // ];
   List<ChatRecord> chatrecords = [];
 
-  void get_ChatRecords() async{
+  Future<void> get_ChatRecords() async{
     Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
     await service.getAllChatRecords();
     setState(() {
@@ -109,8 +104,9 @@ class _ChatroomViewState extends State<ChatroomView> {
                         }
                         Navigator.pop(context);
                         createChatRecord(chatRecord);
+                        await get_ChatRecords();
                         await Future.delayed(const Duration(milliseconds: 300));
-                        Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
+                        Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.last);
                       },
                     );
                   },
@@ -186,10 +182,3 @@ class ChatListItem extends StatelessWidget {
     );
   }
 }
-
-// class ChatRecord {
-//   final String title;
-//   final String date;
-//
-//   ChatRecord({required this.title, required this.date});
-// }

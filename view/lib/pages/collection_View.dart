@@ -317,7 +317,7 @@ class _VideoCardInCLState extends State<VideoCardInCL> {
           // Perform the removal action
           updateCollectionList("remove_video", video.id);
           print("updateCollectionList");
-12
+
           // Close the confirmation dialog
           Navigator.pop(context);
           print("Close the confirmation dialog");

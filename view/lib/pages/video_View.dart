@@ -14,6 +14,7 @@ class _VideoViewState extends State<VideoView> {
 
   final List<VideoCard> videoCards = [];
   late List<Video> videos = [];
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -73,6 +74,7 @@ class _VideoViewState extends State<VideoView> {
   }
 }
 
+//影片Card
 class VideoCard extends StatefulWidget {
   final Video video;
 
@@ -102,6 +104,17 @@ class _VideoCardState extends State<VideoCard> {
       isLoading = false; // 資料加載完成後設置為 false
     });
   }
+
+  //取得所有收藏
+  void getAllCL(){
+
+  }
+
+  //新增影片到收藏
+  void addToCL(){
+
+  }
+
   //把yt api抓到的url轉為可以embed的形式
   String getEmbeddedUrl(String url) {
     final videoId = Uri.parse(url).queryParameters['v'];
@@ -144,32 +157,9 @@ class _VideoCardState extends State<VideoCard> {
                   ),
                   IconButton(
                     icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('加入收藏清單'),
-                            content: Text('將影片加入到哪個收藏清單？'),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text('清單1'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  // 加入到清單1的操作
-                                },
-                              ),
-                              TextButton(
-                                child: Text('清單2'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  // 加入到清單2的操作
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                    onPressed: () async{
+                      List<Map<String, String>> _options = [{"name":"123", "count": "2"}, {"name":"123","count": "2"}, {"name":"123", "count": "2"}];
+                      await _showCustomModalBottomSheet(context, _options);
                     },
                   ),
                 ],
@@ -181,115 +171,68 @@ class _VideoCardState extends State<VideoCard> {
       ),
     );
   }
+
+  Future<void> _showCustomModalBottomSheet(context, List<Map<String, String>> options) async {
+    return showModalBottomSheet<void>(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20.0),
+              topRight: const Radius.circular(20.0),
+            ),
+          ),
+          height: MediaQuery.of(context).size.height / 2.5,
+          child: Column(children: [
+            SizedBox(
+              height: 50,
+              child: Stack(
+                textDirection: TextDirection.rtl,
+                children: [
+                  Center(
+                    child: Text(
+                      '收藏分類',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24.0
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      }),
+                ],
+              ),
+            ),
+            Divider(height: 1.0),
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    leading: FlutterLogo(size: 40.0),
+                    title: Text(
+                      options[index]['name'].toString(),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0
+                      ),
+                    ),
+                    subtitle: Text(options[index]['count'].toString() + '部影片'),
+                    trailing: Icon(Icons.add_circle_outlined),);
+                },
+                itemCount: options.length,
+              ),
+            ),
+          ]),
+        );
+      },
+    );
+  }
 }
-
-// class VideoCardInCL extends StatefulWidget {
-//   final Video video;
-//   final Function onDelete;
-//
-//   VideoCardInCL({required this.video, required this.onDelete});
-//
-//   @override
-//   _VideoCardInCLState createState() => _VideoCardInCLState();
-// }
-
-// class _VideoCardInCLState extends State<VideoCardInCL> {
-//   late Video video;
-//   bool isLoading = true;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     video = widget.video;
-//     getVideo();
-//   }
-//
-//   void _removeCLVideo(String videoID) async {
-//     QuickAlert.show(
-//       context: context,
-//       type: QuickAlertType.confirm,
-//       title: '移除影片',
-//       text: '你確定要從收藏清單中移除這部影片嗎？',
-//       confirmBtnText: '確認',
-//       cancelBtnText: '取消',
-//       confirmBtnColor: Colors.red,
-//       onConfirmBtnTap: () async {
-//         updateCollectionList("remove_video", videoID);
-//         // 更新資料庫，將影片從收藏清單中移除
-//
-//         Navigator.pop(context); // 關閉確認對話框
-//         await Future.delayed(const Duration(milliseconds: 300));
-//         await QuickAlert.show(
-//           context: context,
-//           type: QuickAlertType.success,
-//           text: "影片已從收藏清單中移除!",
-//         );
-//       },
-//     );
-//   }
-//
-//   void getVideo() async {
-//     Video_SVS service = Video_SVS(videos: video);
-//     await service.getVideoById(video.id);
-//     setState(() {
-//       video = service.videos;
-//       isLoading = false;
-//     });
-//   }
-//
-//   // 把 YouTube API 抓到的 URL 轉為可以嵌入的形式
-//   String getEmbeddedUrl(String url) {
-//     final videoId = Uri.parse(url).queryParameters['v'];
-//     return 'https://www.youtube.com/embed/$videoId';
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return isLoading
-//         ? Center(child: CircularProgressIndicator())
-//         : Padding(
-//       padding: const EdgeInsets.all(8.0),
-//       child: Card(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Container(
-//               height: 200.0,
-//               child: WebView(
-//                 initialUrl: getEmbeddedUrl(video.url!),
-//                 javascriptMode: JavascriptMode.unrestricted,
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Expanded(
-//                     child: Text(
-//                       video.name,
-//                       style: TextStyle(
-//                         fontWeight: FontWeight.bold,
-//                         fontSize: 18,
-//                       ),
-//                       softWrap: true,
-//                       maxLines: 2,
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                   ),
-//                   IconButton(
-//                     icon: Icon(Icons.delete, color: Colors.red),
-//                     onPressed: () {
-//                       _removeCLVideo(video.id);
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             SizedBox(height: 4.0),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

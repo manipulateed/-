@@ -27,7 +27,7 @@ class CallGPT_SVS{
         finish = parsedData["end"].toString();
         this.response = parsedData['response'];
 
-        if (parsedData["end"]){
+        if (parsedData["end"].toString() =="True"){
           suggestMap = List<Map<String, List<Video>>>.from(
             (parsedData['Suggested_Videos'] as List).map((item) {
               Map<String, dynamic> mapItem = item as Map<String, dynamic>;

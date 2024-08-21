@@ -38,10 +38,10 @@ class Video_Helper:
                 "url": video_data['url'],
                 "status": "existing" if existing_video else "new"
             }
-            output_videos.append(output_video)
 
             if not existing_video: #新的影片
                 video = Video(
+                    id = "",
                     title=video_data['title'],
                     description=video_data['description'],
                     url=video_data['url']
@@ -52,7 +52,9 @@ class Video_Helper:
                     output_video["video_id"] = result['video_id']
             else:
                 output_video["video_id"] = str(existing_video['_id'])
-        
+
+            output_videos.append(output_video)
+        print(output_videos)
         return{
             "created_videos": created_videos,
             "output_videos": output_videos

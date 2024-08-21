@@ -34,7 +34,7 @@ class _ChatViewState extends State<ChatView> {
 
   final ScrollController _scrollController = ScrollController();
 
-  #取得前一頁傳遞進來的 資料
+  //取得前一頁傳遞進來的 資料
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -111,7 +111,7 @@ class _ChatViewState extends State<ChatView> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: (){
-            Navigator.pop(context, true);
+            Navigator.pop(context);
           }
         )
       ),

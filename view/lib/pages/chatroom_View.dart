@@ -15,7 +15,7 @@ class _ChatroomViewState extends State<ChatroomView> {
 
   List<ChatRecord> chatrecords = [];
 
-  void get_ChatRecords() async{
+  Future<void> get_ChatRecords() async{
     Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
     await service.getAllChatRecords();
     setState(() {
@@ -104,8 +104,9 @@ class _ChatroomViewState extends State<ChatroomView> {
                         }
                         Navigator.pop(context);
                         createChatRecord(chatRecord);
+                        await get_ChatRecords();
                         await Future.delayed(const Duration(milliseconds: 300));
-                        Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
+                        Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.last);
                       },
                     );
                   },
@@ -173,7 +174,7 @@ class ChatListItem extends StatelessWidget {
                 color: Color.fromRGBO(56, 107, 79, 0.5)
             ),),
           onTap: () {
-            Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord).then((val)=> val?get_ChatRecords():null) ;
+            Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
             // Handle chat item tap
           },
         ),

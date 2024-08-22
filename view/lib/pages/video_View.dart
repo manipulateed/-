@@ -106,9 +106,56 @@ class _VideoCardState extends State<VideoCard> {
   }
 
   //取得所有收藏
-  void getAllCL(){
+  List<Map<String, dynamic>> getAllCL()async {
+    List<Map<String, dynamic>> collection_List = [];
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
 
+    for (var cl in collectList) {
+      print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
+
+      // 建立一個新的 list 來存放 Video_Name
+      List<String> videoNames = [];
+
+      // 創建一個 Future 列表來等待所有的 video 請求
+      List<Future<void>> futures = [];
+
+      for (var videoId in cl.collection) {
+        futures.add(
+          Future<void>(() async {
+            Video video = Video(id: videoId);
+            Video_SVS videoService = Video_SVS(videos: video);
+
+            // 使用 Video_SVS 來獲取 video 的名稱
+            await videoService.getVideoById(videoId);
+            String videoName = videoService.videos.name;
+            print("videoName:"+videoName);
+
+            // 將 videoName 添加到 videoNames 列表中
+            videoNames.add(videoName);
+          }),
+        );
+      }
+
+      // 等待所有的影片請求完成後再進行更新
+      await Future.wait(futures);
+
+      // 將 cl.collection 更新為 videoNames
+      cl.collection = videoNames;
+    }
+
+    // 在所有的影片名稱都更新完後再進行狀態刷新
+    collection_List = collectList.map((cl) => {
+      'id': cl.id,
+      'user_id': cl.userId,
+      'name': cl.name,
+      'collection': cl.collection,
+      'count': videoNames.length
+    }).toList();
+
+    return collection_List;
   }
+
 
   //新增影片到收藏
   void addToCL(){
@@ -158,7 +205,7 @@ class _VideoCardState extends State<VideoCard> {
                   IconButton(
                     icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
                     onPressed: () async{
-                      List<Map<String, String>> _options = [{"name":"123", "count": "2"}, {"name":"123","count": "2"}, {"name":"123", "count": "2"}];
+                      List<Map<String, dynamic>> _options = getAllCL();
                       await _showCustomModalBottomSheet(context, _options);
                     },
                   ),
@@ -172,12 +219,17 @@ class _VideoCardState extends State<VideoCard> {
     );
   }
 
-  Future<void> _showCustomModalBottomSheet(context, List<Map<String, String>> options) async {
+  void updateCollectionList(clID, type, new_value) async {
+    CollectionList_SVS service = CollectionList_SVS(CL: []);
+    await service.updateCL(clID, type, new_value);
+  }
+
+  Future<void> _showCustomModalBottomSheet(context, List<Map<String, dynamic>> options) async {
     return showModalBottomSheet<void>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext context)
         return Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
@@ -225,7 +277,53 @@ class _VideoCardState extends State<VideoCard> {
                       ),
                     ),
                     subtitle: Text(options[index]['count'].toString() + '部影片'),
-                    trailing: Icon(Icons.add_circle_outlined),);
+                    trailing: Icon(Icons.add_circle_outlined),
+                    onTap() async{
+                      QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.custom,
+                        barrierDismissible: true,
+                        confirmBtnText: '確認新增',
+                        title: '新增收藏影片,
+                        confirmBtnColor: Colors.green,
+                        cancelBtnText: '取消',
+                        confirmBtnColor: Colors.red,
+                        text: '將新增影片至' + options[index]['name'].toString() +'，請確認是否新增?',
+                        onConfirmBtnTap: () async {
+                          try {
+                            // Perform the removal action
+                            updateCollectionList(options[index]['id'].toString(), "add_video", video.id);
+                            print("updateCollectionList");
+
+                            // Close the confirmation dialog
+                            Navigator.pop(context);
+                            print("Close the confirmation dialog");
+                            // Short delay before showing success message
+                            await Future.delayed(const Duration(milliseconds: 300));
+
+                            if (mounted) {
+                              await QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.success,
+                                text: "影片已從收藏清單中移除!",
+                              );
+                              print("影片已從收藏清單中移除");
+                            }
+                          } catch (e) {
+                            // Handle any errors that occur during the removal
+                            if (mounted) {
+                              await QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                text: "處理過程中出錯了",
+                              );
+                              print("處理過程中出錯了");
+                            }
+                          }
+                        },
+                      );
+                    }
+                  );
                 },
                 itemCount: options.length,
               ),

@@ -21,7 +21,7 @@ class _CollectionViewState extends State<CollectionView> {
   String clID = '';
   String clName = '';
   List<String> collections = [];
-
+  late List<Video> videos = [];
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -33,7 +33,7 @@ class _CollectionViewState extends State<CollectionView> {
     getOneCL();
   }
 
-  Future<List<Video>> _fetchVideos() async {
+  void _fetchVideos() async {
     List<Video> clvideos = [];
     for (var videoId in collections) {
       Video video = Video(id: videoId);
@@ -41,7 +41,9 @@ class _CollectionViewState extends State<CollectionView> {
       await videoService.getVideoById(videoId);
       clvideos.add(videoService.videos);
     }
-    return clvideos;
+    setState(() {
+      videos =  clvideos;
+    });
   }
 
   void _editCLName() async {
@@ -86,30 +88,6 @@ class _CollectionViewState extends State<CollectionView> {
     );
   }
 
-  // void _removeCLVideo(String videoID) async {
-  //   QuickAlert.show(
-  //     context: context,
-  //     type: QuickAlertType.confirm,
-  //     title: '移除影片',
-  //     text: '你確定要從收藏清單中移除這部影片嗎？',
-  //     confirmBtnText: '確認',
-  //     cancelBtnText: '取消',
-  //     confirmBtnColor: Colors.red,
-  //     onConfirmBtnTap: () async {
-  //       updateCollectionList("remove_video", videoID);
-  //       // 更新資料庫，將影片從收藏清單中移除
-  //
-  //       Navigator.pop(context); // 關閉確認對話框
-  //       await Future.delayed(const Duration(milliseconds: 300));
-  //       await QuickAlert.show(
-  //         context: context,
-  //         type: QuickAlertType.success,
-  //         text: "影片已從收藏清單中移除!",
-  //       );
-  //     },
-  //   );
-  // }
-
   Future<void> getOneCL() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
 
@@ -123,7 +101,9 @@ class _CollectionViewState extends State<CollectionView> {
     } catch (e) {
       print('Error: $e');
     }
+    _fetchVideos();
   }
+
   void updateCollectionList(type, new_value) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     await service.updateCL(clID, type, new_value);
@@ -149,7 +129,7 @@ class _CollectionViewState extends State<CollectionView> {
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_left),
             onPressed: () {
-              Navigator.pop(context); // 返回上一頁
+              Navigator.pop(context, true); // 返回上一頁
             },
           ),
         ),
@@ -197,22 +177,10 @@ class _CollectionViewState extends State<CollectionView> {
             ),
             const SizedBox(height: 16.0),
             Expanded(
-              child: FutureBuilder(
-                future: _fetchVideos(), // 呼叫獲取影片的非同步方法
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator()); // 資料加載中顯示的進度條
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("加載影片時出錯了")); // 錯誤處理
-                  } else {
-                    List<Video> clvideos = snapshot.data as List<Video>;
-                    return ListView.builder(
-                      itemCount: clvideos.length,
-                      itemBuilder: (context, index) {
-                        return VideoCardInCL(video: clvideos[index], clID: clID);
-                      },
-                    );
-                  }
+              child:  ListView.builder(
+                itemCount: videos.length,
+                itemBuilder: (context, index) {
+                  return VideoCardInCL(video: videos[index], clID: clID);
                 },
               ),
             ),
@@ -222,55 +190,68 @@ class _CollectionViewState extends State<CollectionView> {
     );
   }
 }
-
-class VideoEntry extends StatelessWidget {
-  final String title;
-  final String videoLength;
-
-  const VideoEntry({super.key, required this.title, required this.videoLength});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                // Image.network(imageUrl),
-                Positioned(
-                  bottom: 8.0,
-                  right: 8.0,
-                  child: Container(
-                    color: Colors.black.withOpacity(0.7),
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                    child: Text(
-                      videoLength,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 16.0),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// if (snapshot.connectionState == ConnectionState.waiting) {
+// return Center(child: CircularProgressIndicator()); // 資料加載中顯示的進度條
+// } else if (snapshot.hasError) {
+// return Center(child: Text("加載影片時出錯了")); // 錯誤處理
+// } else {
+// List<Video> clvideos = snapshot.data as List<Video>;
+// return ListView.builder(
+// itemCount: clvideos.length,
+// itemBuilder: (context, index) {
+// return VideoCardInCL(video: clvideos[index], clID: clID);
+// },
+// );
+// }
+// },
+// class VideoEntry extends StatelessWidget {
+//   final String title;
+//   final String videoLength;
+//
+//   const VideoEntry({super.key, required this.title, required this.videoLength});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 16.0),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           border: Border.all(color: Colors.grey),
+//           borderRadius: BorderRadius.circular(8.0),
+//         ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Stack(
+//               children: [
+//                 // Image.network(imageUrl),
+//                 Positioned(
+//                   bottom: 8.0,
+//                   right: 8.0,
+//                   child: Container(
+//                     color: Colors.black.withOpacity(0.7),
+//                     padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+//                     child: Text(
+//                       videoLength,
+//                       style: const TextStyle(color: Colors.white),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             Padding(
+//               padding: const EdgeInsets.all(8.0),
+//               child: Text(
+//                 title,
+//                 style: const TextStyle(fontSize: 16.0),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 class VideoCardInCL extends StatefulWidget {
   final Video video;
   final String clID; // 添加 cl_id 作為參數
@@ -281,19 +262,16 @@ class VideoCardInCL extends StatefulWidget {
   _VideoCardInCLState createState() => _VideoCardInCLState();
 }
 
-
-
 class _VideoCardInCLState extends State<VideoCardInCL> {
   late Video video;
   late String clID;
-  bool isLoading = true;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     video = widget.video;
     clID = widget.clID;
-    getVideo();
   }
 
   void updateCollectionList(type, new_value) async {
@@ -301,9 +279,8 @@ class _VideoCardInCLState extends State<VideoCardInCL> {
     await service.updateCL(clID, type, new_value);
   }
 
-
-  void _removeCLVideo() async {
-    QuickAlert.show(
+  Future<void> _removeCLVideo() async {
+    await QuickAlert.show(
       context: context,
       type: QuickAlertType.confirm,
       title: '移除影片',
@@ -312,7 +289,7 @@ class _VideoCardInCLState extends State<VideoCardInCL> {
       cancelBtnText: '取消',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () async {
-        // if (!mounted) return;  // 确保当前 widget 仍然挂载
+        if (!mounted) return;  // 确保当前 widget 仍然挂载
         try {
           // Perform the removal action
           updateCollectionList("remove_video", video.id);
@@ -350,17 +327,6 @@ class _VideoCardInCLState extends State<VideoCardInCL> {
         }
       },
     );
-  }
-
-
-
-  void getVideo() async {
-    Video_SVS service = Video_SVS(videos: video);
-    await service.getVideoById(video.id);
-    setState(() {
-      video = service.videos;
-      isLoading = false;
-    });
   }
 
   // 把 YouTube API 抓到的 URL 轉為可以嵌入的形式
@@ -405,8 +371,8 @@ class _VideoCardInCLState extends State<VideoCardInCL> {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      _removeCLVideo();
+                    onPressed: () async {
+                      await _removeCLVideo();
                     },
                   ),
                 ],

@@ -77,6 +77,21 @@ def update_chat_record():
             messages.append(message)
         message = [msg.get_Message_data() for msg in messages]
 
+        formatted_messages = []
+        for mes in message:
+            formatted_message = {
+                'Role': mes['character'],
+                'Content': mes['content'],
+                'Date': mes['date'],
+                'Time': mes['time']
+            }
+            # 如果 Date 或 Time 是 datetime 對象，進行格式化
+            if isinstance(formatted_message['Date'], datetime):
+                formatted_message['Date'] = formatted_message['Date'].strftime("%Y-%m-%d")
+            if isinstance(formatted_message['Time'], datetime):
+                formatted_message['Time'] = formatted_message['Time'].strftime("%H:%M:%S")
+            formatted_messages.append(formatted_message)
+
         name = data.get('name')
 
         # 處理 Suggested_videos
@@ -89,9 +104,10 @@ def update_chat_record():
             # 格式化 suggested_videos
             formatted_suggested_videos = []
             for video in suggested_videos:
+                video_ids = [ObjectId(str(vid['id'])) for vid in video.get('Video_id', [])]
                 formatted_video = {
-                    "Keyword": video.get('keyword'),
-                    "Video_id": video.get('video_id', [])
+                    "Keyword": video.get('Keyword'),
+                    "Video_id": video_ids
                 }
                 # 確保 Video_id 是一個列表
                 if not isinstance(formatted_video["Video_id"], list):
@@ -99,6 +115,16 @@ def update_chat_record():
                 formatted_suggested_videos.append(formatted_video)
 
             suggested_videos = formatted_suggested_videos
+
+            videos = []
+            for video in data.get['Suggested_Videos']:
+                keyword = video.get('Keyword', '')
+                video_ids = [str(vid['id']) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
+                videos.append({
+                    "Keyword": keyword,
+                    "Video_id": video_ids
+                })
+
 
         # 更新最後更新的時間戳
         timestamp = datetime.now().isoformat()
@@ -112,7 +138,8 @@ def update_chat_record():
 
         #如果更新成功
         if (result['success']):
-           print(chat_record.get_chat_record_data())
+           chat_record.message = formatted_messages
+           chat_record.suggested_videos = videos
            return jsonify(success=True, response=chat_record.get_chat_record_data()), 200
         else:
             print(result['message'])

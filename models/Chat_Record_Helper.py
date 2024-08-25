@@ -41,11 +41,12 @@ class Chat_Record_Helper:
             return {"success": False, "message": "存入資料庫時發生錯誤"}
       
     def update_message(self, chat_record):
-        print(chat_record.get_chat_record_data())
+
         condition = {"_id": ObjectId(chat_record.id)}
 
         chat_collection = self.get_collection('Chat_Record')
         record = chat_collection.find_one(condition)
+
         formatted_messages = []
         for message in chat_record.message:
             formatted_message = {
@@ -60,6 +61,7 @@ class Chat_Record_Helper:
             if isinstance(formatted_message['Time'], datetime):
                 formatted_message['Time'] = formatted_message['Time'].strftime("%H:%M:%S")
             formatted_messages.append(formatted_message)
+
         #更新資料
         record['Last_Update_TimeStamp'] = chat_record.timestamp
         record['Message'] = formatted_messages

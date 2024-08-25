@@ -1,8 +1,5 @@
 from bson import ObjectId
-import sys
-sys.path.append('C:\\SP\\bigproject\\models')
-
-from Sour_Record import Sour_Record
+from .Sour_Record import Sour_Record
 
 class Sour_Record_Helper:
     def __init__(self, db_mgr):

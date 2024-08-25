@@ -1,6 +1,4 @@
 from flask import Flask, request, jsonify, Blueprint
-import sys
-sys.path.append(r'..')
 from models.MongoDBMgr import MongoDBMgr 
 from models.Collect_List_Helper import Collect_List_Helper  
 from models.Collect_List import Collect_List

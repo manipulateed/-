@@ -42,5 +42,5 @@ class Sour_Record:
             "reason": self.reason,
             "time": self.time
         }
-        return json.dumps(sour_record_data)
+        return sour_record_data
 

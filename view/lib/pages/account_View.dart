@@ -4,6 +4,8 @@ import 'package:view/widgets/button/modify_User_Button.dart';
 import 'package:view/services/user_svs.dart';
 import 'package:view/models/User.dart';
 import 'package:view/constants/route.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class AccountView extends StatefulWidget {
   const AccountView({super.key});
@@ -13,21 +15,6 @@ class AccountView extends StatefulWidget {
 }
 
 class _AccountViewState extends State<AccountView> {
-  // //late User_SVS user;
-  // //String name = user.name
-  // //late Future<Map<String, dynamic>?> account; // 用戶資料
-  // //取得user資料
-  // User? currentUser; // Variable to hold the current user data
-  // //Map account = {'Name': 'Aden', 'Email': 'jimmy911116','Password':'12345678'};
-  //
-  // void getUser() async {
-  //   // 從伺服器獲取使用者的邏輯
-  //   User_SVS userService = User_SVS(user: User(name: '', email: '', password: ''));
-  //   var userData = await userService.get_user_byUserID();
-  //   setState(() {
-  //     currentUser = userData; // Store the fetched user data
-  //   });
-  // }
   User? currentUser;
   bool isLoading = true;
   String? errorMessage;
@@ -39,12 +26,23 @@ class _AccountViewState extends State<AccountView> {
     });
 
     try {
-      User_SVS userService = User_SVS(
-          user: User(name: '', email: '', password: ''));
-      // 假設您有方法獲取當前用戶的ObjectId
-      // 這可能來自登錄過程或存儲在本地
-      String userObjectId = '66b2561cb76d9c2104f48aa4'; // 替換為實際獲取用戶ObjectId的邏輯
-      var userData = await userService.getUserById(userObjectId);
+      // 獲取存儲的 JWT token
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+      print('JWT Token: $token'); // Debug: 打印 token
+
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
+
+      User_SVS userService = User_SVS();
+      var userData = await userService.getUserById(token); //放入獲得的token
+      print('User Data: $userData'); // Debug: 打印獲得的使用者數據
+
+      if (userData == null) {
+        throw Exception('獲取使用者數據失敗');
+      }
+
       setState(() {
         currentUser = userData;
         isLoading = false;
@@ -61,13 +59,18 @@ class _AccountViewState extends State<AccountView> {
     setState(() {
       isLoading = true;
     });
-
     try {
-      User_SVS userService = User_SVS(
-          user: User(name: '', email: '', password: ''));
-      String userObjectId = '66b2561cb76d9c2104f48aa4'; // 替換為實際獲取用戶ObjectId的邏輯
-      var result = await userService.updateUser(userObjectId, field, newValue);
+      // 獲取已儲存的 JWT token
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+      print('JWT Token: $token'); // Debug: 打印 token
 
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
+
+      User_SVS userService = User_SVS();
+      var result = await userService.updateUser(token, field, newValue);
       if (result['success']) {
         // Update the local user data
         setState(() {

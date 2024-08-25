@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:view/models/Video.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:view/services/Video_svs.dart';
+import 'package:view/services/CollectionList_svs.dart';
+import 'package:view/models/CL.dart';
+import 'package:quickalert/quickalert.dart';
 
 class VideoView extends StatefulWidget {
   const VideoView({super.key});
@@ -42,8 +45,8 @@ class _VideoViewState extends State<VideoView> {
               Navigator.pop(context);
             },
             child: Container(
-              width: 75,
-              height: 55,
+              width: 30,
+              height: 30,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: Color.fromRGBO(95, 178, 132, 0.8),
@@ -106,10 +109,10 @@ class _VideoCardState extends State<VideoCard> {
   }
 
   //取得所有收藏
-  List<Map<String, dynamic>> getAllCL()async {
+  Future<List<Map<String, dynamic>>> getAllCL()async {
     List<Map<String, dynamic>> collection_List = [];
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
+    List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");
 
     for (var cl in collectList) {
       print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
@@ -150,7 +153,7 @@ class _VideoCardState extends State<VideoCard> {
       'user_id': cl.userId,
       'name': cl.name,
       'collection': cl.collection,
-      'count': videoNames.length
+      'count': cl.collection.length,
     }).toList();
 
     return collection_List;
@@ -171,52 +174,52 @@ class _VideoCardState extends State<VideoCard> {
   @override
   Widget build(BuildContext context) {
     return isLoading
-        ? Center(child: CircularProgressIndicator()) // 資料加載中
-        : Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 200.0,
-              child: WebView(
-                initialUrl: getEmbeddedUrl(video.url!),
-                javascriptMode: JavascriptMode.unrestricted,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      video.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+      ? Center(child: CircularProgressIndicator()) // 資料加載中
+      : Padding(
+        padding: const EdgeInsets.all(8.0),
+          child: Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 200.0,
+                  child: WebView(
+                    initialUrl: getEmbeddedUrl(video.url!),
+                    javascriptMode: JavascriptMode.unrestricted,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          video.name,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                          softWrap: true, // 啟用換行
+                          maxLines: 2,   // 設定最大行數（例如2行）
+                          overflow: TextOverflow.ellipsis, // 如果內容超出，則在最後一行顯示省略號
+                        ),
                       ),
-                      softWrap: true, // 啟用換行
-                      maxLines: 2,   // 設定最大行數（例如2行）
-                      overflow: TextOverflow.ellipsis, // 如果內容超出，則在最後一行顯示省略號
-                    ),
+                      IconButton(
+                        icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
+                        onPressed: () async{
+                          List<Map<String, dynamic>> _options = await getAllCL();
+                          await _showCustomModalBottomSheet(context, _options);
+                        },
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
-                    onPressed: () async{
-                      List<Map<String, dynamic>> _options = getAllCL();
-                      await _showCustomModalBottomSheet(context, _options);
-                    },
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(height: 4.0),
+              ],
             ),
-            SizedBox(height: 4.0),
-          ],
-        ),
-      ),
-    );
+          ),
+      );
   }
 
   void updateCollectionList(clID, type, new_value) async {
@@ -225,112 +228,129 @@ class _VideoCardState extends State<VideoCard> {
   }
 
   Future<void> _showCustomModalBottomSheet(context, List<Map<String, dynamic>> options) async {
+    List<Map<String, dynamic>> _options = options;
     return showModalBottomSheet<void>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       context: context,
-      builder: (BuildContext context)
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(20.0),
-              topRight: const Radius.circular(20.0),
-            ),
-          ),
-          height: MediaQuery.of(context).size.height / 2.5,
-          child: Column(children: [
-            SizedBox(
-              height: 50,
-              child: Stack(
-                textDirection: TextDirection.rtl,
-                children: [
-                  Center(
-                    child: Text(
-                      '收藏分類',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24.0
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      }),
-                ],
+
+      builder: (BuildContext context){
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(20.0),
+                  topRight: const Radius.circular(20.0),
+                ),
               ),
-            ),
-            Divider(height: 1.0),
-            Expanded(
-              child: ListView.builder(
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    leading: FlutterLogo(size: 40.0),
-                    title: Text(
-                      options[index]['name'].toString(),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0
+              height: MediaQuery.of(context).size.height / 2.5,
+              child: Column(
+                  children: [
+                    SizedBox(
+                      height: 50,
+                      child: Stack(
+                        textDirection: TextDirection.rtl,
+                        children: [
+                          Center(
+                            child: Text(
+                              '收藏分類',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24.0
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              }),
+                        ],
                       ),
                     ),
-                    subtitle: Text(options[index]['count'].toString() + '部影片'),
-                    trailing: Icon(Icons.add_circle_outlined),
-                    onTap() async{
-                      QuickAlert.show(
-                        context: context,
-                        type: QuickAlertType.custom,
-                        barrierDismissible: true,
-                        confirmBtnText: '確認新增',
-                        title: '新增收藏影片,
-                        confirmBtnColor: Colors.green,
-                        cancelBtnText: '取消',
-                        confirmBtnColor: Colors.red,
-                        text: '將新增影片至' + options[index]['name'].toString() +'，請確認是否新增?',
-                        onConfirmBtnTap: () async {
-                          try {
-                            // Perform the removal action
-                            updateCollectionList(options[index]['id'].toString(), "add_video", video.id);
-                            print("updateCollectionList");
-
-                            // Close the confirmation dialog
-                            Navigator.pop(context);
-                            print("Close the confirmation dialog");
-                            // Short delay before showing success message
-                            await Future.delayed(const Duration(milliseconds: 300));
-
-                            if (mounted) {
+                    Divider(height: 1.0),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _options.length,
+                        itemBuilder: (context, int index) {
+                          return ListTile(
+                            leading: FlutterLogo(size: 40.0),
+                            title: Text(
+                              _options[index]['name'].toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20.0
+                              ),
+                            ),
+                            subtitle: Text(
+                                _options[index]['count'].toString() +'部影片'),
+                            trailing: Icon(Icons.add_circle_outlined),
+                            onTap: () async {
                               await QuickAlert.show(
                                 context: context,
-                                type: QuickAlertType.success,
-                                text: "影片已從收藏清單中移除!",
+                                type: QuickAlertType.confirm,
+                                confirmBtnText: '確認新增',
+                                title: '確定要新增收藏影片?',
+                                confirmBtnColor: Colors.green,
+                                cancelBtnText: '取消',
+                                text: '將新增影片至\"' +_options[index]['name'].toString() +'\"，請確認是否新增?',
+                                onConfirmBtnTap: () async {
+                                  if (!mounted) return;
+                                  try {
+                                    // Perform the removal action
+                                    updateCollectionList( _options[index]['id'].toString(),"add_video", video.id);
+                                    print("updateCollectionList");
+
+                                    // Close the confirmation dialog
+                                    Navigator.pop(context);
+                                    print("Close the confirmation dialog");
+                                    // Short delay before showing success message
+                                    await Future.delayed(const Duration(milliseconds: 300));
+
+                                    if (mounted) {
+                                      await QuickAlert.show(
+                                        context: context,
+                                        type: QuickAlertType.success,
+                                        text: "影片已從收藏清單中移除!",
+                                      );
+                                      print("影片已從收藏清單中移除");
+                                    }
+                                  } catch (e) {
+                                    print("Error: ${e.toString()}");
+                                    if (mounted) {
+                                      await QuickAlert.show(
+                                        context: context,
+                                        type: QuickAlertType.error,
+                                        text: "處理過程中出錯了",
+                                      );
+                                      print("處理過程中出錯了");
+                                    }
+                                  }
+                                },
+                                onCancelBtnTap: () {
+                                  if (mounted) {
+                                    Navigator.pop(context);  // Close the confirmation dialog if canceled
+                                  }
+                                },
                               );
-                              print("影片已從收藏清單中移除");
-                            }
-                          } catch (e) {
-                            // Handle any errors that occur during the removal
-                            if (mounted) {
-                              await QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.error,
-                                text: "處理過程中出錯了",
-                              );
-                              print("處理過程中出錯了");
-                            }
-                          }
+                              options = await getAllCL();
+                              setState((){
+                                _options = options;
+                              });
+                            },
+                          );
                         },
-                      );
-                    }
-                  );
-                },
-                itemCount: options.length,
+                      ),
+                    ),
+                  ]
               ),
-            ),
-          ]),
+            );
+          },
         );
-      },
+      }
     );
   }
 }

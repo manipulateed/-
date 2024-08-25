@@ -10,8 +10,6 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  // String email = '452';
-  // String password = '2424';
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -33,10 +31,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void _handleLogin() async {
-    // String email = _emailController.text;
-    // String password = _passwordController.text;
-    // Login_SVS login = Login_SVS(email: email, password: password);
-    // login.sendData();
     String email = _emailController.text;
     String password = _passwordController.text;
 
@@ -100,15 +94,6 @@ class _LoginViewState extends State<LoginView> {
                       hintText: 'Give it a Email!',
                       labelText: 'EMAIL',
                     ),
-                    // initialValue: "demo@gamil.com",
-                    // onSaved: (String? value) {
-                    //   // This optional block of code can be used to run
-                    //   // code when the user saves the form.
-                    //   email = value.toString();
-                    //},
-                    // validator: (String? value) {
-                    //   return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-                    // },
                   ),
                 ),
             ),
@@ -129,16 +114,6 @@ class _LoginViewState extends State<LoginView> {
                         hintText: 'Give it a password!',
                         labelText: 'PASSWORD',
                       ),
-                      // initialValue: "**********",
-                      // obscureText: see,
-                      // onSaved: (String? value) {
-                      //   // This optional block of code can be used to run
-                      //   // code when the user saves the form.
-                      //   password = value.toString();
-                      // },
-                      // validator: (String? value) {
-                      //   return (value != null && value.contains('@./\\*-+')) ? 'Do not use the special char.' : null;
-                      // },
                     ),
                   ),
                 ),
@@ -165,11 +140,6 @@ class _LoginViewState extends State<LoginView> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFA5D6A7), // 按鈕背景顏色
                     ),
-                    // onPressed: () {
-                    //   Login_SVS login = new Login_SVS(email: email, password: password);
-                    //   login.sendData();
-                    //   //Navigator.pushReplacementNamed(context, Routes.throughview);
-                    // },
                     onPressed: _handleLogin,
                     child: Text(
                       'Login',
@@ -200,29 +170,4 @@ class _LoginViewState extends State<LoginView> {
         ),
     );
   }
-
-  // final TextEditingController _emailController = TextEditingController();
-  // final TextEditingController _passwordController = TextEditingController();
-  //
-  // Future<void> _login() async {
-  //   final loginService = Login_SVS(
-  //     email: _emailController.text,
-  //     password: _passwordController.text,
-  //   );
-  //
-  //   try {
-  //     final result = await loginService.login();
-  //     if (result['success']) {
-  //       Navigator.pushReplacementNamed(context, Routes.baseview);
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text(result['error'] ?? '登錄失敗')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('發生錯誤：$e')),
-  //     );
-  //   }
-  // }
 }

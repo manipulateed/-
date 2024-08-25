@@ -1,20 +1,19 @@
-from flask import Flask, request, jsonify, redirect, url_for, Blueprint
+from flask import Flask, request, jsonify, Blueprint
 from langchain_core.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
+    PromptTemplate,
 )
 from dotenv import load_dotenv
 from langchain.schema import HumanMessage
 from langchain.chains import LLMChain
-from langchain.chains.summarize import load_summarize_chain
 #from langchain.chains import RunnableSequence
 from langchain_openai import ChatOpenAI
 from datetime import datetime
 #from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
-
 from langchain.memory import ConversationBufferMemory
 import os
 import requests
@@ -34,6 +33,16 @@ API_KEY = os.getenv('API_KEY')
 
 #建構聊天model
 chat = ChatOpenAI(model = "ft:gpt-3.5-turbo-0125:personal::9iHcUIlX", api_key = API_KEY)
+
+#建構summary promtp
+prompt_template = """Use #zh_TW to write a concise summary of the following:
+"{text}" to describe the User's situation in 30 to 50 words
+CONCISE SUMMARY:"""
+prompt = PromptTemplate.from_template(prompt_template)
+
+# Define LLM chain
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
+llm_chain = LLMChain(llm=llm, prompt=prompt)
 
 #建構記憶工具
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -177,7 +186,7 @@ def diagnose():
     if "尋求專業醫師" in response_text:
         return summary(response_text)
 
-    return jsonify({"response": message.get_Message_data(), "end": False})
+    return jsonify({"response": message.get_Message_data(), "end": "False"})
 
 #推薦方向控制器路由
 @callGPT_bp.route('/summary', methods=['GET'])
@@ -222,6 +231,6 @@ def summary(message):
 
     #清除記憶資料    
     memory.clear()
-
-    return jsonify({"Suggested_Videos": suggested_Videos, "end": True, "response": message1.get_Message_data()})
+    print(suggested_Videos)
+    return jsonify({"Suggested_Videos": suggested_Videos, "end": "True", "response": message1.get_Message_data()})
 

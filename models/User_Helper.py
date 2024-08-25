@@ -1,13 +1,18 @@
 from bson import ObjectId
 import sys
 sys.path.append(r'..')
-#from User import User
 import logging 
 
+# 配置根 logger
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler(sys.stdout)])
+
+logger = logging.getLogger(__name__)
 class UserHelper:
     def __init__(self, db_mgr):
         self.db_mgr = db_mgr
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
 
     def create_user(self, user):
         user_collection = self.db_mgr.get_collection('User')
@@ -34,7 +39,7 @@ class UserHelper:
         else:
             return {"success": False, "message": "找不到用戶"}
 
-    def get_user_by_email_and_password(self, email, password):
+    def get_user_by_email_and_password(self, email, password): #login
         users_collection = self.db_mgr.get_collection('User')
         self.logger.info(f"Attempting to find user with email: {email}")
         user_data = users_collection.find_one({"Email": email, "Password": password})
@@ -57,12 +62,14 @@ class UserHelper:
 
     def get_user_by_id(self, user_id):
         users_collection = self.db_mgr.get_collection('User')
+        #print(f"Debug: Attempting to find user with id: {user_id}")
         self.logger.info(f"Attempting to find user with id: {user_id}")
         try:
             object_id = ObjectId(user_id)
             user_data = users_collection.find_one({"_id": object_id})
             if user_data:
                 self.logger.info(f"User found: {user_data}")
+                #print(f"找到用戶數據: {user_data}")
                 return {
                     "success": True,
                     "message": "取得成功",

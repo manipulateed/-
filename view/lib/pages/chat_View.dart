@@ -82,7 +82,7 @@ class _ChatViewState extends State<ChatView> {
 
   Future<Map<String, dynamic>> getReponse(String message)async{
     CallGPT_SVS service = CallGPT_SVS(message: message);
-    await service.getDignose();
+    await service.getDignose(chatrecord.id);
 
     if (service.finish == "True"){
       chatrecord.suggestedVideoIds = service.suggestMap;

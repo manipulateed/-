@@ -116,14 +116,14 @@ def update_chat_record():
 
             suggested_videos = formatted_suggested_videos
 
-            videos = []
-            for video in data.get['Suggested_Videos']:
-                keyword = video.get('Keyword', '')
-                video_ids = [str(vid['id']) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
-                videos.append({
-                    "Keyword": keyword,
-                    "Video_id": video_ids
-                })
+        videos = []
+        for video in data.get('suggested_videos'):
+            keyword = video.get('Keyword', '')
+            video_ids = [str(vid['id']) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
+            videos.append({
+                "Keyword": keyword,
+                "Video_id": video_ids
+            })
 
 
         # 更新最後更新的時間戳

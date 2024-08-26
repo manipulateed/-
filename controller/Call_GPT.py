@@ -7,7 +7,7 @@ from langchain_core.prompts import (
     PromptTemplate,
 )
 from dotenv import load_dotenv
-from langchain.schema import HumanMessage
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.chains import LLMChain
 #from langchain.chains import RunnableSequence
 from langchain_openai import ChatOpenAI
@@ -15,12 +15,18 @@ from datetime import datetime
 #from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
+from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
 import os
 import requests
 import json
 import re
 from models.Message import Message
 from .VideoController import search_and_create_videos
+import logging
+
+# 配置日誌
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 在應用啟動時加載 .env 文件
 load_dotenv() 
@@ -28,8 +34,11 @@ load_dotenv()
 #建立聊天控制器藍圖
 callGPT_bp = Blueprint('callGPT', __name__)
 
-# 設置 API_Key
+# 設置 環境變數
 API_KEY = os.getenv('API_KEY')
+MONGODB_URI = os.getenv('MONGODB_URI')
+MONGODB_DATABASE = os.getenv('MONGODB_DATABASE')
+MONGODB_COLLECTION = 'chat_histories'
 
 #建構聊天model
 chat = ChatOpenAI(model = "ft:gpt-3.5-turbo-0125:personal::9iHcUIlX", api_key = API_KEY)
@@ -39,8 +48,6 @@ prompt_template = """Use #zh_TW to write a concise summary of the following:
 "{text}" to describe the User's situation in 30 to 50 words
 CONCISE SUMMARY:"""
 prompt = PromptTemplate.from_template(prompt_template)
-
-# Define LLM chain
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
 llm_chain = LLMChain(llm=llm, prompt=prompt)
 
@@ -118,19 +125,13 @@ prompt_direction = ChatPromptTemplate(
     )
 
 #建構診斷用之功能Chain
-conversation_diagnose = LLMChain(
-    llm=chat,
-    prompt=prompt_diagnose,
-    verbose=True,
-    memory=memory
-)
+chain = prompt_diagnose | chat
 
 #建構推薦影片方向用之功能Chain
 conversation_direction = LLMChain(
         llm=chat,
         prompt=prompt_direction,
         verbose=True,
-        memory=memory
     )
 
 #YT search function
@@ -169,10 +170,42 @@ def diagnose():
     #處理POST所傳的data
     data = request.json
     user_input = data.get("user_input")
+    CR_id = data.get("CR_id")  # 確保前端傳遞 user_id
+
+    if not CR_id:
+        return jsonify({"error": "CR_id 是必需的"}), 400
+    if not user_input:
+        return jsonify({"error": "user_input 是必需的"}), 400
+
+    try:
+        # 將記憶體注入到 Chain 中，建構診斷用之功能Chain
+        chain_with_history = RunnableWithMessageHistory(
+            chain,
+            lambda session_id: MongoDBChatMessageHistory(
+                session_id=session_id,
+                connection_string=MONGODB_URI,
+                database_name=MONGODB_DATABASE,
+                collection_name=MONGODB_COLLECTION
+            ),
+            input_messages_key="question",
+            history_messages_key="chat_history",
+        )
+    except Exception as e:
+        print(f"無法連接到 MongoDB：{e}")
+        logger.error(f"無法連接到 MongoDB：{e}")
+        raise
 
     #丟給GPT生成回應
-    response = conversation_diagnose.invoke({"question": user_input})
-    response_text = response['text']
+    try:
+        config = {"configurable": {"session_id": CR_id}}
+        response = chain_with_history.invoke({"question": user_input},config=config)
+        response_text = response.content
+        print(response.content)
+        print(response_text)
+    except Exception as e:
+        print(f"LLMChain 錯誤：{e}")
+        logger.error(f"LLMChain 錯誤：{e}")
+        return jsonify({"error": "處理請求時發生錯誤"}), 500
 
     #建構訊息model  
     message = Message(
@@ -183,54 +216,115 @@ def diagnose():
     )
 
     # Check if we need to stop the diagnosis loop
-    if "尋求專業醫師" in response_text:
-        return summary(response_text)
+    if "尋求專業醫師" in response_text or "尋求專業醫生" in response_text:
+        return create_summary_response(message, CR_id)
 
     return jsonify({"response": message.get_Message_data(), "end": "False"})
 
-#推薦方向控制器路由
-@callGPT_bp.route('/summary', methods=['GET'])
-def summary(message):
-
-    #取得聊天記憶並生成推薦影片方向
-    chat_history = memory.load_memory_variables({})["chat_history"]
-    response = conversation_direction.invoke({"question": chat_history})
-    
-    #建構訊息model
-    message1 = Message(
-            character = "AI",
-            content = message,
-            date = datetime.now().strftime("%Y-%m-%d"),
-            time = datetime.now().strftime("%H:%M:%S")
+def create_summary_response(message, CR_id):
+    try:
+        chain_with_memory = LLMChain(
+            llm=chat,
+            prompt=prompt_direction,
         )
-    
-    #處理關鍵字
-    suggested_Videos = []
-    keywords_list = process_response(response)
-    print(keywords_list)
-    
-    #蝶帶關鍵詞列表，並調用 search_YT_video 函数
-    for keyword in keywords_list:
-        data = {"keyword" : keyword, "max_results": 5}
-        app = Flask(__name__)
-        app.register_blueprint(callGPT_bp)
-        with app.test_request_context(f'/api/video/search_and_create'):
-            
-            # 直接調用 search_and_create_videos 並傳入參數
-            response = search_and_create_videos(data)
-            
-            # 假設 search_and_create_videos 回傳一個字典
-            # 將結果轉為字典並取得 all_videos
-            if response["success"]:
 
-                video_ids = [video["video_id"] for video in response["all_videos"]]
-                suggested_Videos.append({"Keyword": keyword,
-                                "Video_id": video_ids})
-            else:
-                print(response['message'])
+        # 從記憶體中載入聊天歷史
+        chat_history = MongoDBChatMessageHistory(
+            session_id = CR_id,
+            connection_string = MONGODB_URI,
+            database_name = MONGODB_DATABASE,
+            collection_name = MONGODB_COLLECTION
+        )
+        response = conversation_direction.invoke({"question": chat_history})
 
-    #清除記憶資料    
-    memory.clear()
-    print(suggested_Videos)
-    return jsonify({"Suggested_Videos": suggested_Videos, "end": "True", "response": message1.get_Message_data()})
+        #處理關鍵字
+        suggested_Videos = []
+        keywords_list = process_response(response)
+        print(keywords_list)
+        
+        #蝶帶關鍵詞列表，並調用 search_YT_video 函数
+        for keyword in keywords_list:
+            data = {"keyword" : keyword, "max_results": 5}
+            app = Flask(__name__)
+            app.register_blueprint(callGPT_bp)
+            with app.test_request_context(f'/api/video/search_and_create'):
+                
+                # 直接調用 search_and_create_videos 並傳入參數
+                response = search_and_create_videos(data)
+                
+                # 假設 search_and_create_videos 回傳一個字典
+                # 將結果轉為字典並取得 all_videos
+                if response["success"]:
+
+                    video_ids = [video["video_id"] for video in response["all_videos"]]
+                    suggested_Videos.append({"Keyword": keyword,
+                                    "Video_id": video_ids})
+                else:
+                    print(response['message'])
+
+        # 清理使用者記憶
+        chat_history.clear()
+
+        # 創建回應訊息
+        message1 = Message(
+            character="AI",
+            content=message,
+            date=datetime.now().strftime("%Y-%m-%d"),
+            time=datetime.now().strftime("%H:%M:%S")
+        )
+        return jsonify({
+                "Suggested_Videos": suggested_Videos,
+                "end": "True",
+                "response": message1.get_Message_data()
+            })
+
+    except Exception as e:
+        logger.error(f"生成推薦摘要時出錯：{e}")
+        return jsonify({"error": "生成推薦摘要時出錯"}), 500
+    
+#推薦方向控制器路由
+# @callGPT_bp.route('/summary', methods=['GET'])
+# def summary(message):
+
+#     #取得聊天記憶並生成推薦影片方向
+#     chat_history = memory.load_memory_variables({})["chat_history"]
+#     response = conversation_direction.invoke({"question": chat_history})
+    
+#     #建構訊息model
+#     message1 = Message(
+#             character = "AI",
+#             content = message,
+#             date = datetime.now().strftime("%Y-%m-%d"),
+#             time = datetime.now().strftime("%H:%M:%S")
+#         )
+    
+#     #處理關鍵字
+#     suggested_Videos = []
+#     keywords_list = process_response(response)
+#     print(keywords_list)
+    
+#     #蝶帶關鍵詞列表，並調用 search_YT_video 函数
+#     for keyword in keywords_list:
+#         data = {"keyword" : keyword, "max_results": 5}
+#         app = Flask(__name__)
+#         app.register_blueprint(callGPT_bp)
+#         with app.test_request_context(f'/api/video/search_and_create'):
+            
+#             # 直接調用 search_and_create_videos 並傳入參數
+#             response = search_and_create_videos(data)
+            
+#             # 假設 search_and_create_videos 回傳一個字典
+#             # 將結果轉為字典並取得 all_videos
+#             if response["success"]:
+
+#                 video_ids = [video["video_id"] for video in response["all_videos"]]
+#                 suggested_Videos.append({"Keyword": keyword,
+#                                 "Video_id": video_ids})
+#             else:
+#                 print(response['message'])
+
+#     #清除記憶資料    
+#     memory.clear()
+#     print(suggested_Videos)
+#     return jsonify({"Suggested_Videos": suggested_Videos, "end": "True", "response": message1.get_Message_data()})
 

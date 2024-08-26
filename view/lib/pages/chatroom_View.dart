@@ -106,7 +106,7 @@ class _ChatroomViewState extends State<ChatroomView> {
                         Navigator.pop(context);
                         createChatRecord(chatRecord);
                         await Future.delayed(const Duration(milliseconds: 300));
-                        final result = await Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.last);
+                        final result = await Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.first);
                         if (result == true){
                           get_ChatRecords();
                         }

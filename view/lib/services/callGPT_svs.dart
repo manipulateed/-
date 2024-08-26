@@ -10,7 +10,7 @@ class CallGPT_SVS{
     CallGPT_SVS({required this.message});
     final String baseUrl = 'http://172.20.10.3:8080';
 
-    Future<void> getDignose() async{
+    Future<void> getDignose(String CR_id) async{
       final url = Uri.parse('${baseUrl}/diagnose');
 
       final response = await http.post(
@@ -20,6 +20,7 @@ class CallGPT_SVS{
         },
         body: jsonEncode({
           "user_input": message,
+          "CR_id": CR_id,
         }),
       );
 

@@ -112,7 +112,7 @@ class _VideoCardState extends State<VideoCard> {
   }
 
   //取得所有收藏
-  void getAllCL() async {
+  Future<void> getAllCL() async {
     List<Map<String, dynamic>> collection_List = [];
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");

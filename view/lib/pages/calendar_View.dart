@@ -19,8 +19,6 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime? _selectedDay;
   TextEditingController _eventController = TextEditingController();
   String user_id = '66435b426b52ed9b072dc0dd';
-  //刪
-  String record_id='';
 
   List<SourRecord> _event = [];
 
@@ -39,14 +37,70 @@ class _CalendarViewState extends State<CalendarView> {
     setState(() {
       SR = service.SR;
       _event = SR;
-      //刪
-      print('Events: $_event');
     });
+  }
 
-    //刪
-    for(var record in _event){
-      user_id = '${record.userId}';
+  //新增記錄接後端
+  void createSR(String user_id, String reason, String time) async{
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.createSR(user_id, reason, time);
+  }
+
+  //跳去event_view
+  void _navigateToEventView(String id) async {
+    final updatedEvents = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventView(
+          record_id: id,
+        ),
+      ),
+    );
+    //回傳true, 更新
+    if (updatedEvents != null) {
+      getAllSR(user_id);
     }
+  }
+  
+  //新增紀錄
+  void _showAddEventDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        //看看dialog要不要改style
+        return AlertDialog(
+          title: Text('${DateFormat('yyyy-MM-dd').format(_selectedDay!)}',
+          textAlign: TextAlign.center,
+          ),
+          content: TextField(
+            controller: _eventController,
+            //提示字可改
+            //decoration: InputDecoration(labelText: 'Event'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('取消'),
+            ),
+            TextButton(
+               onPressed: () {
+                 String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
+                 createSR(user_id, _eventController.text, time);
+                 Navigator.pop(context);
+                 getAllSR(user_id);
+                 _selectedDay = _selectedDay!;
+                 setState(() {
+                   _eventController.clear();
+                 });
+               },
+              child: Text('確認'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   List<SourRecord> _getEventsForDay(DateTime day) {
@@ -78,8 +132,6 @@ class _CalendarViewState extends State<CalendarView> {
               );
             }, // 設置按下按鈕時執行的函數
           ),
-          //新增日記
-          //我想要改判斷有event=>不顯示，沒有event=>顯示
           IconButton(onPressed: _showAddEventDialog, icon: Icon(Icons.add))
         ],
       ),
@@ -117,8 +169,6 @@ class _CalendarViewState extends State<CalendarView> {
                 });
               },
               eventLoader: (day) {
-                //刪
-                print('Loading events for day: $day');
                 return _getEventsForDay(day);
               },
               calendarStyle: CalendarStyle(
@@ -155,115 +205,53 @@ class _CalendarViewState extends State<CalendarView> {
             if (_selectedDay != null)
               ...[
                 SizedBox(height: 20),
-                InkWell(
+                // InkWell(
+                //   child: _getEventsForDay(_selectedDay!).isNotEmpty && _showEvents
+                //       ? Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: _getEventsForDay(_selectedDay!).map((event) {
+                //       return GestureDetector(
+                //         onTap: () {
+                //           // 使用 event.id
+                //           _navigateToEventView(event.id);
+                //         },
+                //         child: Card(
+                //           color: Colors.green[50],
+                //           shadowColor: Colors.white,
+                //           margin: EdgeInsets.all(15),
+                //           child: ListTile(
+                //             title: Text(event.reason),
+                //           ),
+                //         ),
+                //       );
+                //     }).toList(),
+                //   )
+                //       : SizedBox.shrink(),
+                // ),
+                Expanded(
                   child: _getEventsForDay(_selectedDay!).isNotEmpty && _showEvents
-                      ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _getEventsForDay(_selectedDay!).map((event) {
-                      return GestureDetector(
-                        onTap: () {
-                          // 使用 event.id
-                          _navigateToEventView(event.id);
-                        },
-                        child: Card(
-                          color: Colors.green[50],
-                          shadowColor: Colors.white,
-                          margin: EdgeInsets.all(15),
-                          child: ListTile(
-                            title: Text(event.reason),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  )
-                      : SizedBox.shrink(),
+                      ? ListView.builder(
+                          itemCount: _getEventsForDay(_selectedDay!).length,
+                          itembuilder: (contex, index){
+                            final entry = _getEventsForDay(_selectedDay!)[index]; //?
+                            return Card(
+                              color: Color.green[50],
+                              shadowColor: Color.white,
+                              margin: EdgeInsets.all(10),
+                              child:ListTitle(
+                                title: Text(entry.reason),
+                              ),
+                              onTap:() => _navigatoEventView(entry.id),
+                            );
+                          },
+                      ) : SizedBox.shrink(),               
                 ),
+
+              
               ],
           ],
         ),
       ),
     );
-  }
-
-  //新增紀錄
-  void _showAddEventDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        //看看dialog要不要改style
-        return AlertDialog(
-          title: Text('${DateFormat('yyyy-MM-dd').format(_selectedDay!)}',
-          textAlign: TextAlign.center,
-          ),
-          content: TextField(
-            controller: _eventController,
-            //提示字可改
-            decoration: InputDecoration(labelText: 'Event'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('取消'),
-            ),
-            TextButton(
-               onPressed: () {
-                 String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
-                 createSR(user_id, _eventController.text, time);
-                 Navigator.pop(context);
-                 getAllSR(user_id);
-                 _selectedDay = _selectedDay!;
-                 setState(() {
-                   _eventController.clear();
-                 });
-                //刪
-                 //getAllSR();
-               },
-              //{
-              //   setState(() {
-              //     final newRecord = SourRecord(
-              //       id: 'new_id',
-              //       userId: user_id,
-              //       videos: '',
-              //       title: '',
-              //       reason: _eventController.text,
-              //       time: _selectedDay!,
-              //     );
-              //     _event.add(newRecord);
-              //     _eventController.clear();
-              //   });
-              //   Navigator.pop(context);
-              //   createSR(user_id, _eventController.text, _selectedDay!);
-              // },
-              child: Text('確認'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  //把位子移上去
-  void createSR(String user_id, String reason, String time) async{
-    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.createSR(user_id, reason, time);
-  }
-
-  void _navigateToEventView(String id) async {
-    //final events = _getEventsForDay(_selectedDay!);
-    final updatedEvents = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EventView(
-          //events: events,刪
-          record_id: id,
-        ),
-      ),
-    );
-
-    if (updatedEvents != null) {
-      getAllSR(user_id);
-    }
   }
 }

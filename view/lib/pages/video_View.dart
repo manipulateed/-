@@ -91,14 +91,17 @@ class _VideoCardState extends State<VideoCard> {
 
   late Video video;
   bool isLoading = true;
+  late List<Map<String, dynamic>> _options;
 
   @override
   void initState() {
     super.initState();
     video = widget.video;
     getVideo();
+    getAllCL();
   }
 
+  //取得影片
   void getVideo() async {
     Video_SVS service = Video_SVS(videos: video);
     await service.getVideoById(video.id);
@@ -109,7 +112,7 @@ class _VideoCardState extends State<VideoCard> {
   }
 
   //取得所有收藏
-  Future<List<Map<String, dynamic>>> getAllCL()async {
+  void getAllCL() async {
     List<Map<String, dynamic>> collection_List = [];
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");
@@ -156,13 +159,9 @@ class _VideoCardState extends State<VideoCard> {
       'count': cl.collection.length,
     }).toList();
 
-    return collection_List;
-  }
-
-
-  //新增影片到收藏
-  void addToCL(){
-
+    setState((){
+      _options = collection_List;
+    });
   }
 
   //把yt api抓到的url轉為可以embed的形式
@@ -208,8 +207,7 @@ class _VideoCardState extends State<VideoCard> {
                       IconButton(
                         icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
                         onPressed: () async{
-                          List<Map<String, dynamic>> _options = await getAllCL();
-                          await _showCustomModalBottomSheet(context, _options);
+                          await _showCustomModalBottomSheet(context);
                         },
                       ),
                     ],
@@ -225,10 +223,10 @@ class _VideoCardState extends State<VideoCard> {
   void updateCollectionList(clID, type, new_value) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     await service.updateCL(clID, type, new_value);
+    await getAllCL();
   }
 
-  Future<void> _showCustomModalBottomSheet(context, List<Map<String, dynamic>> options) async {
-    List<Map<String, dynamic>> _options = options;
+  Future<void> _showCustomModalBottomSheet(context) async {
     return showModalBottomSheet<void>(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -299,14 +297,15 @@ class _VideoCardState extends State<VideoCard> {
                                 text: '將新增影片至\"' +_options[index]['name'].toString() +'\"，請確認是否新增?',
                                 onConfirmBtnTap: () async {
                                   if (!mounted) return;
-                                  try {
-                                    // Perform the removal action
-                                    updateCollectionList( _options[index]['id'].toString(),"add_video", video.id);
-                                    print("updateCollectionList");
-
+                                  try {                             
                                     // Close the confirmation dialog
                                     Navigator.pop(context);
                                     print("Close the confirmation dialog");
+
+                                    // Perform the addition action
+                                    updateCollectionList( _options[index]['id'].toString(),"add_video", video.id);
+                                    print("updateCollectionList");
+
                                     // Short delay before showing success message
                                     await Future.delayed(const Duration(milliseconds: 300));
 
@@ -314,9 +313,9 @@ class _VideoCardState extends State<VideoCard> {
                                       await QuickAlert.show(
                                         context: context,
                                         type: QuickAlertType.success,
-                                        text: "影片已從收藏清單中移除!",
+                                        text: "影片已加入收藏清單中!",
                                       );
-                                      print("影片已從收藏清單中移除");
+                                      print("影片已加入收藏清單中");
                                     }
                                   } catch (e) {
                                     print("Error: ${e.toString()}");
@@ -336,10 +335,6 @@ class _VideoCardState extends State<VideoCard> {
                                   }
                                 },
                               );
-                              options = await getAllCL();
-                              setState((){
-                                _options = options;
-                              });
                             },
                           );
                         },

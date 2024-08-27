@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, Blueprint
 import sys
 sys.path.append(r'..')
-
+from bson import ObjectId
 from models.MongoDBMgr import MongoDBMgr
 from models.Sour_Record_Helper import Sour_Record_Helper
 from models.Sour_Record import Sour_Record
@@ -52,9 +52,30 @@ def create_sour_record():
 
     data = request.get_json()     
     reason = data.get('reason')
-    time =data.get('time')
+    time = data.get('time')
 
-    new_Sour_Record = Sour_Record(id="1", user_id=user_id, reason=reason, time=time, videos=[])
+    videos = data.get('videos')
+    if videos:
+        # 確保 videos 是一個列表
+        if not isinstance(videos, list):
+            videos = [videos]
+        
+        # 格式化 videos
+        formatted_videos = []
+        for video in videos:
+            video_ids = [ObjectId(str(vid['id'])) for vid in video.get('Video_id', [])]
+            formatted_video = {
+                "Keyword": video.get('Keyword'),
+                "Video_id": video_ids
+            }
+            # 確保 Video_id 是一個列表
+            if not isinstance(formatted_video["Video_id"], list):
+                formatted_video["Video_id"] = [formatted_video["Video_id"]]
+            formatted_videos.append(formatted_video)
+
+        videos = formatted_videos
+
+    new_Sour_Record = Sour_Record(id="1", user_id=user_id, reason=reason, time=time, videos=videos)
     sr_helper.create_sour_record(new_Sour_Record)
 
     if data:

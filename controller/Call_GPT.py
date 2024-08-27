@@ -23,6 +23,7 @@ import re
 from models.Message import Message
 from .VideoController import search_and_create_videos
 import logging
+from .Sour_Record_Controller import create_sour_record
 
 # 配置日誌
 logging.basicConfig(level=logging.INFO)
@@ -44,8 +45,8 @@ MONGODB_COLLECTION = 'chat_histories'
 chat = ChatOpenAI(model = "ft:gpt-3.5-turbo-0125:personal::9iHcUIlX", api_key = API_KEY)
 
 #建構summary promtp
-prompt_template = """Use #zh_TW to write a concise summary of the following:
-"{text}" to describe the User's situation in 30 to 50 words
+prompt_template = """Use #zh_TW to write a concise summary within 30 to 50 words of the following:
+"{text}" to describe the User's situation.
 CONCISE SUMMARY:"""
 prompt = PromptTemplate.from_template(prompt_template)
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
@@ -170,6 +171,7 @@ def diagnose():
     #處理POST所傳的data
     data = request.json
     user_input = data.get("user_input")
+    user_id = data.get("user_id")
     CR_id = data.get("CR_id")  # 確保前端傳遞 user_id
 
     if not CR_id:
@@ -200,8 +202,6 @@ def diagnose():
         config = {"configurable": {"session_id": CR_id}}
         response = chain_with_history.invoke({"question": user_input},config=config)
         response_text = response.content
-        print(response.content)
-        print(response_text)
     except Exception as e:
         print(f"LLMChain 錯誤：{e}")
         logger.error(f"LLMChain 錯誤：{e}")
@@ -217,17 +217,12 @@ def diagnose():
 
     # Check if we need to stop the diagnosis loop
     if "尋求專業醫師" in response_text or "尋求專業醫生" in response_text:
-        return create_summary_response(message, CR_id)
+        return create_summary_response(message, CR_id, user_id)
 
     return jsonify({"response": message.get_Message_data(), "end": "False"})
 
-def create_summary_response(message, CR_id):
+def create_summary_response(message, CR_id, user_id):
     try:
-        chain_with_memory = LLMChain(
-            llm=chat,
-            prompt=prompt_direction,
-        )
-
         # 從記憶體中載入聊天歷史
         chat_history = MongoDBChatMessageHistory(
             session_id = CR_id,
@@ -235,7 +230,13 @@ def create_summary_response(message, CR_id):
             database_name = MONGODB_DATABASE,
             collection_name = MONGODB_COLLECTION
         )
+
+        #獲取推薦廣度關鍵字
         response = conversation_direction.invoke({"question": chat_history})
+
+        #獲取痠痛摘要
+        result = llm_chain.invoke({"text": chat_history})
+
 
         #處理關鍵字
         suggested_Videos = []
@@ -255,27 +256,36 @@ def create_summary_response(message, CR_id):
                 # 假設 search_and_create_videos 回傳一個字典
                 # 將結果轉為字典並取得 all_videos
                 if response["success"]:
-
                     video_ids = [video["video_id"] for video in response["all_videos"]]
                     suggested_Videos.append({"Keyword": keyword,
                                     "Video_id": video_ids})
                 else:
                     print(response['message'])
 
+        #Add Sour Record
+        app = Flask(__name__)
+        app.register_blueprint(callGPT_bp)
+
+        # 模擬測試上下文來呼叫 `/Sour_Record_Controller/create` 路由
+        with app.test_request_context(f'/Sour_Record_Controller/create?user_id={user_id}', json={"reason": result, "time": datetime.now(), "videos": suggested_Videos}):
+            
+            # 直接調用路由函數 `create_sour_record`
+            response = create_sour_record()  # 確保這個函數已正確匯入
+
+            # 假設路由函數返回一個 JSON 回應，轉為字典並處理
+            if response.json["success"]:
+                print("成功:", response.json["message"])
+            else:
+                print("失敗:", response.json["message"])
+
+
         # 清理使用者記憶
         chat_history.clear()
 
-        # 創建回應訊息
-        message1 = Message(
-            character="AI",
-            content=message,
-            date=datetime.now().strftime("%Y-%m-%d"),
-            time=datetime.now().strftime("%H:%M:%S")
-        )
         return jsonify({
                 "Suggested_Videos": suggested_Videos,
                 "end": "True",
-                "response": message1.get_Message_data()
+                "response": message.get_Message_data()
             })
 
     except Exception as e:

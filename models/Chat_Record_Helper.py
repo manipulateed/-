@@ -84,8 +84,6 @@ class Chat_Record_Helper:
         all = []
         for record in records:
             all.append(self._format_record(record))
-
-        print(all)
         return all
     
     def get_Chat_Record_by_id(self, record_id):
@@ -135,8 +133,6 @@ class Chat_Record_Helper:
             
             if str(record['Finished']) == "true":
                 record['Finished'] = "yes"
-
-                
-            
+ 
             record1 = Chat_Record(record['_id'], record['User_Id'], record['Name'], record['Message'], formatted_suggested_videos, record['Last_Update_TimeStamp'], record['Finished'])
         return record1.get_chat_record_data()

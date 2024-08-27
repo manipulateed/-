@@ -7,6 +7,7 @@ class Sour_Record_SVS {
   List<SourRecord> SR = [];
   Sour_Record_SVS({required this.SR});
   final String baseUrl = 'http://172.20.10.3:8080';
+
   //獲取所有紀錄
   Future<void> getAllSR(user_id) async {
     final url = Uri.parse('${baseUrl}/Sour_Record_Controller/get_ALLSR?user_id='+user_id);
@@ -120,6 +121,7 @@ class Sour_Record_SVS {
         'user_id': user_id,
         'reason': reason,
         'time':time,
+        'videos':[]
       }),
     );
     if (response.statusCode == 200) {

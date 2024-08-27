@@ -44,9 +44,13 @@ class _ChatroomViewState extends State<ChatroomView> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-          child: Text('聊天', style: TextStyle(color: Color.fromRGBO(56, 107, 79, 1))),
+        title: Center(
+          child: Text('酸通診療室',
+            style: TextStyle(
+              color: Color.fromRGBO(56, 107, 79, 1),
+              fontWeight: FontWeight.bold,
+            )
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,

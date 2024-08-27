@@ -5,8 +5,12 @@ from models.Collect_List import Collect_List
 
 Collect_List_bp = Blueprint('Collect_List', __name__)
 
-mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
-db_name = "酸通"
+from dotenv import load_dotenv
+import os
+# 在應用啟動時加載 .env 文件
+load_dotenv() 
+mongo_uri = os.getenv('MONGODB_URI')
+db_name = os.getenv('MONGODB_DATABASE')
 mongo_mgr = MongoDBMgr(db_name,mongo_uri)
 cl_helper = Collect_List_Helper(mongo_mgr)
 

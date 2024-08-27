@@ -49,11 +49,8 @@ prompt_template = """Use #zh_TW to write a concise summary within 30 to 50 words
 "{text}" to describe the User's situation.
 CONCISE SUMMARY:"""
 prompt = PromptTemplate.from_template(prompt_template)
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-16k")
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0125")
 llm_chain = LLMChain(llm=llm, prompt=prompt)
-
-#建構記憶工具
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 #診斷用之提示工程
 prompt_diagnose = ChatPromptTemplate(
@@ -129,11 +126,7 @@ prompt_direction = ChatPromptTemplate(
 chain = prompt_diagnose | chat
 
 #建構推薦影片方向用之功能Chain
-conversation_direction = LLMChain(
-        llm=chat,
-        prompt=prompt_direction,
-        verbose=True,
-    )
+chain_direction = prompt_direction | llm
 
 #YT search function
 def search_YT_video(keyword):
@@ -159,7 +152,7 @@ def search_YT_video(keyword):
 
 # 處理GPT生成方向文字轉LIST
 def process_response(response):
-
+    print("In process response")
     response = response['text'] 
     matches = re.findall(r'"([^"]+)"', response)
     #print("matches: ")
@@ -231,17 +224,30 @@ def create_summary_response(message, CR_id, user_id):
             collection_name = MONGODB_COLLECTION
         )
 
+        with_history = RunnableWithMessageHistory(
+            chain_direction,
+            lambda session_id: MongoDBChatMessageHistory(
+                session_id=session_id,
+                connection_string=MONGODB_URI,
+                database_name=MONGODB_DATABASE,
+                collection_name=MONGODB_COLLECTION
+            ),
+            input_messages_key="question",
+            history_messages_key="chat_history",
+        )
+
+        config = {"configurable": {"session_id": CR_id}}
         #獲取推薦廣度關鍵字
-        response = conversation_direction.invoke({"question": chat_history})
+        response = with_history.invoke({"question": chat_history.messages}, config = config).content
+        print("推薦廣度關鍵字:" + response)
 
         #獲取痠痛摘要
-        result = llm_chain.invoke({"text": chat_history})
-
+        result = llm_chain.invoke({"text": chat_history.messages})
 
         #處理關鍵字
         suggested_Videos = []
         keywords_list = process_response(response)
-        print(keywords_list)
+        print("keywords:" + keywords_list)
         
         #蝶帶關鍵詞列表，並調用 search_YT_video 函数
         for keyword in keywords_list:
@@ -289,8 +295,8 @@ def create_summary_response(message, CR_id, user_id):
             })
 
     except Exception as e:
-        logger.error(f"生成推薦摘要時出錯：{e}")
-        return jsonify({"error": "生成推薦摘要時出錯"}), 500
+        logger.error(f"出錯囉：{e}")
+        return jsonify({"error": f"出錯囉：{e}"}), 500
     
 #推薦方向控制器路由
 # @callGPT_bp.route('/summary', methods=['GET'])

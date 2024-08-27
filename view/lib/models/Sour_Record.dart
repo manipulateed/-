@@ -29,6 +29,7 @@ class SourRecord {
             ),
           };
         }),
+      ),
       reason: json['reason'],
       time: DateTime.parse(json['time']), // 解析字符串为 DateTime 对象
     );

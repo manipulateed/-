@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:view/models/Sour_Record.dart';
 import 'package:view/services/Sour_Record_svs.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:view/models/Video.dart';
+import 'package:view/constants/route.dart';
 
 class EventView extends StatefulWidget {
   //final List<SourRecord> events;
@@ -55,7 +55,7 @@ class _EventViewState extends State<EventView> {
 
       _controllers.add(TextEditingController(text: reason));
 
-      print("資料"+day+reason+title+video);
+      print("資料"+day+reason+title+video.toString());
     }
 
     // _updatedEvents = widget.events.map((SR) {
@@ -256,7 +256,7 @@ class _EventViewState extends State<EventView> {
                       shrinkWrap: true,
                       itemCount: options.length,
                       itemBuilder: (BuildContext context, int index) {
-                        List<Video> nonNullList = chatrecord.suggestedVideoIds[index][options[index]] ?? [];
+                        List<Video> nonNullList = video[index][options[index]] ?? [];
                         return _buildOptionButton(options[index], nonNullList);
                       },
                     ),

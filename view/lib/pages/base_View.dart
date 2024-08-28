@@ -26,17 +26,17 @@ class _BaseViewState extends State<BaseView> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Center(
-          child: Text(
-            "酸通",
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
+      // appBar: AppBar(
+      //   title: Center(
+      //     child: Text(
+      //       "酸通",
+      //       style: TextStyle(
+      //         fontSize: 30,
+      //         fontWeight: FontWeight.bold,
+      //       ),
+      //     ),
+      //   ),
+      // ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(

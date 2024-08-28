@@ -30,10 +30,6 @@ class Sour_Record:
     def get_time(self):
         return self.time
 
-    @staticmethod  
-    def get_All_Sour_Record_by_UserId(user_id):
-        pass
-
     def get_Sour_Record_data(self):
         sour_record_data = {
             "id": str(self.id), 
@@ -42,5 +38,4 @@ class Sour_Record:
             "reason": self.reason,
             "time": self.time
         }
-        return json.dumps(sour_record_data)
-
+        return sour_record_data

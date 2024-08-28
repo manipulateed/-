@@ -31,7 +31,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void getCollectionList() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    List<CollectList> collectList = await service.getAllCL("66435b426b52ed9b072dc0dd");
+    List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");
 
     for (var cl in collectList) {
       print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
@@ -81,7 +81,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void createCollectionList(String newName) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    bool success = await service.createCL("66435b426b52ed9b072dc0dd",newName);
+    bool success = await service.createCL("66435c496b52ed9b072dc0e4",newName);
 
     if (success) {
       getCollectionList();
@@ -132,7 +132,7 @@ class _CollectionViewState extends State<CollectionListView> {
                   child: ListView.builder(
                     itemCount: collection_List.length,
                     itemBuilder: (context, index) {
-                      CollectionListCard collectionListCard = CollectionListCard(context: collection_List[index]);
+                      CollectionListCard collectionListCard = CollectionListCard(context: collection_List[index], onUpdateCL: getCollectionList);
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
                         child: Row(

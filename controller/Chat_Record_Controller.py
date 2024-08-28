@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.MongoDBMgr import MongoDBMgr
 from models.Chat_Record_Helper import Chat_Record_Helper
 from models.Chat_Record import Chat_Record
@@ -8,8 +9,12 @@ from datetime import datetime
 
 Chat_Record_bp = Blueprint('Chat_Record', __name__)
 
-mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
-db_name = "酸通"
+from dotenv import load_dotenv
+import os
+# 在應用啟動時加載 .env 文件
+load_dotenv() 
+mongo_uri = os.getenv('MONGODB_URI')
+db_name = os.getenv('MONGODB_DATABASE')
 mongo_mgr = MongoDBMgr(db_name, mongo_uri)
 cr_helper = Chat_Record_Helper(mongo_mgr)
 
@@ -18,6 +23,15 @@ def get_chat_records_by_user_id():
     """獲取用戶的所有聊天記錄"""
     data = request.args.get("user_id")
 
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    
     if data:
         return_data = cr_helper.get_all_chat_records_by_user_id(data)
         return jsonify(success=True, user_id=data, response=return_data), 200
@@ -30,7 +44,17 @@ def create_chat_record():
     data = request.json
     if data:
         id = ""
+
         user_id = request.args.get("user_id")
+        # 從請求的標頭中提取 Authorization 標頭，並打印 token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            token = auth_header.split()[1]  # Authorization: Bearer <token>
+            print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+        
+        current_user_id = get_jwt_identity()
+        print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
         message = data.get('message')
         name = data.get('name')
 
@@ -64,6 +88,15 @@ def update_chat_record():
         id = data.get('id')  # 假設你用record_id來查找要更新的記錄
 
         user_id = data.get('user_id')
+        # 從請求的標頭中提取 Authorization 標頭，並打印 token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            token = auth_header.split()[1]  # Authorization: Bearer <token>
+            print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+        
+        current_user_id = get_jwt_identity()
+        print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
 
         # 處理 messages
         messages = []
@@ -77,6 +110,21 @@ def update_chat_record():
             messages.append(message)
         message = [msg.get_Message_data() for msg in messages]
 
+        formatted_messages = []
+        for mes in message:
+            formatted_message = {
+                'Role': mes['character'],
+                'Content': mes['content'],
+                'Date': mes['date'],
+                'Time': mes['time']
+            }
+            # 如果 Date 或 Time 是 datetime 對象，進行格式化
+            if isinstance(formatted_message['Date'], datetime):
+                formatted_message['Date'] = formatted_message['Date'].strftime("%Y-%m-%d")
+            if isinstance(formatted_message['Time'], datetime):
+                formatted_message['Time'] = formatted_message['Time'].strftime("%H:%M:%S")
+            formatted_messages.append(formatted_message)
+
         name = data.get('name')
 
         # 處理 Suggested_videos
@@ -89,9 +137,10 @@ def update_chat_record():
             # 格式化 suggested_videos
             formatted_suggested_videos = []
             for video in suggested_videos:
+                video_ids = [ObjectId(str(vid['id'])) for vid in video.get('Video_id', [])]
                 formatted_video = {
-                    "Keyword": video.get('keyword'),
-                    "Video_id": video.get('video_id', [])
+                    "Keyword": video.get('Keyword'),
+                    "Video_id": video_ids
                 }
                 # 確保 Video_id 是一個列表
                 if not isinstance(formatted_video["Video_id"], list):
@@ -99,6 +148,16 @@ def update_chat_record():
                 formatted_suggested_videos.append(formatted_video)
 
             suggested_videos = formatted_suggested_videos
+
+        videos = []
+        for video in data.get('suggested_videos'):
+            keyword = video.get('Keyword', '')
+            video_ids = [str(vid['id']) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
+            videos.append({
+                "Keyword": keyword,
+                "Video_id": video_ids
+            })
+
 
         # 更新最後更新的時間戳
         timestamp = datetime.now().isoformat()
@@ -112,7 +171,8 @@ def update_chat_record():
 
         #如果更新成功
         if (result['success']):
-           print(chat_record.get_chat_record_data())
+           chat_record.message = formatted_messages
+           chat_record.suggested_videos = videos
            return jsonify(success=True, response=chat_record.get_chat_record_data()), 200
         else:
             print(result['message'])

@@ -6,10 +6,11 @@ import 'package:view/models/User.dart';
 class Sour_Record_SVS {
   List<SourRecord> SR = [];
   Sour_Record_SVS({required this.SR});
+  final String baseUrl = 'http://172.20.10.3:8080';
 
   //獲取所有紀錄
   Future<void> getAllSR(user_id) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get_ALLSR?user_id='+user_id);
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/get_ALLSR?user_id='+user_id);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -39,7 +40,7 @@ class Sour_Record_SVS {
   // }
 
   Future<void> getSR(id) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get?id=' + id);
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/get?id=' + id);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -70,7 +71,7 @@ class Sour_Record_SVS {
 
   //修改痠痛原因
   Future<void> updateSR(String sour_record_id, String new_value) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/update?id='+sour_record_id);
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/update?id='+sour_record_id);
     final response = await http.put(
       url,
       headers: <String, String>{
@@ -83,7 +84,7 @@ class Sour_Record_SVS {
       }),
     );
     if (response.statusCode == 200) {
-      print('Data update successfully: ${response.body}');
+      print('Data update successfully: ${jsonDecode(response.body)['message']}');
     } else {
       print('Failed to update data: ${response.statusCode}');
     }
@@ -91,7 +92,7 @@ class Sour_Record_SVS {
 
   //刪除痠痛紀錄
   Future<void> deleteSR(String id) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/delete?id='+id);
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/delete?id='+id);
     final response = await http.delete(
       url,
       headers: <String, String>{
@@ -110,7 +111,7 @@ class Sour_Record_SVS {
 
   //新增痠痛
   Future<void> createSR(String user_id, String reason, String time) async {
-    final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/create?user_id='+user_id);
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/create?user_id='+user_id);
     final response = await http.post(
       url,
       headers: <String, String>{
@@ -120,6 +121,7 @@ class Sour_Record_SVS {
         'user_id': user_id,
         'reason': reason,
         'time':time,
+        'videos':[]
       }),
     );
     if (response.statusCode == 200) {

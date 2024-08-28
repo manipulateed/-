@@ -1,6 +1,5 @@
 from bson import ObjectId
-import sys
-sys.path.append(r'..')
+
 from models.Collect_List import Collect_List
 import re
 

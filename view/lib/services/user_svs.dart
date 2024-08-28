@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:view/models/User.dart';
 
 class User_SVS {
-  final String baseUrl = 'http://192.168.68.105:8080';
+  final String baseUrl = 'http://172.20.10.3:8080';
 
   Future<User?> getUserById(String token) async {
 

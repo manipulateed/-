@@ -120,6 +120,8 @@ jobs:
           env_vars: |
             API_KEY=${{ secrets.API_KEY }}
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            MONGODB_DATABASE=${{ secrets.MONGODB_DATABASE }}
       # If required, use the Cloud Run url output in later steps
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}

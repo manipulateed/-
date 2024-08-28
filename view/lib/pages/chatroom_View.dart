@@ -19,7 +19,7 @@ class _ChatroomViewState extends State<ChatroomView> {
     Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
     await service.getAllChatRecords();
     setState(() {
-      chatrecords = service.chatrecords;
+      chatrecords = service.chatrecords.reversed.toList();
     });
   }
 
@@ -27,6 +27,7 @@ class _ChatroomViewState extends State<ChatroomView> {
     chatrecords.add(chatrecord);
     Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
     await service.createChatRecord();
+    await get_ChatRecords();
   }
 
   @override
@@ -43,9 +44,13 @@ class _ChatroomViewState extends State<ChatroomView> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-          child: Text('聊天', style: TextStyle(color: Color.fromRGBO(56, 107, 79, 1))),
+        title: Center(
+          child: Text('酸通診療室',
+            style: TextStyle(
+              color: Color.fromRGBO(56, 107, 79, 1),
+              fontWeight: FontWeight.bold,
+            )
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -83,11 +88,11 @@ class _ChatroomViewState extends State<ChatroomView> {
                         onChanged: (value) => chatRecord = new ChatRecord(id: "",userId: "", message: [], suggestedVideoIds: [], name: value, timestamp: "", finish: "no"),
                       ),
                       onConfirmBtnTap: () async {
-                        if (chatRecord.name.length < 5) {
+                        if (chatRecord.name.length < 3) {
                           await QuickAlert.show(
                             context: context,
                             type: QuickAlertType.error,
-                            text: 'Please input something',
+                            text: 'Please input more than two words.',
                           );
                           return;
                         }
@@ -95,7 +100,7 @@ class _ChatroomViewState extends State<ChatroomView> {
                           await QuickAlert.show(
                             context: context,
                             type: QuickAlertType.warning,
-                            text: '該名稱已存在!',
+                            text: '請輸入其他名稱!',
                             confirmBtnText: '確認',
                             title: '該名稱已存在!',
                             confirmBtnColor: Colors.green,
@@ -104,9 +109,11 @@ class _ChatroomViewState extends State<ChatroomView> {
                         }
                         Navigator.pop(context);
                         createChatRecord(chatRecord);
-                        await get_ChatRecords();
                         await Future.delayed(const Duration(milliseconds: 300));
-                        Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.last);
+                        final result = await Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.first);
+                        if (result == true){
+                          get_ChatRecords();
+                        }
                       },
                     );
                   },
@@ -134,7 +141,7 @@ class _ChatroomViewState extends State<ChatroomView> {
             child: ListView.builder(
               itemCount: chatrecords.length,
               itemBuilder: (context, index) {
-                return ChatListItem(chatRecord: chatrecords[index]);
+                return ChatListItem(chatRecord: chatrecords[index], onUpdateCR: get_ChatRecords,);
               },
             ),
           ),
@@ -145,8 +152,12 @@ class _ChatroomViewState extends State<ChatroomView> {
 }
 class ChatListItem extends StatelessWidget {
   final ChatRecord chatRecord;
+  dynamic Function() onUpdateCR;
+  ChatListItem({required this.chatRecord, required this.onUpdateCR});
 
-  ChatListItem({required this.chatRecord});
+  void _handlePressed() {
+    onUpdateCR();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,8 +184,11 @@ class ChatListItem extends StatelessWidget {
             style: TextStyle(
                 color: Color.fromRGBO(56, 107, 79, 0.5)
             ),),
-          onTap: () {
-            Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
+          onTap: () async{
+            final result = await Navigator.pushNamed(context, Routes.chatView, arguments: chatRecord);
+            if (result == true){
+              _handlePressed();
+            }
             // Handle chat item tap
           },
         ),

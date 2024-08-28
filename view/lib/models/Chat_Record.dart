@@ -36,18 +36,18 @@ class ChatRecord {
                 'Keyword': keyword,
                 'Video_id': videos.map((video) => video.toJson()).toList(),
               };
-            }).toList()
-          : [], // 確保 suggested_videos 為 List
-      'name': name?? '',
-      'last_update_timestamp': timestamp?? '',
-      'finished': finish ?? '',
-    };
-  }
+      }).toList()
+      : [], // 確保 suggested_videos 為 List
+  'name': name?? '',
+  'last_update_timestamp': timestamp?? '',
+  'finished': finish ?? '',
+};
+}
 
-  factory ChatRecord.fromJson(Map<String, dynamic> json) {
-    return ChatRecord(
-      id : json['id'],
-      userId: json['user_id'],
+factory ChatRecord.fromJson(Map<String, dynamic> json) {
+return ChatRecord(
+id : json['id'],
+userId: json['user_id'],
       message: List<Map<String, String>>.from(
         (json['message'] as List).map(
               (item) => Map<String, String>.from(item),

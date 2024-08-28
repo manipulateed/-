@@ -1,14 +1,17 @@
 from flask import Flask, request, jsonify, Blueprint
-import sys
-sys.path.append(r'..')
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.MongoDBMgr import MongoDBMgr 
 from models.Collect_List_Helper import Collect_List_Helper  
 from models.Collect_List import Collect_List
 
 Collect_List_bp = Blueprint('Collect_List', __name__)
 
-mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
-db_name = "酸通"
+from dotenv import load_dotenv
+import os
+# 在應用啟動時加載 .env 文件
+load_dotenv() 
+mongo_uri = os.getenv('MONGODB_URI')
+db_name = os.getenv('MONGODB_DATABASE')
 mongo_mgr = MongoDBMgr(db_name,mongo_uri)
 cl_helper = Collect_List_Helper(mongo_mgr)
 
@@ -17,6 +20,15 @@ def get_All_CL_by_UserId():
     """取得所有收藏清單"""
 
     user_id = request.args.get('user_id')
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
     if user_id: 
         return_data = cl_helper.get_All_CL_by_UserId(user_id)
         return jsonify(success=True, user_id=user_id , response = return_data), 200
@@ -28,6 +40,15 @@ def get_CL_by_UserId_and_ClId():
     """取得單一收藏清單"""
     # data = request.get_json()
     user_id = request.args.get('user_id')
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
     cl_id = request.args.get('ClId')
     if user_id and cl_id:
         # user_id = data.get('user_id')
@@ -45,6 +66,15 @@ def create_CL_by_UserId():
         data = request.get_json()
         print("Received data:", data)  # 添加這一行來打印接收到的數據
         user_id = data.get('user_id')
+        # 從請求的標頭中提取 Authorization 標頭，並打印 token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            token = auth_header.split()[1]  # Authorization: Bearer <token>
+            print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+        
+        current_user_id = get_jwt_identity()
+        print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
         name = data.get('name')
         
         if user_id and name:
@@ -61,9 +91,6 @@ def create_CL_by_UserId():
 def update_CL_data():
     """修改收藏清單"""
     data = request.json
-    # cl_id = request.args.get('cl_id')
-    # type =  request.args.get('type')
-    # new_value =  request.args.get('new_value')
     cl_id = data.get('cl_id')
     type = data.get('type')
     new_value = data.get('new_value')

@@ -20,7 +20,6 @@ class ChatView extends StatefulWidget {
   const ChatView({Key? key}) : super(key: key);
 
   @override
-  //_ChatViewState createState() => _ChatViewState();
   State<ChatView> createState() => _ChatViewState();
 }
 
@@ -29,10 +28,7 @@ class _ChatViewState extends State<ChatView> {
 
   final List<types.Message> _messages = [];//歷史訊息列表
   final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');//user 自己
-  //final _chatBot = const types.User(id: 'chatBot_id'); // 假設有一個不同的對方用戶 ID
   late ChatRecord chatrecord;
-
-  final ScrollController _scrollController = ScrollController();
 
   //取得前一頁傳遞進來的 資料
   @override
@@ -43,13 +39,6 @@ class _ChatViewState extends State<ChatView> {
       getChatRecord();
   }
 
-  void _scrollToBottom() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
-  }
   void getChatRecord(){
     for (var message in chatrecord.message) {
       if (message["Role"] == 'User' || message["Role"] == 'user') {
@@ -65,7 +54,7 @@ class _ChatViewState extends State<ChatView> {
       } else if (message["Role"] == 'AI'|| message["Role"] == 'ai') {
         // AI 發送的訊息，執行相應的動作
         final textMessage = types.TextMessage(
-          author:types.User(id: 'bot'),//自己
+          author:types.User(id: 'bot'),
           createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
           id: randomString(),//每一個message要有獨立的id
           text: message["Content"].toString(),//文字訊息
@@ -82,7 +71,7 @@ class _ChatViewState extends State<ChatView> {
 
   Future<Map<String, dynamic>> getReponse(String message)async{
     CallGPT_SVS service = CallGPT_SVS(message: message);
-    await service.getDignose();
+    await service.getDignose(chatrecord.id);
 
     if (service.finish == "True"){
       chatrecord.suggestedVideoIds = service.suggestMap;
@@ -111,7 +100,7 @@ class _ChatViewState extends State<ChatView> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: (){
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           }
         )
       ),
@@ -182,15 +171,11 @@ class _ChatViewState extends State<ChatView> {
     //將梁天記錄轉換成MAP並存到chatrecord中
     convertMessageToMapandAddtoRecord(textMessage, "User");
 
-    updateRecord();
-
     Map<String, dynamic> response = await getReponse(message.text);
 
     final replyMessage = types.TextMessage(
       author: types.User(id: 'bot'),
-      createdAt: DateTime
-          .now()
-          .millisecondsSinceEpoch + 1000,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
       id: randomString(),
       text: response["content"].toString(),
     );

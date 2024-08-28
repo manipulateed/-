@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, Blueprint
-import sys
-sys.path.append(r'..')
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from bson import ObjectId
 from models.MongoDBMgr import MongoDBMgr
 from models.Sour_Record_Helper import Sour_Record_Helper
@@ -21,7 +20,15 @@ sr_helper = Sour_Record_Helper(mongo_mgr)
 def get_all_sour_records_by_user_id():
     """取得所有痠痛紀錄"""
     user_id = request.args.get('user_id')
-    #user_id=ObjectId(user_id)
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
     if user_id:
         return_data = sr_helper.get_All_Sour_Record_by_UserId(user_id)
         print(return_data);   
@@ -47,6 +54,14 @@ def create_sour_record():
     """建立新痠痛紀錄"""
 
     user_id = request.args.get('user_id')
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
 
     data = request.get_json()     
     reason = data.get('reason')
@@ -112,11 +127,3 @@ def delete_sour_record():
          return jsonify(success=True, sour_record_id=id), 200
     else:
         return jsonify(success=False, message="No data received"), 400
-
-    
-
-'''
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-
-'''

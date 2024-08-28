@@ -18,6 +18,9 @@ class _AccountViewState extends State<AccountView> {
   User? currentUser;
   bool isLoading = true;
   String? errorMessage;
+  String currentAvatarIcon = "1"; // 默認頭像
+  List<String> avatarIcons = ['1', '2', '3'];
+
 
   Future<void> getUser() async {
     setState(() {
@@ -26,18 +29,17 @@ class _AccountViewState extends State<AccountView> {
     });
 
     try {
-      // 獲取存儲的 JWT token
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('jwt_token');
-      print('JWT Token: $token'); // Debug: 打印 token
+      print('JWT Token: $token');
 
       if (token == null) {
         throw Exception('No token found. Please log in again.');
       }
 
       User_SVS userService = User_SVS();
-      var userData = await userService.getUserById(token); //放入獲得的token
-      print('User Data: $userData'); // Debug: 打印獲得的使用者數據
+      var userData = await userService.getUserById(token);
+      print('User Data: $userData');
 
       if (userData == null) {
         throw Exception('獲取使用者數據失敗');
@@ -45,6 +47,7 @@ class _AccountViewState extends State<AccountView> {
 
       setState(() {
         currentUser = userData;
+        currentAvatarIcon = userData.icon ?? "1"; // 假設User模型中有icon屬性
         isLoading = false;
       });
     } catch (e) {
@@ -94,11 +97,97 @@ class _AccountViewState extends State<AccountView> {
     }
   }
 
+  Future<void> _updateUserAvatar(String newIcon) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+      print('JWT Token: $token');
+
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
+
+      User_SVS userService = User_SVS();
+      var result = await userService.updateUser(token, 'icon', newIcon);
+      if (result['success']) {
+        setState(() {
+          currentAvatarIcon = newIcon;
+          if (currentUser != null) {
+            currentUser!.icon = newIcon;
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('頭像更新成功')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('頭像更新失敗: ${result['message']}')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('更新頭像時發生錯誤: $e')));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _showAvatarSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('選擇頭像'),
+          content: Container(
+            width: 300,
+            height: 300,
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemCount: avatarIcons.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _updateUserAvatar(avatarIcons[index]);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: currentAvatarIcon == avatarIcons[index] ? Colors.blue : Colors.grey,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.asset(
+                        'assets/accountIcon/${avatarIcons[index]}.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     getUser();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -118,13 +207,26 @@ class _AccountViewState extends State<AccountView> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Center(
-              child: Container(
-                height: 200,
-                width: 200,
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.all(Radius.circular(120)),
-                ),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('assets/accountIcon/$currentAvatarIcon.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  FloatingActionButton(
+                    mini: true,
+                    child: Icon(Icons.edit),
+                    onPressed: _showAvatarSelectionDialog,
+                  ),
+                ],
               ),
             ),
           ),

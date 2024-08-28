@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.MongoDBMgr import MongoDBMgr
 from models.Chat_Record_Helper import Chat_Record_Helper
 from models.Chat_Record import Chat_Record
@@ -22,6 +23,15 @@ def get_chat_records_by_user_id():
     """獲取用戶的所有聊天記錄"""
     data = request.args.get("user_id")
 
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    
     if data:
         return_data = cr_helper.get_all_chat_records_by_user_id(data)
         return jsonify(success=True, user_id=data, response=return_data), 200
@@ -34,7 +44,17 @@ def create_chat_record():
     data = request.json
     if data:
         id = ""
+
         user_id = request.args.get("user_id")
+        # 從請求的標頭中提取 Authorization 標頭，並打印 token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            token = auth_header.split()[1]  # Authorization: Bearer <token>
+            print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+        
+        current_user_id = get_jwt_identity()
+        print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
         message = data.get('message')
         name = data.get('name')
 
@@ -68,6 +88,15 @@ def update_chat_record():
         id = data.get('id')  # 假設你用record_id來查找要更新的記錄
 
         user_id = data.get('user_id')
+        # 從請求的標頭中提取 Authorization 標頭，並打印 token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            token = auth_header.split()[1]  # Authorization: Bearer <token>
+            print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+        
+        current_user_id = get_jwt_identity()
+        print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+
 
         # 處理 messages
         messages = []

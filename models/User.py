@@ -1,13 +1,12 @@
 import json
-import sys
-sys.path.append(r'..')
 
 class User:
-    def __init__(self, name, email, password):
+    def __init__(self, name, email, password, icon):
         self.name = name
         self.email = email
         self.password = password
         self.id = None
+        self.icon = icon
     
     def set_id(self, id):
         self.id = id
@@ -37,6 +36,3 @@ class User:
     def get_User_by_Email_and_Password(email, password):
         pass
     # login 寫在helper
-
-
-

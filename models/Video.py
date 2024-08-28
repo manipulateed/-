@@ -32,27 +32,3 @@ class Video:
             "url": self.url
         }
         return video_data
-    '''
-    #helper
-    def create_Video(self):
-        pass
-
-    #helper
-    def remove_Video(self):
-        pass
-
-    @staticmethod
-    def get_All():
-        pass
-
-    
-    def get_video_data_dict(self):
-        video_data = {
-            "id": self.id,
-            "title": self.title,
-            "url": self.url
-        }
-        return video_data
-        '''
-
-

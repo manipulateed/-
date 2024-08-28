@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from langchain_core.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
@@ -50,7 +51,7 @@ prompt_template = """Use #zh_TW to write a concise summary within 30 to 50 words
 CONCISE SUMMARY:"""
 prompt = PromptTemplate.from_template(prompt_template)
 llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0125")
-llm_chain = LLMChain(llm=llm, prompt=prompt)
+llm_chain = prompt | llm
 
 #診斷用之提示工程
 prompt_diagnose = ChatPromptTemplate(
@@ -164,8 +165,18 @@ def diagnose():
     #處理POST所傳的data
     data = request.json
     user_input = data.get("user_input")
+
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
     user_id = data.get("user_id")
-    CR_id = data.get("CR_id")  # 確保前端傳遞 user_id
+
+    CR_id = data.get("CR_id")  # 確保前端傳遞 CR_id
 
     if not CR_id:
         return jsonify({"error": "CR_id 是必需的"}), 400
@@ -242,7 +253,7 @@ def create_summary_response(message, CR_id, user_id):
         print("推薦廣度關鍵字:" + response)
 
         #獲取痠痛摘要
-        result = llm_chain.invoke({"text": chat_history.messages})
+        result = llm_chain.invoke({"text": chat_history.messages})['text']
 
         #處理關鍵字
         suggested_Videos = []

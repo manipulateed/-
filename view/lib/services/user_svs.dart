@@ -27,7 +27,8 @@ class User_SVS {
             id: userData['id']?.toString() ?? '',
             name: userData['name']?.toString() ?? '',
             email: userData['email']?.toString() ?? '',
-            password: userData['password']?.toString() ?? ''
+            password: userData['password']?.toString() ?? '',
+            icon: userData['icon']?.toString()?? ''
           );
         } else {
           print('No user data found or invalid response format');

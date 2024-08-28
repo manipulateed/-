@@ -1,8 +1,6 @@
 from bson import ObjectId
-import sys
-sys.path.append(r'..')
 import logging 
-
+import sys
 # 配置根 logger
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,7 +20,8 @@ class UserHelper:
             user_data = {
                 "Name": user.name,
                 "Email": user.email,
-                "Password": user.password
+                "Password": user.password,
+                "Icon": user.icon  # 添加 Icon 欄位
             }
             result = user_collection.insert_one(user_data)
             user.set_id(result.inserted_id)
@@ -51,7 +50,8 @@ class UserHelper:
                 "id": str(user_data['_id']),  # 將 ObjectId 轉換為字符串
                 "email": user_data['Email'],
                 "name": user_data['Name'],
-                "password": user_data['Password']
+                "password": user_data['Password'],
+                "icon": user_data.get('Icon', "1")  # 添加 Icon 欄位，默認為 "1"
             }
         else:
             self.logger.warning(f"User not found for email: {email}")
@@ -76,7 +76,8 @@ class UserHelper:
                     "id": str(user_data['_id']),
                     "email": user_data['Email'],
                     "name": user_data['Name'],
-                    "password": user_data['Password']
+                    "password": user_data['Password'],
+                    "icon": user_data.get('Icon', "1")  # 添加 Icon 欄位，默認為 "1"
                 }
             else:
                 self.logger.warning(f"User not found for id: {user_id}")

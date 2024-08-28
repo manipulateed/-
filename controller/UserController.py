@@ -1,17 +1,18 @@
 from flask import Flask, request, jsonify, Blueprint
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-import sys
-sys.path.append(r'..')
 from models.MongoDBMgr import MongoDBMgr 
-#from models.User import User
 from models.User_Helper import UserHelper
 from models.User import User
 from bson import ObjectId
 
 user_bp = Blueprint('user_bp',__name__)
 
-mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
-db_name = "酸通"
+from dotenv import load_dotenv
+import os
+# 在應用啟動時加載 .env 文件
+load_dotenv() 
+mongo_uri = os.getenv('MONGODB_URI')
+db_name = os.getenv('MONGODB_DATABASE')
 mongo_mgr = MongoDBMgr(db_name,mongo_uri)
 user_helper = UserHelper(mongo_mgr)
 
@@ -23,13 +24,14 @@ def create_user():
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
+    icon = data.get('icon', "1")  # 默認值為 "1"
 
     if not all([name, email, password]):
         response = jsonify(status = '400', success=False, message='Missing required fields')
         print(f"Sending response: {response.get_data(as_text=True)}")  # 印response
         return response
 
-    user = User(name=name, email=email, password=password)
+    user = User(name=name, email=email, password=password, icon = icon)
     result = user_helper.create_user(user)
 
     if result['success'] :
@@ -79,7 +81,8 @@ def get_user_byUserID():
             'id': str(user['id']),
             'name': user['name'],
             'email': user['email'],
-            'password': user['password']
+            'password': user['password'],
+            'icon': user.get('icon','1')# 添加 icon 欄位，如果不存在則默認為 "1"
         }
         return jsonify(status='200', success=True, message='User data retrieved successfully', response=[user_data]), 200
     else:
@@ -88,6 +91,15 @@ def get_user_byUserID():
 @user_bp.route('/user/update_user', methods=['PUT'])
 def update_user():
     user_id = request.args.get('user_id')
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    
     if not user_id:
         return jsonify(success=False, message='缺少必要的參數(user_id)'), 300
 
@@ -113,6 +125,8 @@ def update_user():
         result = user_helper.update_user_field(user_id, 'Password', new_value)
     elif field_name == 'email':
         result = user_helper.update_user_field(user_id, 'Email', new_value)
+    elif field_name == 'icon':
+        result = user_helper.update_user_field(user_id, 'Icon', new_value)
     else:
         return jsonify(success=False, message='不支持的欄位名稱'), 400
 

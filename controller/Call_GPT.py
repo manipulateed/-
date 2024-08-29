@@ -50,7 +50,7 @@ prompt_template = """Use #zh_TW to write a concise summary within 30 to 50 words
 "{text}" to describe the User's situation.
 CONCISE SUMMARY:"""
 prompt = PromptTemplate.from_template(prompt_template)
-llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0125")
+llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-0125", api_key = API_KEY)
 llm_chain = prompt | llm
 
 #診斷用之提示工程

@@ -9,7 +9,7 @@ class Login_SVS{
   Login_SVS({required this.email, required this.password});
 
   Future<Map<String, dynamic>> sendData() async {
-    final url = Uri.parse('http://192.168.68.105:8080/user/login');
+    final url = Uri.parse('http://172.20.10.3:8080/user/login');
     try {
       final response = await http.post(
         url,

@@ -9,15 +9,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
   var loginState = prefs.getString("jwt_token");
 
   await initializeDateFormatting('zh_TW', null);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
+  print(loginState);
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     initialRoute: loginState == null ? Routes.loginview: Routes.baseview,

@@ -12,41 +12,48 @@ class CollectionList_SVS{
   final String baseUrl = 'http://172.20.10.3:8080';
   late User user;
 
-  #取得相關資訊
-  String token = await Login_SVS.getStoredToken().toString();
-
   Future<List<CollectList>> getAllCL() async {
-  final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_ALLCL');
-  final response = await http.get(url,headers={'Authorization': 'Bearer $token',});
-
-  if (response.statusCode == 200) {
-    final content = jsonDecode(response.body);
-    List<dynamic> responseList = content["response"];
-    
-    // 印出每一項資料以便調試
-    // for (var item in responseList) {
-    //   print('Item: $item');
-    // }
-
-    List<CollectList> collectList = responseList.map((item) {
-      try {
-        return CollectList.fromJson(item as String);
-      } catch (e) {
-        print('Error parsing item: $item');
-        throw e;
+    String token =  await Login_SVS.getStoredToken();
+    final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_ALLCL');
+    final response = await http.get(
+      url,
+      headers:{'Authorization': 'Bearer $token',
       }
-    }).toList();
+    );
 
-    return collectList;
-  } else {
-    print('Failed to get data: ${response.statusCode}');
-    return [];
-  }
+    if (response.statusCode == 200) {
+      final content = jsonDecode(response.body);
+      List<dynamic> responseList = content["response"];
+
+      // 印出每一項資料以便調試
+      // for (var item in responseList) {
+      //   print('Item: $item');
+      // }
+
+      List<CollectList> collectList = responseList.map((item) {
+        try {
+          return CollectList.fromJson(item as String);
+        } catch (e) {
+          print('Error parsing item: $item');
+          throw e;
+        }
+      }).toList();
+
+      return collectList;
+    } else {
+      print('Failed to get data: ${response.statusCode}');
+      return [];
+    }
   }
 
   Future<CollectList> getCL(String clId) async {
+    String token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_CL?ClId=$clId');
-    final response = await http.get(url,headers={'Authorization': 'Bearer $token',});
+    final response = await http.get(
+        url,
+        headers:{'Authorization': 'Bearer $token',
+        }
+    );
 
     if (response.statusCode == 200) {
       final content = jsonDecode(response.body);
@@ -83,6 +90,7 @@ class CollectionList_SVS{
   }
 
   Future<bool> createCL(String name) async {
+    String token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('${baseUrl}/Collect_List_Controller/create_CL');
     final response = await http.post(
       url,

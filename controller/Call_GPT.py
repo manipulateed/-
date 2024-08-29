@@ -153,7 +153,6 @@ def search_YT_video(keyword):
 # 處理GPT生成方向文字轉LIST
 def process_response(response):
     print("In process response")
-    response = response['text'] 
     matches = re.findall(r'"([^"]+)"', response)
     #print("matches: ")
     return matches
@@ -253,7 +252,7 @@ def create_summary_response(message, CR_id, user_id):
         print("推薦廣度關鍵字:" + response)
 
         #獲取痠痛摘要
-        result = llm_chain.invoke({"text": chat_history.messages})['text']
+        result = llm_chain.invoke({"text": chat_history.messages}).content
 
         #處理關鍵字
         suggested_Videos = []

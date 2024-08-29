@@ -18,7 +18,7 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   TextEditingController _eventController = TextEditingController();
-  String user_id = ;
+  String user_id='';
   String record_id='';
 
   List<SourRecord> _event = [];
@@ -29,7 +29,7 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   void initState() {
     super.initState();
-    getAllSR(user_id);
+    getAllSR();
   }
 
   void getAllSR() async {

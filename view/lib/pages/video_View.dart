@@ -115,7 +115,7 @@ class _VideoCardState extends State<VideoCard> {
   Future<void> getAllCL() async {
     List<Map<String, dynamic>> collection_List = [];
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");
+    List<CollectList> collectList = await service.getAllCL();
 
     for (var cl in collectList) {
       print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');

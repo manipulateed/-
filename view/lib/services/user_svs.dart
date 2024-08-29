@@ -6,11 +6,9 @@ import 'package:view/services/login_svs.dart';
 class User_SVS {
   final String baseUrl = 'http://172.20.10.3:8080';
 
-  #取得相關資訊
-  String token = await Login_SVS.getStoredToken().toString();
 
   Future<User?> getUserById() async {
-
+    String token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('$baseUrl/user/get_user_byUserID');
     try {
       final response = await http.get(
@@ -53,6 +51,7 @@ class User_SVS {
   }
 
   Future<String?> getUserIdByToken(String token) async {
+    String token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('$baseUrl/user/get_user_byUserID');
     try {
       final response = await http.get(
@@ -91,7 +90,7 @@ class User_SVS {
   }
 
   Future<Map<String, dynamic>> updateUser(String field, String newValue) async {
-
+    String token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('$baseUrl/user/update_user');
     try {
           final response = await http.put(

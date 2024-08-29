@@ -31,7 +31,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void getCollectionList() async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");
+    List<CollectList> collectList = await service.getAllCL();
 
     for (var cl in collectList) {
       print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
@@ -81,7 +81,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
   void createCollectionList(String newName) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    bool success = await service.createCL("66435c496b52ed9b072dc0e4",newName);
+    bool success = await service.createCL(newName);
 
     if (success) {
       getCollectionList();

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:view/models/CL.dart';
 import 'package:view/models/User.dart';
 import 'package:view/models/Video.dart';
+import 'package:view/services/login_svs.dart';
 
 class CollectionList_SVS{
 
@@ -11,9 +12,12 @@ class CollectionList_SVS{
   final String baseUrl = 'http://172.20.10.3:8080';
   late User user;
 
-  Future<List<CollectList>> getAllCL(String userId) async {
-  final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_ALLCL?user_id=$userId');
-  final response = await http.get(url);
+  #取得相關資訊
+  String token = await Login_SVS.getStoredToken().toString();
+
+  Future<List<CollectList>> getAllCL() async {
+  final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_ALLCL');
+  final response = await http.get(url,headers={'Authorization': 'Bearer $token',});
 
   if (response.statusCode == 200) {
     final content = jsonDecode(response.body);
@@ -40,9 +44,9 @@ class CollectionList_SVS{
   }
   }
 
-  Future<CollectList> getCL(String userId, String clId) async {
-    final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_CL?user_id=$userId&ClId=$clId');
-    final response = await http.get(url);
+  Future<CollectList> getCL(String clId) async {
+    final url = Uri.parse('${baseUrl}/Collect_List_Controller/get_CL?ClId=$clId');
+    final response = await http.get(url,headers={'Authorization': 'Bearer $token',});
 
     if (response.statusCode == 200) {
       final content = jsonDecode(response.body);
@@ -78,15 +82,15 @@ class CollectionList_SVS{
     }
   }
 
-  Future<bool> createCL(String userId, String name) async {
+  Future<bool> createCL(String name) async {
     final url = Uri.parse('${baseUrl}/Collect_List_Controller/create_CL');
     final response = await http.post(
       url,
       headers: <String, String>{
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'user_id': userId,
         'name': name,
       }),
     );

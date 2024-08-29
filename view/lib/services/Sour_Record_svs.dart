@@ -2,16 +2,20 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/Sour_Record.dart';
 import 'package:view/models/User.dart';
+import 'package:view/services/login_svs.dart';
 
 class Sour_Record_SVS {
   List<SourRecord> SR = [];
   Sour_Record_SVS({required this.SR});
   final String baseUrl = 'http://172.20.10.3:8080';
 
+  #取得相關資訊
+  String token = await Login_SVS.getStoredToken().toString();
+
   //獲取所有紀錄
-  Future<void> getAllSR(user_id) async {
-    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/get_ALLSR?user_id='+user_id);
-    final response = await http.get(url);
+  Future<void> getAllSR() async {
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/get_ALLSR');
+    final response = await http.get(url, headers={'Authorization': 'Bearer $token',});
 
     if (response.statusCode == 200) {
       final content = jsonDecode(response.body);
@@ -110,15 +114,15 @@ class Sour_Record_SVS {
   }
 
   //新增痠痛
-  Future<void> createSR(String user_id, String reason, String time) async {
-    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/create?user_id='+user_id);
+  Future<void> createSR(String reason, String time) async {
+    final url = Uri.parse('${baseUrl}/Sour_Record_Controller/create);
     final response = await http.post(
       url,
       headers: <String, String>{
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'user_id': user_id,
         'reason': reason,
         'time':time,
         'videos':[]

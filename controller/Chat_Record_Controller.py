@@ -19,9 +19,9 @@ mongo_mgr = MongoDBMgr(db_name, mongo_uri)
 cr_helper = Chat_Record_Helper(mongo_mgr)
 
 @Chat_Record_bp.route('/Chat_Record_Controller/get_chat_records', methods=['GET'])
+@jwt_required()
 def get_chat_records_by_user_id():
     """獲取用戶的所有聊天記錄"""
-    data = request.args.get("user_id")
 
     # 從請求的標頭中提取 Authorization 標頭，並打印 token
     auth_header = request.headers.get('Authorization')
@@ -31,6 +31,7 @@ def get_chat_records_by_user_id():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    data = current_user_id
     
     if data:
         return_data = cr_helper.get_all_chat_records_by_user_id(data)
@@ -39,13 +40,13 @@ def get_chat_records_by_user_id():
         return jsonify(success=False, message="No data received"), 400
 
 @Chat_Record_bp.route('/Chat_Record_Controller/create_chat_record', methods=['POST'])
+@jwt_required()
 def create_chat_record():
     """創建新的聊天記錄"""
     data = request.json
     if data:
         id = ""
 
-        user_id = request.args.get("user_id")
         # 從請求的標頭中提取 Authorization 標頭，並打印 token
         auth_header = request.headers.get('Authorization')
         if auth_header:
@@ -54,6 +55,7 @@ def create_chat_record():
         
         current_user_id = get_jwt_identity()
         print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+        user_id = current_user_id
 
         message = data.get('message')
         name = data.get('name')
@@ -88,15 +90,6 @@ def update_chat_record():
         id = data.get('id')  # 假設你用record_id來查找要更新的記錄
 
         user_id = data.get('user_id')
-        # 從請求的標頭中提取 Authorization 標頭，並打印 token
-        auth_header = request.headers.get('Authorization')
-        if auth_header:
-            token = auth_header.split()[1]  # Authorization: Bearer <token>
-            print(f"JWT Token: {token}")  # 打印獲得的 JWT token
-        
-        current_user_id = get_jwt_identity()
-        print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
-
 
         # 處理 messages
         messages = []

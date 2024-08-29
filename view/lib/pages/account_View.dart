@@ -29,16 +29,8 @@ class _AccountViewState extends State<AccountView> {
     });
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      print('JWT Token: $token');
-
-      if (token == null) {
-        throw Exception('No token found. Please log in again.');
-      }
-
       User_SVS userService = User_SVS();
-      var userData = await userService.getUserById(token);
+      var userData = await userService.getUserById();
       print('User Data: $userData');
 
       if (userData == null) {
@@ -63,17 +55,8 @@ class _AccountViewState extends State<AccountView> {
       isLoading = true;
     });
     try {
-      // 獲取已儲存的 JWT token
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      print('JWT Token: $token'); // Debug: 打印 token
-
-      if (token == null) {
-        throw Exception('No token found. Please log in again.');
-      }
-
       User_SVS userService = User_SVS();
-      var result = await userService.updateUser(token, field, newValue);
+      var result = await userService.updateUser(field, newValue);
       if (result['success']) {
         // Update the local user data
         setState(() {
@@ -102,16 +85,8 @@ class _AccountViewState extends State<AccountView> {
       isLoading = true;
     });
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      print('JWT Token: $token');
-
-      if (token == null) {
-        throw Exception('No token found. Please log in again.');
-      }
-
       User_SVS userService = User_SVS();
-      var result = await userService.updateUser(token, 'icon', newIcon);
+      var result = await userService.updateUser('icon', newIcon);
       if (result['success']) {
         setState(() {
           currentAvatarIcon = newIcon;

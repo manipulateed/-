@@ -17,9 +17,10 @@ mongo_mgr = MongoDBMgr(db_name, mongo_uri)
 sr_helper = Sour_Record_Helper(mongo_mgr)
 
 @Sour_Record_bp.route('/Sour_Record_Controller/get_ALLSR', methods=['GET'])
+@jwt_required()
 def get_all_sour_records_by_user_id():
     """取得所有痠痛紀錄"""
-    user_id = request.args.get('user_id')
+
     # 從請求的標頭中提取 Authorization 標頭，並打印 token
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -28,6 +29,7 @@ def get_all_sour_records_by_user_id():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    user_id = current_user_id
 
     if user_id:
         return_data = sr_helper.get_All_Sour_Record_by_UserId(user_id)
@@ -50,10 +52,10 @@ def get_sour_record_by_id():
 
 
 @Sour_Record_bp.route('/Sour_Record_Controller/create', methods=['POST'])
+@jwt_required()
 def create_sour_record():
     """建立新痠痛紀錄"""
 
-    user_id = request.args.get('user_id')
     # 從請求的標頭中提取 Authorization 標頭，並打印 token
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -62,6 +64,7 @@ def create_sour_record():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    user_id = current_user_id
 
     data = request.get_json()     
     reason = data.get('reason')

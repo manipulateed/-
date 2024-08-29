@@ -18,7 +18,7 @@ class _CalendarViewState extends State<CalendarView> {
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   TextEditingController _eventController = TextEditingController();
-  String user_id = '66435b426b52ed9b072dc0dd';
+  String user_id = ;
   String record_id='';
 
   List<SourRecord> _event = [];
@@ -32,9 +32,9 @@ class _CalendarViewState extends State<CalendarView> {
     getAllSR(user_id);
   }
 
-  void getAllSR(String user_id) async {
+  void getAllSR() async {
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.getAllSR(user_id);
+    await service.getAllSR();
     setState(() {
       SR = service.SR;
       _event = SR;
@@ -203,9 +203,9 @@ class _CalendarViewState extends State<CalendarView> {
             TextButton(
                onPressed: () {
                  String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
-                 createSR(user_id, _eventController.text, time);
+                 createSR(_eventController.text, time);
                  Navigator.pop(context);
-                 getAllSR(user_id);
+                 getAllSR();
                  _selectedDay = _selectedDay!;
                  setState(() {
                    _eventController.clear();
@@ -237,9 +237,9 @@ class _CalendarViewState extends State<CalendarView> {
     );
   }
   
-  void createSR(String user_id, String reason, String time) async{
+  void createSR(String reason, String time) async{
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.createSR(user_id, reason, time);
+    await service.createSR(reason, time);
   }
 
   void _navigateToEventView(String id) async {
@@ -255,7 +255,7 @@ class _CalendarViewState extends State<CalendarView> {
     );
 
     if (updatedEvents != null) {
-      getAllSR(user_id);
+      getAllSR();
     }
   }
 }

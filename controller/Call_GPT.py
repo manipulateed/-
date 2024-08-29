@@ -15,7 +15,6 @@ from langchain_openai import ChatOpenAI
 from datetime import datetime
 #from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
-from langchain.memory import ConversationBufferMemory
 from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory
 import os
 import requests
@@ -161,6 +160,7 @@ def process_response(response):
 
 #診斷控制器路由
 @callGPT_bp.route('/diagnose', methods=['POST'])
+@jwt_required()
 def diagnose():
     #處理POST所傳的data
     data = request.json
@@ -174,7 +174,7 @@ def diagnose():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
-    user_id = data.get("user_id")
+    user_id = current_user_id
 
     CR_id = data.get("CR_id")  # 確保前端傳遞 CR_id
 

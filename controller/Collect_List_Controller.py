@@ -16,10 +16,10 @@ mongo_mgr = MongoDBMgr(db_name,mongo_uri)
 cl_helper = Collect_List_Helper(mongo_mgr)
 
 @Collect_List_bp.route('/Collect_List_Controller/get_ALLCL', methods=['GET'])
+@jwt_required()
 def get_All_CL_by_UserId():
     """取得所有收藏清單"""
 
-    user_id = request.args.get('user_id')
     # 從請求的標頭中提取 Authorization 標頭，並打印 token
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -28,6 +28,7 @@ def get_All_CL_by_UserId():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    user_id = current_user_id
 
     if user_id: 
         return_data = cl_helper.get_All_CL_by_UserId(user_id)
@@ -36,10 +37,10 @@ def get_All_CL_by_UserId():
         return jsonify(success=False, message="No data received"), 400
 
 @Collect_List_bp.route('/Collect_List_Controller/get_CL', methods=['GET'])
+@jwt_required()
 def get_CL_by_UserId_and_ClId():
     """取得單一收藏清單"""
     # data = request.get_json()
-    user_id = request.args.get('user_id')
     # 從請求的標頭中提取 Authorization 標頭，並打印 token
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -48,6 +49,7 @@ def get_CL_by_UserId_and_ClId():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    user_id = current_user_id
 
     cl_id = request.args.get('ClId')
     if user_id and cl_id:
@@ -60,12 +62,12 @@ def get_CL_by_UserId_and_ClId():
 
 
 @Collect_List_bp.route('/Collect_List_Controller/create_CL', methods=['POST'])
+@jwt_required()
 def create_CL_by_UserId():
     """建立新收藏清單"""
     try:
         data = request.get_json()
         print("Received data:", data)  # 添加這一行來打印接收到的數據
-        user_id = data.get('user_id')
         # 從請求的標頭中提取 Authorization 標頭，並打印 token
         auth_header = request.headers.get('Authorization')
         if auth_header:
@@ -74,7 +76,7 @@ def create_CL_by_UserId():
         
         current_user_id = get_jwt_identity()
         print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
-
+        user_id = current_user_id
         name = data.get('name')
         
         if user_id and name:

@@ -92,7 +92,7 @@ class _CollectionViewState extends State<CollectionView> {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
 
     try {
-      CollectList collectList = await service.getCL(userID, clID);
+      CollectList collectList = await service.getCL(clID);
 
       setState(() {
         clName = collectList.name;

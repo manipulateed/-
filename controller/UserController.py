@@ -89,8 +89,9 @@ def get_user_byUserID():
         return jsonify(status='400', success=False, message='User not found'), 404
 
 @user_bp.route('/user/update_user', methods=['PUT'])
+@jwt_required()
 def update_user():
-    user_id = request.args.get('user_id')
+    
     # 從請求的標頭中提取 Authorization 標頭，並打印 token
     auth_header = request.headers.get('Authorization')
     if auth_header:
@@ -99,7 +100,8 @@ def update_user():
     
     current_user_id = get_jwt_identity()
     print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
-    
+    user_id = current_user_id
+
     if not user_id:
         return jsonify(success=False, message='缺少必要的參數(user_id)'), 300
 

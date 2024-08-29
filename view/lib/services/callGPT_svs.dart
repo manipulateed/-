@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/Video.dart';
+import 'package:view/services/login_svs.dart';
 
 class CallGPT_SVS{
     String message = "";
@@ -8,6 +9,9 @@ class CallGPT_SVS{
     List<Map<String, List<Video>>> suggestMap = [];
     String finish = "no";
     CallGPT_SVS({required this.message});
+
+    #取得相關資訊
+    String token = await Login_SVS.getStoredToken().toString();
     final String baseUrl = 'http://172.20.10.3:8080';
 
     Future<void> getDignose(String CR_id) async{
@@ -16,6 +20,7 @@ class CallGPT_SVS{
       final response = await http.post(
         url,
         headers: <String, String>{
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:view/models/Chat_Record.dart';
 import 'package:view/models/User.dart';
 import 'package:view/models/Video.dart';
+import 'package:view/services/login_svs.dart';
 
 class Chatrecord_SVS{
 
@@ -11,10 +12,14 @@ class Chatrecord_SVS{
   final String baseUrl = 'http://172.20.10.3:8080';
   late User user;
 
+  #取得相關資訊
+  String token = await Login_SVS.getStoredToken().toString();
+
   Future<void> getAllChatRecords() async {
-    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/get_chat_records?user_id=66435c496b52ed9b072dc0e4');
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/get_chat_records');
     final response = await http.get(
-        url
+        url,
+        headers={'Authorization': 'Bearer $token',}
     );
 
     if (response.statusCode == 200) {
@@ -42,11 +47,12 @@ class Chatrecord_SVS{
   }
 
   Future<void> updateChatRecord() async {
-    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/update_chat_record?user_id=66435c496b52ed9b072dc0e4');
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/update_chat_record');
 
     final response = await http.put(
       url,
       headers: <String, String>{
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(
@@ -61,11 +67,12 @@ class Chatrecord_SVS{
   }
 
   Future<void> createChatRecord() async {
-    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/create_chat_record?user_id=66435c496b52ed9b072dc0e4');
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/create_chat_record');
 
     final response = await http.post(
       url,
       headers: <String, String>{
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(

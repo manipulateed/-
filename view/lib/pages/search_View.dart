@@ -29,13 +29,13 @@ class _SearchViewState extends State<SearchView> {
   void initState() {
     super.initState();
     _searchController.addListener(_searchEvents);
-    getAllSR(widget.user_id);
+    getAllSR();
   }
 
   @override
-  void getAllSR(String user_id) async {
+  void getAllSR() async {
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.getAllSR(user_id);
+    await service.getAllSR();
     setState(() {
       SR = service.SR;
       //_event = SR;
@@ -80,7 +80,7 @@ class _SearchViewState extends State<SearchView> {
     );
 
     if (updatedEvents != null) {
-      getAllSR(widget.user_id);
+      getAllSR();
       _searchEvents();
     }
   }

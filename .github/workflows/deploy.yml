@@ -46,7 +46,7 @@ name: Build and Deploy to Cloud Run
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "20240829-JWT" ]
 
 env:
   PROJECT_ID: byebyesour # TODO: update Google Cloud project id

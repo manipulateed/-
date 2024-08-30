@@ -24,6 +24,7 @@ class _SearchViewState extends State<SearchView> {
   List<SourRecord> result = [];
   List<SourRecord> _searchResults = [];
   List<SourRecord> SR = [];
+  String temp ="";
 
   @override
   void initState() {
@@ -38,7 +39,6 @@ class _SearchViewState extends State<SearchView> {
     await service.getAllSR();
     setState(() {
       SR = service.SR;
-      //_event = SR;
     });
   }
 
@@ -57,9 +57,13 @@ class _SearchViewState extends State<SearchView> {
       return;
     }
 
+    result.clear();
+
     for (var record in SR) {
       if (record.reason.contains(query)) {
-        result.add(record);
+        if(!_searchResults.contains(query)){
+          result.add(record);
+        }
       }
     }
 
@@ -79,9 +83,12 @@ class _SearchViewState extends State<SearchView> {
       ),
     );
 
+    temp = _searchController.text;
+
     if (updatedEvents != null) {
       getAllSR();
-      _searchEvents();
+      _searchController.clear();
+      _searchController.text = temp;
     }
   }
 
@@ -105,8 +112,13 @@ class _SearchViewState extends State<SearchView> {
                     ? IconButton(
                   icon: Icon(Icons.clear),
                   onPressed: () {
-                    _searchController.clear(); // 清除文本
+                    _searchController.clear();
+
+                    setState(() {
+                      _searchResults = [];
+                    });
                   },
+
                 )
                     : null,
                 border: OutlineInputBorder(

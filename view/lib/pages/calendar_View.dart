@@ -5,6 +5,7 @@ import 'package:view/services/Sour_Record_svs.dart';
 import 'event_view.dart';
 import 'search_View.dart';
 import 'package:view/models/Sour_Record.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({Key? key}) : super(key: key);
@@ -20,7 +21,6 @@ class _CalendarViewState extends State<CalendarView> {
   TextEditingController _eventController = TextEditingController();
   String user_id='';
   String record_id='';
-
   List<SourRecord> _event = [];
 
   bool _showEvents = true;
@@ -30,6 +30,7 @@ class _CalendarViewState extends State<CalendarView> {
   void initState() {
     super.initState();
     getAllSR();
+    FlutterNativeSplash.remove();
   }
 
   void getAllSR() async {
@@ -38,11 +39,30 @@ class _CalendarViewState extends State<CalendarView> {
     setState(() {
       SR = service.SR;
       _event = SR;
-      print('Events: $_event');
     });
+  }
 
-    for(var record in _event){
-      user_id = '${record.userId}';
+  void createSR(String reason, String time) async{
+    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
+    await service.createSR(reason, time);
+    getAllSR();
+  }
+
+  //跳至event_view.dart
+  void _navigateToEventView(String id) async {
+    //final events = _getEventsForDay(_selectedDay!);
+    final updatedEvents = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventView(
+          record_id: id,
+        ),
+      ),
+    );
+
+    //若從上一頁返回有回傳true，更新資料
+    if (updatedEvents != null) {
+      getAllSR();
     }
   }
 
@@ -113,7 +133,6 @@ class _CalendarViewState extends State<CalendarView> {
                 });
               },
               eventLoader: (day) {
-                print('Loading events for day: $day');
                 return _getEventsForDay(day);
               },
               calendarStyle: CalendarStyle(
@@ -150,26 +169,24 @@ class _CalendarViewState extends State<CalendarView> {
             if (_selectedDay != null)
               ...[
                 SizedBox(height: 20),
-                InkWell(
+                Expanded(
                   child: _getEventsForDay(_selectedDay!).isNotEmpty && _showEvents
-                      ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _getEventsForDay(_selectedDay!).map((event) {
+                      ? ListView.builder(
+                    itemCount: _getEventsForDay(_selectedDay!).length,
+                    itemBuilder: (context, index) {
+                      final entry = _getEventsForDay(_selectedDay!)[index];
                       return GestureDetector(
-                        onTap: () {
-                          // 使用 event.id
-                          _navigateToEventView(event.id);
-                        },
+                        onTap: () => _navigateToEventView(entry.id),
                         child: Card(
                           color: Colors.green[50],
                           shadowColor: Colors.white,
-                          margin: EdgeInsets.all(15),
+                          margin: EdgeInsets.all(10),
                           child: ListTile(
-                            title: Text(event.reason),
+                            title: Text(entry.reason),
                           ),
                         ),
                       );
-                    }).toList(),
+                    },
                   )
                       : SizedBox.shrink(),
                 ),
@@ -187,75 +204,34 @@ class _CalendarViewState extends State<CalendarView> {
       builder: (context) {
         return AlertDialog(
           title: Text('${DateFormat('yyyy-MM-dd').format(_selectedDay!)}',
-          textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
           ),
           content: TextField(
             controller: _eventController,
-            decoration: InputDecoration(labelText: 'Event'),
+            decoration: InputDecoration(labelText: '請輸入文字'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: Text('取消'),
             ),
             TextButton(
-               onPressed: () {
-                 String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
-                 createSR(_eventController.text, time);
-                 Navigator.pop(context);
-                 getAllSR();
-                 _selectedDay = _selectedDay!;
-                 setState(() {
-                   _eventController.clear();
-                 });
-
-                 //getAllSR();
-               },
-              //{
-              //   setState(() {
-              //     final newRecord = SourRecord(
-              //       id: 'new_id',
-              //       userId: user_id,
-              //       videos: '',
-              //       title: '',
-              //       reason: _eventController.text,
-              //       time: _selectedDay!,
-              //     );
-              //     _event.add(newRecord);
-              //     _eventController.clear();
-              //   });
-              //   Navigator.pop(context);
-              //   createSR(user_id, _eventController.text, _selectedDay!);
-              // },
-              child: Text('Save'),
+              onPressed: () async{
+                String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
+                Navigator.pop(context);
+                createSR(user_id, _eventController.text, time);
+                _selectedDay = _selectedDay!;
+                setState(() {
+                  _eventController.clear();
+                });
+              },
+              child: Text('新增'),
             ),
           ],
         );
       },
     );
-  }
-  
-  void createSR(String reason, String time) async{
-    Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.createSR(reason, time);
-  }
-
-  void _navigateToEventView(String id) async {
-    //final events = _getEventsForDay(_selectedDay!);
-    final updatedEvents = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EventView(
-          //events: events,
-          record_id: id,
-        ),
-      ),
-    );
-
-    if (updatedEvents != null) {
-      getAllSR();
-    }
   }
 }

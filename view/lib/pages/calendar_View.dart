@@ -42,9 +42,9 @@ class _CalendarViewState extends State<CalendarView> {
     });
   }
 
-  void createSR(String reason, String time) async{
+  void createSR(String user_id, String reason, String time) async{
     Sour_Record_SVS service = Sour_Record_SVS(SR: SR);
-    await service.createSR(reason, time);
+    await service.createSR(user_id, reason, time);
     getAllSR();
   }
 

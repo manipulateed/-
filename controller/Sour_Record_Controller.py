@@ -52,34 +52,23 @@ def get_sour_record_by_id():
 
 
 @Sour_Record_bp.route('/Sour_Record_Controller/create', methods=['POST'])
-@jwt_required()
 def create_sour_record():
     """建立新痠痛紀錄"""
-
-    # 從請求的標頭中提取 Authorization 標頭，並打印 token
-    auth_header = request.headers.get('Authorization')
-    if auth_header:
-        token = auth_header.split()[1]  # Authorization: Bearer <token>
-        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
-    
-    current_user_id = get_jwt_identity()
-    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
-    user_id = current_user_id
-
+    user_id = request.args.get('user_id')
     data = request.get_json()     
     reason = data.get('reason')
     time = data.get('time')
 
     videos = data.get('videos')
     if videos:
-        # 確保 videos 是一個列表
+        # 確保 videos 是一個列表_id = 
         if not isinstance(videos, list):
             videos = [videos]
         
         # 格式化 videos
         formatted_videos = []
         for video in videos:
-            video_ids = [ObjectId(str(vid['id'])) for vid in video.get('Video_id', [])]
+            video_ids = [ObjectId(str(vid)) for vid in video.get('Video_id', [])]
             formatted_video = {
                 "Keyword": video.get('Keyword'),
                 "Video_id": video_ids
@@ -96,10 +85,10 @@ def create_sour_record():
 
     if data:
         print(user_id, reason, time)
-        return jsonify(success=True, message = "成功"),200    
+        return {"success": True, "message": "新增成功"}    
     else:
         print("failed")
-        return jsonify(success=False, message = "No data received"),400    
+        return {"success": False, "message": "新增失敗"}    
 
 
 @Sour_Record_bp.route('/Sour_Record_Controller/update', methods=['PUT'])

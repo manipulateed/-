@@ -11,15 +11,14 @@ class Chatrecord_SVS{
   Chatrecord_SVS({required this.chatrecords});
   final String baseUrl = 'http://172.20.10.3:8080';
   late User user;
-
-  #取得相關資訊
-  String token = await Login_SVS.getStoredToken().toString();
+  late String token;
 
   Future<void> getAllChatRecords() async {
+    token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('${baseUrl}/Chat_Record_Controller/get_chat_records');
     final response = await http.get(
         url,
-        headers={'Authorization': 'Bearer $token',}
+        headers:{'Authorization': 'Bearer $token',}
     );
 
     if (response.statusCode == 200) {
@@ -47,6 +46,7 @@ class Chatrecord_SVS{
   }
 
   Future<void> updateChatRecord() async {
+    token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('${baseUrl}/Chat_Record_Controller/update_chat_record');
 
     final response = await http.put(
@@ -67,6 +67,7 @@ class Chatrecord_SVS{
   }
 
   Future<void> createChatRecord() async {
+    token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('${baseUrl}/Chat_Record_Controller/create_chat_record');
 
     final response = await http.post(

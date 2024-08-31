@@ -49,6 +49,7 @@ def search_and_create_videos(data):
     result = vd_helper.search_and_Create_Videos(keyword, max_results)
     
     if result['output_videos']:
+        print("Done search Videos")
         return {
             "success": True, 
             "created_videos": result['created_videos'],

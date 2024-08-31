@@ -49,9 +49,9 @@ class Login_SVS{
     }
   }
 
-  final key = encrypt.Key.fromUtf8('32characterslongpassphrase');
-  final iv = encrypt.IV.fromLength(16);
-  final encrypter = encrypt.Encrypter(encrypt.AES(key));
+  static final key = encrypt.Key.fromUtf8('12345632characterslongpassphrase');
+  static final iv = encrypt.IV.fromLength(16);
+  static final encrypter = encrypt.Encrypter(encrypt.AES(key));
 
   static Future<void> _storeToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,22 +60,13 @@ class Login_SVS{
   }
 
   // Utility function to get the stored token
-  static Future<String?> getStoredToken() async {
+  static Future<String> getStoredToken() async {
     final prefs = await SharedPreferences.getInstance();
     final encryptedToken = prefs.getString('jwt_token');
     if (encryptedToken != null) {
       return encrypter.decrypt64(encryptedToken, iv: iv);
     }
-    else{
-      // 需重新登入，顯示錯誤消息
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("憑證已過期，需重新登入"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-    return null;
+    return "null";
   }
 
 }

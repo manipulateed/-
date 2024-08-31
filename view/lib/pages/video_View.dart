@@ -115,7 +115,7 @@ class _VideoCardState extends State<VideoCard> {
   Future<void> getAllCL() async {
     List<Map<String, dynamic>> collection_List = [];
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    List<CollectList> collectList = await service.getAllCL("66435c496b52ed9b072dc0e4");
+    List<CollectList> collectList = await service.getAllCL();
 
     for (var cl in collectList) {
       print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
@@ -207,6 +207,7 @@ class _VideoCardState extends State<VideoCard> {
                       IconButton(
                         icon: Icon(Icons.star_border, color: Color.fromRGBO(95, 178, 132, 0.8)),
                         onPressed: () async{
+                          await getAllCL();
                           await _showCustomModalBottomSheet(context);
                         },
                       ),
@@ -223,7 +224,6 @@ class _VideoCardState extends State<VideoCard> {
   void updateCollectionList(clID, type, new_value) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     await service.updateCL(clID, type, new_value);
-    await getAllCL();
   }
 
   Future<void> _showCustomModalBottomSheet(context) async {
@@ -284,7 +284,8 @@ class _VideoCardState extends State<VideoCard> {
                               ),
                             ),
                             subtitle: Text(
-                                _options[index]['count'].toString() +'部影片'),
+                                _options[index]['count'].toString() +'部影片'
+                            ),
                             trailing: Icon(Icons.add_circle_outlined),
                             onTap: () async {
                               await QuickAlert.show(
@@ -299,12 +300,12 @@ class _VideoCardState extends State<VideoCard> {
                                   if (!mounted) return;
                                   try {                             
                                     // Close the confirmation dialog
-                                    Navigator.pop(context);
-                                    print("Close the confirmation dialog");
-
                                     // Perform the addition action
                                     updateCollectionList( _options[index]['id'].toString(),"add_video", video.id);
                                     print("updateCollectionList");
+                                    await getAllCL();
+                                    Navigator.pop(context);
+                                    print("Close the confirmation dialog");
 
                                     // Short delay before showing success message
                                     await Future.delayed(const Duration(milliseconds: 300));

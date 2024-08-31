@@ -34,7 +34,7 @@ class Sour_Record:
         sour_record_data = {
             "id": str(self.id), 
             "user_id": str(self.user_id),
-            "videos": str(self.videos),
+            "videos": self.videos,
             "reason": self.reason,
             "time": self.time
         }

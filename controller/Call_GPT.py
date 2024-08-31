@@ -153,7 +153,6 @@ def search_YT_video(keyword):
 # 處理GPT生成方向文字轉LIST
 def process_response(response):
     print("In process response")
-    response = response['text'] 
     matches = re.findall(r'"([^"]+)"', response)
     #print("matches: ")
     return matches
@@ -250,15 +249,13 @@ def create_summary_response(message, CR_id, user_id):
         config = {"configurable": {"session_id": CR_id}}
         #獲取推薦廣度關鍵字
         response = with_history.invoke({"question": chat_history.messages}, config = config).content
-        print("推薦廣度關鍵字:" + response)
 
         #獲取痠痛摘要
-        result = llm_chain.invoke({"text": chat_history.messages})['text']
+        result = llm_chain.invoke({"text": chat_history.messages}).content
 
         #處理關鍵字
         suggested_Videos = []
         keywords_list = process_response(response)
-        print("keywords:" + keywords_list)
         
         #蝶帶關鍵詞列表，並調用 search_YT_video 函数
         for keyword in keywords_list:
@@ -273,7 +270,9 @@ def create_summary_response(message, CR_id, user_id):
                 # 假設 search_and_create_videos 回傳一個字典
                 # 將結果轉為字典並取得 all_videos
                 if response["success"]:
+                    print("Get Videos Success")
                     video_ids = [video["video_id"] for video in response["all_videos"]]
+                    print("Extract this keyword to the videos id.")
                     suggested_Videos.append({"Keyword": keyword,
                                     "Video_id": video_ids})
                 else:
@@ -284,16 +283,16 @@ def create_summary_response(message, CR_id, user_id):
         app.register_blueprint(callGPT_bp)
 
         # 模擬測試上下文來呼叫 `/Sour_Record_Controller/create` 路由
-        with app.test_request_context(f'/Sour_Record_Controller/create?user_id={user_id}', json={"reason": result, "time": datetime.now(), "videos": suggested_Videos}):
+        with app.test_request_context(f'/Sour_Record_Controller/create?user_id={user_id}', json={"reason": result, "time": datetime.now().strftime("%Y-%m-%d"), "videos": suggested_Videos}):
             
             # 直接調用路由函數 `create_sour_record`
             response = create_sour_record()  # 確保這個函數已正確匯入
 
             # 假設路由函數返回一個 JSON 回應，轉為字典並處理
-            if response.json["success"]:
-                print("成功:", response.json["message"])
+            if response["success"]:
+                print("成功:", response["message"])
             else:
-                print("失敗:", response.json["message"])
+                print("失敗:", response["message"])
 
 
         # 清理使用者記憶

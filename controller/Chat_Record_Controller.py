@@ -173,6 +173,23 @@ def update_chat_record():
     else:
         return jsonify(success=False, message="No data received"), 400    
 
+@Chat_Record_bp.route('/Chat_Record_Controller/delete_chat_record', methods=['DELETE'])
+def delete_chat_record():
+    """更新現有的聊天記錄"""
+    data = request.args.get("id")
+    if data:
+
+        # 保存更新後的記錄
+        result = cr_helper.remove_CR(data)
+
+        #如果刪除成功
+        if (result['success']):
+           
+           return jsonify(success=True, response=result['message']), 200
+        else:
+            return jsonify(success=False, response=result['message']), 500 
+    else:
+        return jsonify(success=False, message="No data received"), 400    
 
 #甲資料
         # user_id = data

@@ -150,6 +150,7 @@ class _ChatroomViewState extends State<ChatroomView> {
     );
   }
 }
+
 class ChatListItem extends StatelessWidget {
   final ChatRecord chatRecord;
   dynamic Function() onUpdateCR;
@@ -157,6 +158,13 @@ class ChatListItem extends StatelessWidget {
 
   void _handlePressed() {
     onUpdateCR();
+  }
+
+  Future<void> removeChatRoom(String id) async {
+    List<Chat_Record> chatrecords = [];
+    Chatrecord_SVS service = new Chatrecord_SVS(chatrecords:chatrecords);
+    await service.deleteCR(id);
+    _handlePressed();
   }
 
   @override
@@ -191,6 +199,57 @@ class ChatListItem extends StatelessWidget {
             }
             // Handle chat item tap
           },
+          trailing: IconButton(
+            icon: Icon(Icons.delete, color: Colors.black),
+            onPressed: () async{
+              await QuickAlert.show(
+                context: context,
+                type: QuickAlertType.confirm,
+                confirmBtnText: '確認刪除',
+                title: '確定要刪除此聊天室?',
+                confirmBtnColor: Colors.green,
+                cancelBtnText: '取消',
+                text: '請確定是否要刪除此聊天室?',
+                onConfirmBtnTap: () async {
+                  if (!mounted) return;
+                  try {                             
+                    // Close the confirmation dialog
+                    removeChatRoom(chatRecord.id);
+
+                    Navigator.pop(context);
+                    print("Close the confirmation dialog");
+
+                    // Short delay before showing success message
+                    await Future.delayed(const Duration(milliseconds: 300));
+
+                    if (mounted) {
+                      await QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.success,
+                        text: "已刪除聊天室!",
+                      );
+                      print("已刪除聊天室");
+                    }
+                  } catch (e) {
+                    print("Error: ${e.toString()}");
+                    if (mounted) {
+                      await QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.error,
+                        text: "處理過程中出錯了",
+                      );
+                      print("處理過程中出錯了");
+                    }
+                  }
+                },
+                onCancelBtnTap: () {
+                  if (mounted) {
+                    Navigator.pop(context);  // Close the confirmation dialog if canceled
+                  }
+                },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -92,6 +92,14 @@ class Chat_Record_Helper:
 
         return self._format_record(record_data) if record_data else None
     
+    def remove_CR(self, id):
+        collection = self.db_mgr.get_collection('Chat_Record')
+        result = collection.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count > 0:
+            return {"success": True, "message": "移除成功"}
+        else:
+            return {"success": False, "message": "找不到此聊天室"}
+        
     def _format_record(self, record):
         if record:
             record['_id'] = str(record['_id'])

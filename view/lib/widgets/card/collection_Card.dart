@@ -69,8 +69,53 @@ class CollectionListCard {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.black),
-                    onPressed: () {
-                      removeCollectionList(this.context['id']);
+                    onPressed: () async{
+                      await QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.confirm,
+                        confirmBtnText: '確認刪除',
+                        title: '確定要刪除此收藏清單?',
+                        confirmBtnColor: Colors.green,
+                        cancelBtnText: '取消',
+                        text: '請確定是否要刪除此收藏清單?',
+                        onConfirmBtnTap: () async {
+                          if (!mounted) return;
+                          try {                             
+                            // Close the confirmation dialog
+                            removeCollectionList(this.context['id']);
+
+                            Navigator.pop(context);
+                            print("Close the confirmation dialog");
+
+                            // Short delay before showing success message
+                            await Future.delayed(const Duration(milliseconds: 300));
+
+                            if (mounted) {
+                              await QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.success,
+                                text: "已刪除收藏清單!",
+                              );
+                              print("已刪除收藏清單");
+                            }
+                          } catch (e) {
+                            print("Error: ${e.toString()}");
+                            if (mounted) {
+                              await QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                text: "處理過程中出錯了",
+                              );
+                              print("處理過程中出錯了");
+                            }
+                          }
+                        },
+                        onCancelBtnTap: () {
+                          if (mounted) {
+                            Navigator.pop(context);  // Close the confirmation dialog if canceled
+                          }
+                        },
+                      );
                     },
                   ),
                 ],

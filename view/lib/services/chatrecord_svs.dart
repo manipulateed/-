@@ -90,17 +90,20 @@ class Chatrecord_SVS{
     }
   }
 
-  // Future<void> deleteCL() async {
-  //   final url = Uri.parse('${baseUrl}/Collect_List_Controller/remove_CL?cl_id=20');
-  //
-  //   final response = await http.delete(
-  //     url,
-  //   );
-  //
-  //   if (response.statusCode == 200) {
-  //     print('Data create successfully: ${response.body}');
-  //   } else {
-  //     print('Failed to create data: ${response.statusCode}');
-  //   }
-  // }
+  Future<void> deleteCR(String id) async {
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/delete_chat_record?id=${id}');
+  
+    final response = await http.delete(
+      url,
+      headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Data delete successfully: ${response.body}');
+    } else {
+      print('Failed to delete data: ${response.statusCode}');
+    }
+  }
 }

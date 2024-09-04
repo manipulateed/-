@@ -132,13 +132,13 @@ class _CollectionViewState extends State<CollectionListView> {
                   child: ListView.builder(
                     itemCount: collection_List.length,
                     itemBuilder: (context, index) {
-                      CollectionListCard collectionListCard = CollectionListCard(context: collection_List[index], onUpdateCL: getCollectionList);
+                      CollectionListCard collectionListCard = CollectionListCard(contextData: collection_List[index], onUpdateCollectionList: getCollectionList);
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(child: collectionListCard.getCard(context)),
+                            Expanded(child: collectionListCard),
                             // IconButton(
                             //   icon: Icon(Icons.delete, color: Colors.black),
                             //   onPressed: () {

@@ -1,53 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:view/constants/text_style.dart';
 import 'package:view/constants/route.dart';
-import 'dart:convert';
 import 'package:view/services/CollectionList_svs.dart';
+import 'package:quickalert/quickalert.dart';
 
-class CollectionListCard {
-  Map<String, dynamic> context = {};
-  dynamic Function() onUpdateCL;
-  CollectionListCard({required this.context, required this.onUpdateCL});
+class CollectionListCard extends StatelessWidget {
+  final Map<String, dynamic> contextData;
+  final VoidCallback onUpdateCollectionList;
 
-  void _handlePressed() {
-    onUpdateCL();
-  }
+  CollectionListCard({
+    required this.contextData,
+    required this.onUpdateCollectionList,
+  });
 
-  void removeCollectionList(String cl_id) async {
+  void _removeCollectionList(BuildContext context, String clId) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
-    await service.removeCL(cl_id);
-    // 顯示刪除成功的通知
-    ScaffoldMessenger.of(context["name"]).showSnackBar(
+    await service.removeCL(clId);
+
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('刪除成功'),
         duration: Duration(seconds: 2),
       ),
     );
-    getCard(context);
+
+    onUpdateCollectionList();
   }
 
-  Card getCard(context) {
+  void _handleDeleteConfirm(BuildContext context) async {
+    await QuickAlert.show(
+      context: context,
+      type: QuickAlertType.confirm,
+      confirmBtnText: '確認刪除',
+      title: '確定要刪除此收藏清單?',
+      confirmBtnColor: Colors.green,
+      cancelBtnText: '取消',
+      text: '請確定是否要刪除此收藏清單?',
+      onConfirmBtnTap: () async {
+        try {
+          Navigator.pop(context);  // Close the confirmation dialog
+
+          _removeCollectionList(context, contextData['id']);
+
+          // Short delay before showing success message
+          await Future.delayed(const Duration(milliseconds: 300));
+
+          await QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            text: "已刪除收藏清單!",
+          );
+        } catch (e) {
+          await QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            text: "處理過程中出錯了",
+          );
+        }
+      },
+      onCancelBtnTap: () {
+        Navigator.pop(context);  // Close the confirmation dialog if canceled
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       color: Color.fromRGBO(250, 255, 251, 1),
       shape: RoundedRectangleBorder(
-          side: BorderSide(
-            // border color
-            color: Colors.grey.shade400,
-            // border thickness
-            width: 2,
-          )),
+        side: BorderSide(
+          color: Colors.grey.shade400,
+          width: 2,
+        ),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            onTap: () async{
+            onTap: () async {
               final result = await Navigator.pushNamed(
                 context,
                 Routes.collectView,
-                arguments: this.context,
+                arguments: contextData,
               );
               if (result == true) {
-                _handlePressed();
+                onUpdateCollectionList();
               }
             },
             leading: Icon(
@@ -61,7 +99,7 @@ class CollectionListCard {
                 children: [
                   Expanded(
                     child: Text(
-                      this.context['name'],
+                      contextData['name'],
                       style: UI_TextStyle.CL_TextStyle,
                       softWrap: true,
                       overflow: TextOverflow.visible,
@@ -69,59 +107,11 @@ class CollectionListCard {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.black),
-                    onPressed: () async{
-                      await QuickAlert.show(
-                        context: context,
-                        type: QuickAlertType.confirm,
-                        confirmBtnText: '確認刪除',
-                        title: '確定要刪除此收藏清單?',
-                        confirmBtnColor: Colors.green,
-                        cancelBtnText: '取消',
-                        text: '請確定是否要刪除此收藏清單?',
-                        onConfirmBtnTap: () async {
-                          if (!mounted) return;
-                          try {                             
-                            // Close the confirmation dialog
-                            removeCollectionList(this.context['id']);
-
-                            Navigator.pop(context);
-                            print("Close the confirmation dialog");
-
-                            // Short delay before showing success message
-                            await Future.delayed(const Duration(milliseconds: 300));
-
-                            if (mounted) {
-                              await QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.success,
-                                text: "已刪除收藏清單!",
-                              );
-                              print("已刪除收藏清單");
-                            }
-                          } catch (e) {
-                            print("Error: ${e.toString()}");
-                            if (mounted) {
-                              await QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.error,
-                                text: "處理過程中出錯了",
-                              );
-                              print("處理過程中出錯了");
-                            }
-                          }
-                        },
-                        onCancelBtnTap: () {
-                          if (mounted) {
-                            Navigator.pop(context);  // Close the confirmation dialog if canceled
-                          }
-                        },
-                      );
-                    },
+                    onPressed: () => _handleDeleteConfirm(context),
                   ),
                 ],
               ),
             ),
-
           ),
           Divider(
             height: 10,
@@ -133,48 +123,35 @@ class CollectionListCard {
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: this.context.values.first.length > 3 ? 3 : this.context.values.first.length,
+            itemCount: contextData['collection'].length > 3 ? 3 : contextData['collection'].length,
             itemBuilder: (context, index) {
-              // String key = this.context.keys.toList().first;
-              // List<String> items = this.context[key]!;
-              String key = "collection";// 先嘗試解析為 List<dynamic>
-              List<String> items = this.context[key]!;
-
-              if (items.length > index) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(60)),
-                      color: Color.fromRGBO(233, 245, 239, 1),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(  // 使用 Expanded 包裝 Text 以確保它占據最大空間
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                            child: Text(
-                              items[index],
-                              style: UI_TextStyle.Collection_TextStyle,
-                              softWrap: true, // 啟用自動換行
-                              overflow: TextOverflow.ellipsis, // 如果超出範圍則使用省略號
-                            ),
+              List<String> items = List<String>.from(contextData['collection']);
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(60)),
+                    color: Color.fromRGBO(233, 245, 239, 1),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                          child: Text(
+                            items[index],
+                            style: UI_TextStyle.Collection_TextStyle,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // IconButton(
-                        //   onPressed: () {},
-                        //   icon: Icon(Icons.restore_from_trash),
-                        //   color: Color.fromRGBO(56, 107, 79 , 1),
-                        // ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              }else {
-                return Container(); // 確保不返回null
-              }
+                ),
+              );
             },
           ),
         ],

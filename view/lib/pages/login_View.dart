@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:view/constants/route.dart';
 import 'package:view/services/login_svs.dart';
 import 'package:view/widgets/button/goto_Signup_or_Login.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -20,6 +22,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState() { //初始值設定
     super.initState();
+    FlutterNativeSplash.remove();
     _emailController.text = "123@gmail";  // 設置初始值（如果需要）
     _passwordController.text = "123456789";  // 設置初始值（如果需要）
   }
@@ -45,7 +48,7 @@ class _LoginViewState extends State<LoginView> {
 
     if (result['success']) {
       // 登錄成功，導航到account.view.dart
-      Navigator.pushReplacementNamed(context, Routes.accountView);
+      Navigator.pushReplacementNamed(context, Routes.baseview);
     } else {
       // 登錄失敗，顯示錯誤消息
       ScaffoldMessenger.of(context).showSnackBar(

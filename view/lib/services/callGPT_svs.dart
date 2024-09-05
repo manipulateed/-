@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/Video.dart';
+import 'package:view/services/login_svs.dart';
 
 class CallGPT_SVS{
     String message = "";
@@ -9,16 +10,22 @@ class CallGPT_SVS{
     String finish = "no";
     CallGPT_SVS({required this.message});
 
-    Future<void> getDignose() async{
-      final url = Uri.parse('http://172.20.10.3:8080/diagnose');
+    //取得相關資訊
+    final String baseUrl = 'http://192.168.0.193:8080';
+
+    Future<void> getDignose(String CR_id) async{
+      String token =  await Login_SVS.getStoredToken();
+      final url = Uri.parse('${baseUrl}/diagnose');
 
       final response = await http.post(
         url,
         headers: <String, String>{
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({
           "user_input": message,
+          "CR_id": CR_id,
         }),
       );
 
@@ -27,7 +34,7 @@ class CallGPT_SVS{
         finish = parsedData["end"].toString();
         this.response = parsedData['response'];
 
-        if (parsedData["end"]){
+        if (parsedData["end"].toString() =="True"){
           suggestMap = List<Map<String, List<Video>>>.from(
             (parsedData['Suggested_Videos'] as List).map((item) {
               Map<String, dynamic> mapItem = item as Map<String, dynamic>;
@@ -40,9 +47,9 @@ class CallGPT_SVS{
               };
             }),
           );
-          print(parsedData);
+          print(suggestMap);
           this.response = parsedData['response'];
-          print('SuggestVideos get successfully: ${this.response}');
+          print('SuggestVideos get successfully: ${this.suggestMap}');
         }
         print('Data get successfully: ${this.response}');
       } else {

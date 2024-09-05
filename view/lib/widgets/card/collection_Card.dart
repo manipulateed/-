@@ -81,7 +81,7 @@ class CollectionListCard {
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: this.context.values.first.length,
+            itemCount: this.context.values.first.length > 3 ? 3 : this.context.values.first.length,
             itemBuilder: (context, index) {
               // String key = this.context.keys.toList().first;
               // List<String> items = this.context[key]!;

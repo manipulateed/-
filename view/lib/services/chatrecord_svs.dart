@@ -3,18 +3,22 @@ import 'dart:convert';
 import 'package:view/models/Chat_Record.dart';
 import 'package:view/models/User.dart';
 import 'package:view/models/Video.dart';
+import 'package:view/services/login_svs.dart';
 
 class Chatrecord_SVS{
 
   List<ChatRecord> chatrecords = [];
   Chatrecord_SVS({required this.chatrecords});
-
+  final String baseUrl = 'http://192.168.0.193:8080';
   late User user;
+  late String token;
 
   Future<void> getAllChatRecords() async {
-    final url = Uri.parse('http://172.20.10.3:8080/Chat_Record_Controller/get_chat_records?user_id=66435c496b52ed9b072dc0e4');
+    token =  await Login_SVS.getStoredToken();
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/get_chat_records');
     final response = await http.get(
-        url
+        url,
+        headers:{'Authorization': 'Bearer $token',}
     );
 
     if (response.statusCode == 200) {
@@ -42,31 +46,34 @@ class Chatrecord_SVS{
   }
 
   Future<void> updateChatRecord() async {
-    final url = Uri.parse('http://172.20.10.3:8080/Chat_Record_Controller/update_chat_record?user_id=20');
+    token =  await Login_SVS.getStoredToken();
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/update_chat_record');
 
     final response = await http.put(
       url,
       headers: <String, String>{
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(
         chatrecords[0].toJson(),
       ),
     );
-    print(chatrecords[0].toJson());
     if (response.statusCode == 200) {
-      print('Data update successfully: ${response.body}');
+      print('Data update successfully: ${ChatRecord.fromJson(jsonDecode(response.body)['response'])}');
     } else {
       print('Failed to update data: ${response.statusCode}');
     }
   }
 
   Future<void> createChatRecord() async {
-    final url = Uri.parse('http://172.20.10.3:8080/Chat_Record_Controller/create_chat_record?user_id=20');
+    token =  await Login_SVS.getStoredToken();
+    final url = Uri.parse('${baseUrl}/Chat_Record_Controller/create_chat_record');
 
     final response = await http.post(
       url,
       headers: <String, String>{
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(
@@ -84,7 +91,7 @@ class Chatrecord_SVS{
   }
 
   // Future<void> deleteCL() async {
-  //   final url = Uri.parse('http://172.20.10.3:8080/Collect_List_Controller/remove_CL?cl_id=20');
+  //   final url = Uri.parse('${baseUrl}/Collect_List_Controller/remove_CL?cl_id=20');
   //
   //   final response = await http.delete(
   //     url,

@@ -1,14 +1,17 @@
 from flask import Flask, request, jsonify, Blueprint
 import sys
-sys.path.append(r'..')
 from models.MongoDBMgr import MongoDBMgr 
 from models.Video import Video
 from models.Video_Helper import Video_Helper
 
-app = Flask(__name__)
 Video_bp = Blueprint('Video', __name__)
-mongo_uri = "mongodb+srv://evan:evan1204@sourpass88.rsb5qbq.mongodb.net/"
-db_name = "酸通"
+
+from dotenv import load_dotenv
+import os
+# 在應用啟動時加載 .env 文件
+load_dotenv() 
+mongo_uri = os.getenv('MONGODB_URI')
+db_name = os.getenv('MONGODB_DATABASE')
 mongo_mgr = MongoDBMgr(db_name,mongo_uri)
 vd_helper = Video_Helper(mongo_mgr)
 
@@ -35,11 +38,10 @@ def get_Video_by_VideoId():
         return jsonify(status = '400', success = False, messsage = 'No data received')
     
 @Video_bp.route('/api/video/search_and_create', methods=['POST'])
-def search_and_create_videos():
-    data = request.args.get('data')
-    
-    if not data or 'keyword' not in data:
-        return jsonify({"success": False, "message": "缺少搜索關鍵詞"}), 400
+def search_and_create_videos(data):
+
+    if not data or 'keyword' not in str(data):
+        return {"success": False, "message": "缺少搜索關鍵詞"}
     
     keyword = data['keyword']
     max_results = data.get('max_results', 5)
@@ -47,11 +49,12 @@ def search_and_create_videos():
     result = vd_helper.search_and_Create_Videos(keyword, max_results)
     
     if result['output_videos']:
-        return jsonify({
+        print("Done search Videos")
+        return {
             "success": True, 
             "created_videos": result['created_videos'],
             "all_videos": result['output_videos']
-        }), 200
+        }
     else:
-        return jsonify({"success": False, "message": "未找到任何視頻"}), 404
+        return {"success": False, "message": "未找到任何視頻"}
  

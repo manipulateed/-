@@ -12,6 +12,7 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  bool _obscureText = true; //密碼show
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -21,8 +22,8 @@ class _LoginViewState extends State<LoginView> {
   void initState() { //初始值設定
     super.initState();
     FlutterNativeSplash.remove();
-    _emailController.text = "123@gmail";  // 設置初始值（如果需要）
-    _passwordController.text = "123456789";  // 設置初始值（如果需要）
+    //_emailController.text = "123@gmail";  // 設置初始值（如果需要）
+    //_passwordController.text = "123456789";  // 設置初始值（如果需要）
   }
 
   // 添加這個方法
@@ -109,6 +110,7 @@ class _LoginViewState extends State<LoginView> {
                   width: 350,
                     child: TextField(
                       controller: _passwordController,
+                      obscureText: _obscureText, // 控制密碼顯示或隱藏
                       decoration: const InputDecoration(
                         icon: Padding(
                           padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
@@ -126,7 +128,9 @@ class _LoginViewState extends State<LoginView> {
                   child: IconButton(
                     icon: Icon(Icons.remove_red_eye_outlined),
                     onPressed: (){
-
+                      setState(() {
+                        _obscureText = !_obscureText; // 切換顯示或隱藏密碼
+                      });
                     },
                   ),
                 ),

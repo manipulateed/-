@@ -1,8 +1,8 @@
+import 'package:view/models/Video.dart';
 class SourRecord {
   final String id;
   final String userId;
-  final List<String> videos;
-  final String title;
+  final List<Map<String, List<Video>>> videos;
   final String reason;
   final DateTime time;
 
@@ -10,26 +10,26 @@ class SourRecord {
     required this.id,
     required this.userId,
     required this.videos,
-    required this.title,
     required this.reason,
     required this.time,
   });
 
   factory SourRecord.fromJson(Map<String, dynamic> json) {
-    var videosList = json['videos'];
-    List<String> videos = [];
-    if (videosList is List) {
-      videos = List<String>.from(videosList.map((video) => video.toString()));
-    } else if (videosList is String) {
-      videos = [videosList];  // If it's a single string, convert it to a list with one item
-    }
-
-
     return SourRecord(
       id: json['id'],
       userId: json['user_id'],
-      videos: videos,
-      title: json['title'],
+      videos: List<Map<String, List<Video>>>.from(
+        (json['videos'] as List).map((item) {
+          Map<String, dynamic> mapItem = item as Map<String, dynamic>;
+          List<dynamic> videoIds = mapItem['Video_id'] as List<dynamic>;
+
+          return {
+            mapItem['Keyword'] as String: List<Video>.from(
+                videoIds.map((id) => Video(id: id.toString()))
+            ),
+          };
+        }),
+      ),
       reason: json['reason'],
       time: DateTime.parse(json['time']), // 解析字符串为 DateTime 对象
     );
@@ -40,7 +40,6 @@ class SourRecord {
       'id': id,
       'user_id': userId,
       'videos': videos,
-      'title': title,
       'reason': reason,
       'time': time.toIso8601String(), // 将 DateTime 对象转换为字符串
     };

@@ -1,0 +1,13 @@
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/launcher.png
+
+  color_dark: "#195319"
+  image_dark: assets/launcher.png
+
+  android_12:
+    image: assets/launcher.png
+    color: "#78ba78"
+
+    android_gravity: fill_vertical
+    ios_content_mode: scaleAspectFill

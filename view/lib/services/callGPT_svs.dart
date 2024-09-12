@@ -11,7 +11,7 @@ class CallGPT_SVS{
     CallGPT_SVS({required this.message});
 
     //取得相關資訊
-    final String baseUrl = 'http://192.168.0.193:8080';
+    final String baseUrl = 'http://172.20.10.3:8080';
 
     Future<void> getDignose(String CR_id) async{
       String token =  await Login_SVS.getStoredToken();

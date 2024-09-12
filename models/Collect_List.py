@@ -44,5 +44,3 @@ class Collect_List:
             "collection": str(self.collection)
         }
         return json.dumps(CL_data)
-
-

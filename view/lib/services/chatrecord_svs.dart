@@ -9,7 +9,7 @@ class Chatrecord_SVS{
 
   List<ChatRecord> chatrecords = [];
   Chatrecord_SVS({required this.chatrecords});
-  final String baseUrl = 'http://192.168.0.193:8080';
+  final String baseUrl = 'http://172.20.10.3:8080';
   late User user;
   late String token;
 

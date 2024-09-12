@@ -5,12 +5,14 @@ class User {
   String email;
   String password;
   String? id;
+  String? icon;
 
   User({
     required this.name,
     required this.email,
     required this.password,
     this.id,
+    this.icon,
   });
 
   String getUserData() {
@@ -18,6 +20,7 @@ class User {
       "name": name,
       "email": email,
       "password": password,
+      "icon": icon,
     };
     return jsonEncode(userData);
   }

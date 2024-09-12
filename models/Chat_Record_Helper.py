@@ -20,7 +20,7 @@ class Chat_Record_Helper:
                 "Keyword": video["Keyword"],
                 "Video_id": [ObjectId(vid) for vid in video["Video_id"]]
             }
-        suggested_videos.append(suggested_video)
+            suggested_videos.append(suggested_video)
 
         # 創建要插入的文檔
         document = {
@@ -40,15 +40,38 @@ class Chat_Record_Helper:
         else:
             return {"success": False, "message": "存入資料庫時發生錯誤"}
       
-    def update_message(self, chat_record, new_message):
-        chat_record.update_message(new_message)
+    def update_message(self, chat_record):
+
+        condition = {"_id": ObjectId(chat_record.id)}
+
         chat_collection = self.get_collection('Chat_Record')
-        result = chat_collection.update_one(
-            {"User_Id": chat_record.user_id},
-            {
-                "$push": {"Message": new_message},
-                "$set": {"Last_Update_TimeStamp": chat_record.timestamp}
+        record = chat_collection.find_one(condition)
+
+        formatted_messages = []
+        for message in chat_record.message:
+            formatted_message = {
+                'Role': message['character'],
+                'Content': message['content'],
+                'Date': message['date'],
+                'Time': message['time']
             }
+            # 如果 Date 或 Time 是 datetime 對象，進行格式化
+            if isinstance(formatted_message['Date'], datetime):
+                formatted_message['Date'] = formatted_message['Date'].strftime("%Y-%m-%d")
+            if isinstance(formatted_message['Time'], datetime):
+                formatted_message['Time'] = formatted_message['Time'].strftime("%H:%M:%S")
+            formatted_messages.append(formatted_message)
+
+        #更新資料
+        record['Last_Update_TimeStamp'] = chat_record.timestamp
+        record['Message'] = formatted_messages
+        record['Suggested_Videos'] = chat_record.suggested_videos
+        record['Finished'] = chat_record.finished
+        
+
+        result = chat_collection.update_one(
+            condition,
+            {"$set": record}
         )
         if result.modified_count > 0:
             return {"success": True, "message": "Message 更新成功"}
@@ -61,8 +84,6 @@ class Chat_Record_Helper:
         all = []
         for record in records:
             all.append(self._format_record(record))
-
-        print(all)
         return all
     
     def get_Chat_Record_by_id(self, record_id):
@@ -110,11 +131,8 @@ class Chat_Record_Helper:
             if 'Last_Update_TimeStamp' in record:
                 record['Last_Update_TimeStamp'] = record['Last_Update_TimeStamp'].isoformat() if isinstance(record['Last_Update_TimeStamp'], datetime) else record['Last_Update_TimeStamp']
             
-            if str(record['Finished'] == "true"):
+            if str(record['Finished']) == "true":
                 record['Finished'] = "yes"
-            else:
-                record['Finished'] = "no"
-                
-            
+ 
             record1 = Chat_Record(record['_id'], record['User_Id'], record['Name'], record['Message'], formatted_suggested_videos, record['Last_Update_TimeStamp'], record['Finished'])
         return record1.get_chat_record_data()

@@ -4,7 +4,7 @@ import 'package:view/models/User.dart';
 import 'package:view/services/login_svs.dart';
 
 class User_SVS {
-  final String baseUrl = 'http://192.168.0.193:8080';
+  final String baseUrl = 'http://172.20.10.3:8080';
 
 
   Future<User?> getUserById() async {

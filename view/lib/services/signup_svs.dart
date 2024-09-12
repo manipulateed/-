@@ -7,7 +7,7 @@ class Signup_SVS{
   Signup_SVS({required this.user});
 
   Future<Map<String, dynamic>> createUser() async {
-    final url = Uri.parse('http://192.168.0.193:8080/user/create_user');
+    final url = Uri.parse('http://172.20.10.3:8080/user/create_user');
     try {
       final response = await http.post(
         url,

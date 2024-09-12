@@ -1,8 +1,5 @@
 from bson import ObjectId
-import sys
-sys.path.append('C:\\SP\\bigproject\\models')
-
-from Sour_Record import Sour_Record
+from .Sour_Record import Sour_Record
 
 class Sour_Record_Helper:
     def __init__(self, db_mgr):
@@ -13,7 +10,6 @@ class Sour_Record_Helper:
         sour_record_data = {
             "User_Id": ObjectId(sour_record.user_id),
             "Videos": sour_record.videos,
-            "Title": sour_record.title,
             "Reason": sour_record.reason,
             "Time": sour_record.time
         }
@@ -48,13 +44,22 @@ class Sour_Record_Helper:
         cursor = sour_record_collection.find({"User_Id": ObjectId(user_id)})
         all_records = []
         for document in cursor:
+
+            formatted_suggested_videos = []
+            for video in document['Videos']:
+                keyword = video.get('Keyword', '')
+                video_ids = [str(vid) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
+                formatted_suggested_videos.append({
+                    "Keyword": keyword,
+                    "Video_id": video_ids
+                })
+
             record = Sour_Record(
                 id=document['_id'],
                 user_id=document['User_Id'],
-                title=document['Title'],
                 reason=document['Reason'],
                 time=document['Time'],
-                videos=document['Videos']
+                videos=formatted_suggested_videos
             )
             all_records.append(record.get_Sour_Record_data())  # 转换为字典
         return all_records  # 返回字典列表
@@ -66,13 +71,22 @@ class Sour_Record_Helper:
         sour_record_data = sour_record_collection.find_one({"_id": ObjectId(sour_record_id)})
 
         if sour_record_data:
+
+            formatted_suggested_videos = []
+            for video in sour_record_data['Videos']:
+                keyword = video.get('Keyword', '')
+                video_ids = [str(vid) for vid in video.get('Video_id', [])]  # 將 ObjectId 轉成字串
+                formatted_suggested_videos.append({
+                    "Keyword": keyword,
+                    "Video_id": video_ids
+                })
+
             sour_record = Sour_Record(
                 id=sour_record_data["_id"],
                 user_id=sour_record_data["User_Id"],
-                title=sour_record_data["Title"],
                 reason=sour_record_data["Reason"],
                 time=sour_record_data["Time"],
-                videos=sour_record_data.get("Videos", [])
+                videos=formatted_suggested_videos
             )
             return sour_record.get_Sour_Record_data()
         else:

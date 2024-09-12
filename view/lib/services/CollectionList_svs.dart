@@ -9,7 +9,7 @@ class CollectionList_SVS{
 
   List<CollectList> CL = [];
   CollectionList_SVS({required this.CL});
-  final String baseUrl = 'http://192.168.0.193:8080';
+  final String baseUrl = 'http://172.20.10.3:8080';
   late User user;
 
   Future<List<CollectList>> getAllCL() async {

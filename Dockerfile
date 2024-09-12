@@ -16,7 +16,7 @@ COPY . .
 EXPOSE 8080
 
 # 設定 Flask 的環境變數
-ENV FLASK_APP=controller/main.py
+ENV FLASK_APP=main.py
 ENV FLASK_ENV=production
 
 # 執行 Flask 應用程式

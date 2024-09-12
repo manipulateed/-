@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:view/models/Sour_Record.dart';
 import 'package:view/services/Sour_Record_svs.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:view/models/Video.dart';
+import 'package:view/constants/route.dart';
 
 class EventView extends StatefulWidget {
   //final List<SourRecord> events;
@@ -23,8 +23,9 @@ class _EventViewState extends State<EventView> {
   String day = '';
   String reason='';
   String title='';
-  String video='';
+  List<Map<String, List<Video>>> video=[];
   String id='';
+  List<String> options = [];
 
   @override
   void initState() {
@@ -45,13 +46,16 @@ class _EventViewState extends State<EventView> {
     for (var record in SR) {
       day = '${record.time.year}-${record.time.month}-${record.time.day}';
       reason = '${record.reason}';
-      title = '${record.title}';
-      video = '${record.videos}';
+      video = record.videos;
       id = '${record.id}';
+
+      for (var map in video) {
+        options.addAll(map.keys);
+      }
 
       _controllers.add(TextEditingController(text: reason));
 
-      print("資料"+day+reason+title+video);
+      print("資料"+day+reason+title+video.toString());
     }
 
     // _updatedEvents = widget.events.map((SR) {
@@ -240,37 +244,24 @@ class _EventViewState extends State<EventView> {
                 }).toList(),
               ),
 
-
               Text(
                 '推薦影片',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
               ),
               Column(
-                children: _controllers.map((controller) {
-                  return GestureDetector(
-                    onTap: () async {
-                      if (await canLaunchUrl(Uri.parse(video))) {
-                        await launchUrl(Uri.parse(video));
-                      } else {
-                        throw '無法打開 ${video}';
-                      }
-                    },
-                    child: Container(
-                      width: 200,
-                      padding: EdgeInsets.all(16.0),
-                      margin: EdgeInsets.symmetric(vertical: 30.0),
-                      decoration: BoxDecoration(
-                        color: Colors.green[50],
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 20),
-                      ),
+                children:  [
+                  Container(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        List<Video> nonNullList = video[index][options[index]] ?? [];
+                        return _buildOptionButton(options[index], nonNullList);
+                      },
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -279,6 +270,17 @@ class _EventViewState extends State<EventView> {
     );
   }
 
+  // 定義 _buildOptionButton 方法
+  Widget _buildOptionButton(String label, List<Video> videos ) {
+    return ElevatedButton(
+      onPressed: () {
+        // 在這裡處理按鈕點擊事件
+        Navigator.pushNamed(context, Routes.videoView, arguments: videos); // 點擊按鈕後關閉對話框
+      },
+      child: Text(label),
+    );
+  }
+  
   @override
   void dispose() {
     _controllers.forEach((controller) {

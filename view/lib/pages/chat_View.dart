@@ -19,20 +19,18 @@ String randomString() {
 class ChatView extends StatefulWidget {
   const ChatView({Key? key}) : super(key: key);
 
-
   @override
-  //_ChatViewState createState() => _ChatViewState();
   State<ChatView> createState() => _ChatViewState();
 }
 
 
 class _ChatViewState extends State<ChatView> {
+
   final List<types.Message> _messages = [];//歷史訊息列表
   final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');//user 自己
-  //final _chatBot = const types.User(id: 'chatBot_id'); // 假設有一個不同的對方用戶 ID
   late ChatRecord chatrecord;
-  final ScrollController _scrollController = ScrollController();
 
+  //取得前一頁傳遞進來的 資料
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -40,16 +38,10 @@ class _ChatViewState extends State<ChatView> {
     if (_messages.length == 0)
       getChatRecord();
   }
-  void _scrollToBottom() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
-  }
+
   void getChatRecord(){
     for (var message in chatrecord.message) {
-      if (message["Role"] == 'User') {
+      if (message["Role"] == 'User' || message["Role"] == 'user') {
         final textMessage = types.TextMessage(
           author: _user,//自己
           createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
@@ -59,10 +51,10 @@ class _ChatViewState extends State<ChatView> {
 
         _addMessage(textMessage);
         print('User Message: ${message["Content"]}');
-      } else if (message["Role"] == 'AI') {
+      } else if (message["Role"] == 'AI'|| message["Role"] == 'ai') {
         // AI 發送的訊息，執行相應的動作
         final textMessage = types.TextMessage(
-          author:types.User(id: 'bot'),//自己
+          author:types.User(id: 'bot'),
           createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
           id: randomString(),//每一個message要有獨立的id
           text: message["Content"].toString(),//文字訊息
@@ -79,9 +71,9 @@ class _ChatViewState extends State<ChatView> {
 
   Future<Map<String, dynamic>> getReponse(String message)async{
     CallGPT_SVS service = CallGPT_SVS(message: message);
-    await service.getDignose();
+    await service.getDignose(chatrecord.id);
 
-    if (service.finish == "true"){
+    if (service.finish == "True"){
       chatrecord.suggestedVideoIds = service.suggestMap;
       chatrecord.finish = "yes";
     }
@@ -105,6 +97,12 @@ class _ChatViewState extends State<ChatView> {
           padding: EdgeInsets.fromLTRB(halfScreenWidth,0,0,0),
           child: Text(chatrecord.name),
         ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: (){
+            Navigator.pop(context, true);
+          }
+        )
       ),
       body: Stack(
         children: [
@@ -126,11 +124,9 @@ class _ChatViewState extends State<ChatView> {
               userAvatarNameColors: [Colors.black],
               receivedMessageBodyTextStyle: TextStyle(color: Colors.black),
               sentMessageBodyTextStyle: TextStyle(color: Colors.white),
-              //receivedMessageBackgroundColor: Colors.grey[300]!,
-              //sentMessageBackgroundColor: Colors.blue,
             ),
           ),
-          if (chatrecord.finish == "yes")Positioned(
+          if (chatrecord.finish == "yes") Positioned(
             top: 30,
             left: 20,
             child: FloatingActionButton(
@@ -138,37 +134,11 @@ class _ChatViewState extends State<ChatView> {
               child: Icon(Icons.list),
               backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
             ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //       Navigator.pop(context);     // 處理點擊事件
-            //    },
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
-            //   ),
-            //   child: Text(
-            //     '<',
-            //     textAlign: TextAlign.center,
-            //     style: TextStyle(
-            //       color: Colors.white,
-            //       fontFamily: 'Indie Flower',
-            //       fontSize: 32,
-            //       fontWeight: FontWeight.normal,
-            //     ),
-            //   ),
-            // ),
           ),
         ],
       ),
-      // floatingActionButton:
-      //   FloatingActionButton(
-      //     onPressed: _showImprovementOptions,
-      //     child: Icon(Icons.list),
-      //     backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
-      //   ),
-      //   floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-    );
+   );
   }
-
 
   void _addMessage(types.Message message) {
     setState(() {
@@ -199,25 +169,22 @@ class _ChatViewState extends State<ChatView> {
     _addMessage(textMessage);
 
     //將梁天記錄轉換成MAP並存到chatrecord中
-    convertMessageToMapandAddtoRecord(textMessage, "user");
+    convertMessageToMapandAddtoRecord(textMessage, "User");
 
     Map<String, dynamic> response = await getReponse(message.text);
 
     final replyMessage = types.TextMessage(
       author: types.User(id: 'bot'),
-      createdAt: DateTime
-          .now()
-          .millisecondsSinceEpoch + 1000,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
       id: randomString(),
       text: response["content"].toString(),
     );
     _addMessage(replyMessage); // 插入對方的回覆訊息
 
-    convertMessageToMapandAddtoRecord(replyMessage, "ai");
+    convertMessageToMapandAddtoRecord(replyMessage, "AI");
 
     //更新醉心聊天紀錄
     updateRecord();
-    //_scrollToBottom();
   }
 
   void _showImprovementOptions() {

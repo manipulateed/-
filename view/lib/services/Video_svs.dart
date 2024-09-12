@@ -5,10 +5,11 @@ import 'package:view/models/Video.dart';
 class Video_SVS {
 
   late Video videos;
+  final String baseUrl = 'http://172.20.10.3:8080';
   Video_SVS({required this.videos});
   
   Future<void> createVideo(String name, String url) async {
-    final apiUrl = Uri.parse('http://192.168.1.105:8080/api/video/create');
+    final apiUrl = Uri.parse('${baseUrl}/api/video/create');
     final response = await http.post(
       apiUrl,
       headers: <String, String>{
@@ -28,7 +29,7 @@ class Video_SVS {
   }
 
   Future<void> getVideoById(String videoId) async {
-    final apiUrl = Uri.parse('http://192.168.1.105:8080/VideoController/get?video_id=$videoId');
+    final apiUrl = Uri.parse('${baseUrl}/VideoController/get?video_id=$videoId');
     final response = await http.get(
       apiUrl,
       headers: <String, String>{
@@ -48,7 +49,7 @@ class Video_SVS {
 
 
   Future<void> searchAndCreateVideos(String keyword, int maxResults) async {
-    final apiUrl = Uri.parse('http://192.168.1.105:8080/api/video/search_and_create');
+    final apiUrl = Uri.parse('${baseUrl}/api/video/search_and_create');
     final response = await http.post(
       apiUrl,
       headers: <String, String>{

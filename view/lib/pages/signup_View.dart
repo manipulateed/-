@@ -244,7 +244,8 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:view/constants/route.dart';
-import 'package:view/services/user_svs.dart';
+// import 'package:view/services/user_svs.dart';
+import 'package:view/services/signup_svs.dart';
 import 'package:view/models/User.dart';
 import 'package:view/widgets/button/goto_Signup_or_Login.dart';
 
@@ -300,7 +301,7 @@ class _SignupViewState extends State<SignupView> {
       password: _passwordController.text,
     );
 
-    User_SVS userService = User_SVS(user: user);
+    Signup_SVS userService = Signup_SVS(user: user);
     Map<String, dynamic> result = await userService.createUser();
 
     if (result['success']) {

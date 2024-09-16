@@ -77,10 +77,16 @@ class _CalendarViewState extends State<CalendarView> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.green[100],
         title: Text(
           '我的日記',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.green[900],
+            letterSpacing: 3
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -98,6 +104,7 @@ class _CalendarViewState extends State<CalendarView> {
           //新增日記
           IconButton(onPressed: _showAddEventDialog, icon: Icon(Icons.add))
         ],
+        elevation: 3,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -188,7 +195,7 @@ class _CalendarViewState extends State<CalendarView> {
                       );
                     },
                   )
-                      : SizedBox.shrink(),
+                    : SizedBox.shrink(),
                 ),
               ],
           ],

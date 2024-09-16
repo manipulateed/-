@@ -54,7 +54,7 @@ class Video_Helper:
                 output_video["video_id"] = str(existing_video['_id'])
 
             output_videos.append(output_video)
-        print(output_videos)
+
         return{
             "created_videos": created_videos,
             "output_videos": output_videos
@@ -101,20 +101,3 @@ class Video_Helper:
             return video.get_video_data()
         else:
             return None
-
-    '''
-    def create_video(self, video):
-        video_collection = self.get_Collection('Video')
-        existing_video = video_collection.find_one({"URL": video.url})
-        if video_collection.find_one({"url":video.url}): #判斷資料庫是否有這支影片
-            return {"success":False, "message":"資料庫已有這支影片", "video_id": str(existing_video['_id'])}
-        else:
-            video_data = {
-                "Name":video.name,
-                "URL":video.url
-            }
-            result = video_collection.insert_one(video_data)
-            video.set_id(result.inserted_id)
-            return{"success": True, "message":"影片新增成功", "video_id": str(result.inserted_id)}
-    '''
-

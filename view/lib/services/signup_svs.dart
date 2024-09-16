@@ -1,13 +1,14 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/User.dart';
+import 'package:view/constants/config.dart';
 
 class Signup_SVS{
   User user;
   Signup_SVS({required this.user});
 
   Future<Map<String, dynamic>> createUser() async {
-    final url = Uri.parse('http://172.20.10.3:8080/user/create_user');
+    final url = Uri.parse(Config.baseUrl+'/user/create_user');
     try {
       final response = await http.post(
         url,

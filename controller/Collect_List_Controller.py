@@ -67,7 +67,7 @@ def create_CL_by_UserId():
     """建立新收藏清單"""
     try:
         data = request.get_json()
-        print("Received data:", data)  # 添加這一行來打印接收到的數據
+        
         # 從請求的標頭中提取 Authorization 標頭，並打印 token
         auth_header = request.headers.get('Authorization')
         if auth_header:

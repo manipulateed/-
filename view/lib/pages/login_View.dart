@@ -126,7 +126,7 @@ class _LoginViewState extends State<LoginView> {
                   top: 15,
                   right: 20,
                   child: IconButton(
-                    icon: Icon(Icons.remove_red_eye_outlined),
+                    icon: _obscureText ? Icon(Icons.visibility_off_outlined) : Icon(Icons.visibility_outlined),
                     onPressed: (){
                       setState(() {
                         _obscureText = !_obscureText; // 切換顯示或隱藏密碼

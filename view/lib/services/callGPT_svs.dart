@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/Video.dart';
 import 'package:view/services/login_svs.dart';
+import 'package:view/constants/config.dart';
 
 class CallGPT_SVS{
     String message = "";
@@ -11,7 +12,7 @@ class CallGPT_SVS{
     CallGPT_SVS({required this.message});
 
     //取得相關資訊
-    final String baseUrl = 'http://172.20.10.3:8080';
+    final String baseUrl = Config.baseUrl;
 
     Future<void> getDignose(String CR_id) async{
       String token =  await Login_SVS.getStoredToken();

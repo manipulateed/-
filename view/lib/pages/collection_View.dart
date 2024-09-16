@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';  // 用於JSON解析
+import 'package:view/constants/route.dart';  // 用於JSON解析
 import 'package:http/http.dart' as http;
 import 'package:view/services/CollectionList_svs.dart';
 import 'package:view/models/CL.dart';
@@ -17,6 +17,7 @@ class CollectionView extends StatefulWidget {
 }
 
 class _CollectionViewState extends State<CollectionView> {
+  static  Map<String, dynamic> collectionItem = {};
   String userID = '';
   String clID = '';
   String clName = '';
@@ -26,7 +27,7 @@ class _CollectionViewState extends State<CollectionView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final Map<String, dynamic> collectionItem = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    collectionItem = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     userID = collectionItem['user_id'];
     clID = collectionItem['id'];
 
@@ -53,6 +54,8 @@ class _CollectionViewState extends State<CollectionView> {
       barrierDismissible: true,
       confirmBtnText: '確認',
       title: '編輯收藏清單名稱',
+      cancelBtnText: '取消',
+      cancelBtnTextStyle: TextStyle(color:Colors.red),
       confirmBtnColor: Colors.green,
       widget: TextFormField(
         initialValue: clName,
@@ -66,11 +69,11 @@ class _CollectionViewState extends State<CollectionView> {
         },
       ),
       onConfirmBtnTap: () async {
-        if (clName.length < 5) {
+        if (clName.length < 1) {
           await QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
-            text: '請輸入有效名稱（至少 5 個字）',
+            text: '請輸入有效名稱（至少 1 個字）',
           );
           return;
         }
@@ -85,6 +88,9 @@ class _CollectionViewState extends State<CollectionView> {
           text: "收藏清單名稱已更新為 '$clName'!",
         );
       },
+      onCancelBtnTap: (){
+        Navigator.pop(context);
+      }
     );
   }
 
@@ -112,6 +118,7 @@ class _CollectionViewState extends State<CollectionView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(88),
         child: AppBar(
@@ -120,12 +127,14 @@ class _CollectionViewState extends State<CollectionView> {
             child: Text(
               clName,
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
+                color: Color.fromRGBO(56, 107, 79, 1),
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
+                letterSpacing: 3
               ),
             ),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.green[100],
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_left),
             onPressed: () {
@@ -139,42 +148,57 @@ class _CollectionViewState extends State<CollectionView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      clName,
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
+            Container(
+              decoration: BoxDecoration(
+                color: Color.fromRGBO(250, 255, 251, 1), // 固定區域背景色
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1), // 陰影顏色和透明度
+                    spreadRadius: 3, // 擴散半徑
+                    blurRadius: 5, // 模糊半徑
+                    offset: Offset(0, 5), // 陰影偏移量 (x, y)
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0), // 調整上下邊距以提供空間
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        clName,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '運動傷害\n${collections.length}部影片',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
+                      Text(
+                        '運動傷害\n${collections.length}部影片',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.grey,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.green),
-                      onPressed: () {
-                        _editCLName();
-                        // 編輯按鈕動作
-                      },
-                      iconSize: 40,
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.green),
+                        onPressed: () {
+                          _editCLName();
+                          // 編輯按鈕動作
+                        },
+                        iconSize: 30,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 16.0),
             Expanded(
               child:  ListView.builder(
@@ -300,6 +324,12 @@ class _VideoCardInCLState extends State<VideoCardInCL> {
           print("Close the confirmation dialog");
           // Short delay before showing success message
           await Future.delayed(const Duration(milliseconds: 300));
+
+          Navigator.pushReplacementNamed(
+            context,
+            Routes.collectView,
+            arguments: _CollectionViewState.collectionItem,
+          );
 
           if (mounted) {
             await QuickAlert.show(

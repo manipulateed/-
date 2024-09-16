@@ -9,7 +9,7 @@ import 'package:view/models/Video.dart';
 import 'package:view/constants/route.dart';
 import 'package:view/services/callGPT_svs.dart';
 import 'package:view/services/chatrecord_svs.dart';
-// For the testing purposes, you should probably use https://pub.dev/packages/uuid.
+
 String randomString() {
   final random = Random.secure();
   final values = List<int>.generate(16, (i) => random.nextInt(255));
@@ -23,65 +23,97 @@ class ChatView extends StatefulWidget {
   State<ChatView> createState() => _ChatViewState();
 }
 
-
 class _ChatViewState extends State<ChatView> {
-
-  final List<types.Message> _messages = [];//歷史訊息列表
-  final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');//user 自己
+  final List<types.Message> _messages = [];
+  final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');
   late ChatRecord chatrecord;
+  final ValueNotifier<String> _finishNotifier = ValueNotifier<String>("");
 
-  //取得前一頁傳遞進來的 資料
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     chatrecord = ModalRoute.of(context)!.settings.arguments as ChatRecord;
-    if (_messages.length == 0)
+    if (_messages.isEmpty) {
       getChatRecord();
+      if (_messages.isEmpty){
+        final replyMessage = types.TextMessage(
+          author: types.User(id: 'bot'),
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          id: randomString(),
+          text: "請問您哪裡痠痛呢?",
+        );
+        _addMessage(replyMessage);
+
+        convertMessageToMapandAddtoRecord(replyMessage, "AI");
+      }
+    }
+
+    // Update ValueNotifier when chatrecord.finish changes
+    _finishNotifier.value = chatrecord.finish;
   }
 
-  void getChatRecord(){
+  @override
+  void initState() {
+    super.initState();
+
+    // Update the ValueNotifier when finish status changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _finishNotifier.addListener(() {
+        if (_finishNotifier.value == "yes") {
+          final position = Offset(90, 120); // Set your desired position
+          showTooltip(context, '點擊查看舒緩關鍵字', position);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _finishNotifier.dispose();
+    super.dispose();
+  }
+
+  void getChatRecord() {
     for (var message in chatrecord.message) {
-      if (message["Role"] == 'User' || message["Role"] == 'user') {
-        final textMessage = types.TextMessage(
-          author: _user,//自己
-          createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
-          id: randomString(),//每一個message要有獨立的id
-          text: message["Content"].toString(),//文字訊息
-        );
+      // 組合日期和時間
+      String dateTimeString = "${message['date']} ${message['time']}";
 
-        _addMessage(textMessage);
-        print('User Message: ${message["Content"]}');
-      } else if (message["Role"] == 'AI'|| message["Role"] == 'ai') {
-        // AI 發送的訊息，執行相應的動作
+      if (message["character"] == 'User' || message["character"] == 'user') {
         final textMessage = types.TextMessage(
-          author:types.User(id: 'bot'),
-          createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
-          id: randomString(),//每一個message要有獨立的id
-          text: message["Content"].toString(),//文字訊息
+          author: _user,
+          createdAt: DateTime.parse(dateTimeString.replaceAll(" ", "T")).millisecondsSinceEpoch,
+          id: randomString(),
+          text: message["content"].toString(),
         );
-
         _addMessage(textMessage);
-        print('AI Message: ${message["Content"]}');
-      } else {
-        // 其他角色的訊息處理
-        print('Other Message: ${message["Content"]}');
+      } else if (message["character"] == 'AI' || message["character"] == 'ai') {
+        final textMessage = types.TextMessage(
+          author: types.User(id: 'bot'),
+          createdAt: DateTime.parse(dateTimeString.replaceAll(" ", "T")).millisecondsSinceEpoch,
+          id: randomString(),
+          text: message["content"].toString(),
+        );
+        _addMessage(textMessage);
       }
     }
   }
 
-  Future<Map<String, dynamic>> getReponse(String message)async{
+  Future<Map<String, dynamic>> getReponse(String message) async {
+    _showLoadingAnimation();
     CallGPT_SVS service = CallGPT_SVS(message: message);
     await service.getDignose(chatrecord.id);
-
-    if (service.finish == "True"){
+    Navigator.pop(context);
+    if (service.finish == "True") {
       chatrecord.suggestedVideoIds = service.suggestMap;
       chatrecord.finish = "yes";
+      _finishNotifier.value = chatrecord.finish; // Notify listeners about the change
     }
 
     return service.response;
   }
 
-  void updateRecord() async{
+  void updateRecord() async {
+    print(chatrecord.message);
     Chatrecord_SVS service = Chatrecord_SVS(chatrecords: [chatrecord]);
     await service.updateChatRecord();
   }
@@ -90,30 +122,37 @@ class _ChatViewState extends State<ChatView> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double halfScreenWidth = screenWidth / 5;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.fromLTRB(halfScreenWidth,0,0,0),
-          child: Text(chatrecord.name),
+        title:  Text(
+          chatrecord.name,
+          style: TextStyle(
+              color: Color.fromRGBO(56, 107, 79, 1),
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3
+          )
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: (){
+          onPressed: () {
             Navigator.pop(context, true);
-          }
-        )
+          },
+        ),
+        centerTitle: true,
+        elevation: 3,
+        backgroundColor: Colors.green[100],
       ),
       body: Stack(
         children: [
           Chat(
             messages: _messages,
-            onSendPressed:  _handleSendPressed,
+            onSendPressed: _handleSendPressed,
             user: _user,
             inputOptions: InputOptions(
               enabled: !(chatrecord.finish == "yes"),
             ),
-            //scrollController: _scrollController,
             theme: DefaultChatTheme(
               inputBackgroundColor: Colors.grey[200]!,
               inputTextColor: Colors.black,
@@ -126,28 +165,35 @@ class _ChatViewState extends State<ChatView> {
               sentMessageBodyTextStyle: TextStyle(color: Colors.white),
             ),
           ),
-          if (chatrecord.finish == "yes") Positioned(
-            top: 30,
-            left: 20,
-            child: FloatingActionButton(
-              onPressed: _showImprovementOptions,
-              child: Icon(Icons.list),
-              backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
-            ),
+          ValueListenableBuilder<String>(
+            valueListenable: _finishNotifier,
+            builder: (context, finishStatus, child) {
+              if (finishStatus == "yes") {
+                return Positioned(
+                  top: 30,
+                  left: 20,
+                  child: FloatingActionButton(
+                    onPressed: _showImprovementOptions,
+                    child: Icon(Icons.list),
+                    backgroundColor: Color.fromRGBO(95, 178, 132, 0.8),
+                  ),
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            },
           ),
         ],
       ),
-   );
+    );
   }
 
   void _addMessage(types.Message message) {
     setState(() {
-      //新增新訊息時，將資料插入到index 0的位置，並且setState刷新UI
       _messages.insert(0, message);
     });
   }
 
-  //將message轉成map
   void convertMessageToMapandAddtoRecord(types.TextMessage message, String author) {
     chatrecord.message.add({
       'character': author,
@@ -157,18 +203,15 @@ class _ChatViewState extends State<ChatView> {
     });
   }
 
-  //當點擊send按鈕時，會從Chat Widget中觸發此函數並將訊息資料傳出。
-  //根據資料內容可以創建新的`TextMessage`並加入訊息歷史列表中
-  void _handleSendPressed (types.PartialText message) async {
+  void _handleSendPressed(types.PartialText message) async {
     final textMessage = types.TextMessage(
-      author: _user,//自己
-      createdAt: DateTime.now().millisecondsSinceEpoch,//訊息建立時間，我個人偏向使用伺服器的時間
-      id: randomString(),//每一個message要有獨立的id
-      text: message.text,//文字訊息
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: randomString(),
+      text: message.text,
     );
     _addMessage(textMessage);
 
-    //將梁天記錄轉換成MAP並存到chatrecord中
     convertMessageToMapandAddtoRecord(textMessage, "User");
 
     Map<String, dynamic> response = await getReponse(message.text);
@@ -179,12 +222,12 @@ class _ChatViewState extends State<ChatView> {
       id: randomString(),
       text: response["content"].toString(),
     );
-    _addMessage(replyMessage); // 插入對方的回覆訊息
+    _addMessage(replyMessage);
 
     convertMessageToMapandAddtoRecord(replyMessage, "AI");
-
-    //更新醉心聊天紀錄
+    print(chatrecord.message);
     updateRecord();
+
   }
 
   void _showImprovementOptions() {
@@ -202,7 +245,14 @@ class _ChatViewState extends State<ChatView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('改善方向'),
+          title: Center(
+            child: Text(
+              '改善方向',
+                style: TextStyle(
+                  color: Color.fromRGBO(56, 107, 79, 1),
+                )
+            ),
+          ),
           content: Container(
             width: double.maxFinite,
             child: ListView.builder(
@@ -227,14 +277,73 @@ class _ChatViewState extends State<ChatView> {
     );
   }
 
-  // 定義 _buildOptionButton 方法
-  Widget _buildOptionButton(String label, List<Video> videos ) {
-    return ElevatedButton(
-      onPressed: () {
-        // 在這裡處理按鈕點擊事件
-        Navigator.pushNamed(context, Routes.videoView, arguments: videos); // 點擊按鈕後關閉對話框
+  //產生影片推薦按鈕
+  Widget _buildOptionButton(String label, List<Video> videos) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, Routes.videoView, arguments: videos);
+        },
+        child: Text(
+          label,
+          style: TextStyle(
+            color: Colors.black,
+            letterSpacing: 2.0
+          ),
+        ),
+      ),
+    );
+  }
+
+  //產生影片推薦提示
+  void showTooltip(BuildContext context, String message, Offset position) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        left: position.dx,
+        top: position.dy,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void _showLoadingAnimation() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(250, 255, 251, 1),
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('機器人正在生成與分析...'),
+            ],
+          ),
+        );
       },
-      child: Text(label),
     );
   }
 }

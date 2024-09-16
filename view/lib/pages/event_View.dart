@@ -126,17 +126,17 @@ class _EventViewState extends State<EventView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this event?'),
+          title: Text('確定要刪除?'),
+          content: Text('你確定要刪除此事件嗎?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text('取消'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: Text('刪除'),
               onPressed: () {
                 _deleteEvent(widget.record_id);
                 Navigator.pop(context, true);
@@ -156,13 +156,17 @@ class _EventViewState extends State<EventView> {
         return true;
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.green[100],
           title: Text(
             day,
             //"Hello",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
+
           ),
           centerTitle: true,
+          elevation: 3,
           actions: [
             _isEditing
                 ? IconButton(
@@ -207,7 +211,7 @@ class _EventViewState extends State<EventView> {
               SizedBox(height: 20),
               Text(
                 '痠痛原因',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
+                style: TextStyle(letterSpacing: 3.0, fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
               ),
               Column(
                 children: _controllers.map((controller) {
@@ -228,16 +232,20 @@ class _EventViewState extends State<EventView> {
                     );
                   } else {
                     return Container(
-                      width: 400,
+                      width: 350,
                       padding: EdgeInsets.fromLTRB(30.0, 16.0, 30.0, 16.0),
                       margin: EdgeInsets.symmetric(vertical: 30.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
+                        color: Color.fromRGBO(233, 245, 239, 1),
                       ),
                       child: Text(
                         reason,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                          fontSize: 20,
+                          letterSpacing: 2.0
+                        ),
                       ),
                     );
                   }
@@ -246,7 +254,7 @@ class _EventViewState extends State<EventView> {
 
               Text(
                 '推薦影片',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
+                style: TextStyle(letterSpacing: 3.0, fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
               ),
               Column(
                 children:  [
@@ -272,12 +280,21 @@ class _EventViewState extends State<EventView> {
 
   // 定義 _buildOptionButton 方法
   Widget _buildOptionButton(String label, List<Video> videos ) {
-    return ElevatedButton(
-      onPressed: () {
-        // 在這裡處理按鈕點擊事件
-        Navigator.pushNamed(context, Routes.videoView, arguments: videos); // 點擊按鈕後關閉對話框
-      },
-      child: Text(label),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(30, 8, 30, 0),
+      child: ElevatedButton(
+        onPressed: () {
+          // 在這裡處理按鈕點擊事件
+          Navigator.pushNamed(context, Routes.videoView, arguments: videos); // 點擊按鈕後關閉對話框
+        },
+        child: Text(
+          label,
+          style: TextStyle(
+            color: Colors.black,
+            letterSpacing: 2.0
+          ),
+        ),
+      ),
     );
   }
   

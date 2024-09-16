@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:view/models/Sour_Record.dart';
 import 'package:view/models/User.dart';
 import 'package:view/services/login_svs.dart';
+import 'package:view/constants/config.dart';
 
 class Sour_Record_SVS {
   List<SourRecord> SR = [];
   Sour_Record_SVS({required this.SR});
-  final String baseUrl = 'http://172.20.10.3:8080';
+  final String baseUrl = Config.baseUrl;
 
   //獲取所有紀錄
   Future<void> getAllSR() async {
@@ -21,7 +22,7 @@ class Sour_Record_SVS {
 
     if (response.statusCode == 200) {
       final content = jsonDecode(response.body);
-      print('Data get successfully: ${content["response"]}');
+      print('Data get successfully');
       List<dynamic> responseData = content['response'];
       SR = responseData.map((data) => SourRecord.fromJson(data)).toList();
     } else {
@@ -29,29 +30,13 @@ class Sour_Record_SVS {
     }
   }
 
-  //取得單一痠痛紀錄
-
-  // Future<void> getSR(id) async {
-  //   final url = Uri.parse('http://192.168.0.75:8080/Sour_Record_Controller/get?id='+id);
-  //   final response = await http.get(url);
-  //
-  //   if (response.statusCode == 200) {
-  //     final content = jsonDecode(response.body);
-  //     print('Data get successfully: ${content["response"]}');
-  //     List<dynamic> responseData = content['response'];
-  //     SR = responseData.map((data) => SourRecord.fromJson(data)).toList();
-  //   } else {
-  //     print('Failed to get data: ${response.statusCode}');
-  //   }
-  // }
-
   Future<void> getSR(id) async {
     final url = Uri.parse('${baseUrl}/Sour_Record_Controller/get?id=' + id);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final content = jsonDecode(response.body);
-      print('Data received: $content');
+      print('Data received successfully');
 
       if (content is Map<String, dynamic> && content.containsKey('response')) {
         var responseData = content['response'];
@@ -64,7 +49,7 @@ class Sour_Record_SVS {
           if (responseData is Map<String, dynamic>) {
             SR = [SourRecord.fromJson(responseData)];
           } else {
-            print('responseData is not a Map: $responseData');
+            print('responseData is not a Map');
           }
         }
       }
@@ -90,7 +75,7 @@ class Sour_Record_SVS {
       }),
     );
     if (response.statusCode == 200) {
-      print('Data update successfully: ${jsonDecode(response.body)['message']}');
+      print('Data update successfully');
     } else {
       print('Failed to update data: ${response.statusCode}');
     }
@@ -117,11 +102,13 @@ class Sour_Record_SVS {
 
   //新增痠痛
   Future<void> createSR(String user_id, String reason, String time) async {
+    String token =  await Login_SVS.getStoredToken();
     final url = Uri.parse('${baseUrl}/Sour_Record_Controller/create?user_id=${user_id}');
     final response = await http.post(
       url,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'reason': reason,

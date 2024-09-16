@@ -25,6 +25,7 @@ class AddCLButton {
           type: QuickAlertType.custom,
           barrierDismissible: true,
           confirmBtnText: '確認新增',
+          cancelBtnText: '取消',
           title: '新增收藏清單',
           confirmBtnColor: Colors.green,
           widget: TextFormField(
@@ -36,7 +37,7 @@ class AddCLButton {
             onChanged: (value) => message = value,
           ),
           onConfirmBtnTap: () async {
-            if (message.length < 5) {
+            if (message.length < 1) {
               await QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
@@ -63,6 +64,9 @@ class AddCLButton {
               type: QuickAlertType.success,
               text: "收藏清單 '$message' 已新增!",
             );
+          },
+          onCancelBtnTap: (){
+            Navigator.pop(context);
           },
         );
       },

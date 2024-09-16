@@ -220,11 +220,11 @@ def diagnose():
 
     # Check if we need to stop the diagnosis loop
     if "尋求專業醫師" in response_text or "尋求專業醫生" in response_text:
-        return create_summary_response(message, CR_id, user_id)
+        return create_summary_response(message, CR_id, token)
 
     return jsonify({"response": message.get_Message_data(), "end": "False"})
 
-def create_summary_response(message, CR_id, user_id):
+def create_summary_response(message, CR_id, token):
     try:
         # 從記憶體中載入聊天歷史
         chat_history = MongoDBChatMessageHistory(
@@ -281,10 +281,25 @@ def create_summary_response(message, CR_id, user_id):
         #Add Sour Record
         app = Flask(__name__)
         app.register_blueprint(callGPT_bp)
+        from flask_jwt_extended import JWTManager
+        # 配置 JWT 機制
+        app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+        jwt = JWTManager(app)
 
         # 模擬測試上下文來呼叫 `/Sour_Record_Controller/create` 路由
-        with app.test_request_context(f'/Sour_Record_Controller/create?user_id={user_id}', json={"reason": result, "time": datetime.now().strftime("%Y-%m-%d"), "videos": suggested_Videos}):
-            
+        with app.test_request_context(
+            '/Sour_Record_Controller/create',
+            method='POST',  # 指定方法為 POST
+            json={
+                "reason": result,  # 這裡的 `result` 應該是你定義的變數
+                "time": datetime.now().strftime("%Y-%m-%d"),
+                "videos": suggested_Videos  # `suggested_Videos` 應該是你定義的變數
+            },
+            headers={
+                "Authorization": f"Bearer {token}",  # 確保 token 是正確生成的
+                "Content-Type": "application/json"
+            }
+        ):
             # 直接調用路由函數 `create_sour_record`
             response = create_sour_record()  # 確保這個函數已正確匯入
 
@@ -307,50 +322,3 @@ def create_summary_response(message, CR_id, user_id):
     except Exception as e:
         logger.error(f"出錯囉：{e}")
         return jsonify({"error": f"出錯囉：{e}"}), 500
-    
-#推薦方向控制器路由
-# @callGPT_bp.route('/summary', methods=['GET'])
-# def summary(message):
-
-#     #取得聊天記憶並生成推薦影片方向
-#     chat_history = memory.load_memory_variables({})["chat_history"]
-#     response = conversation_direction.invoke({"question": chat_history})
-    
-#     #建構訊息model
-#     message1 = Message(
-#             character = "AI",
-#             content = message,
-#             date = datetime.now().strftime("%Y-%m-%d"),
-#             time = datetime.now().strftime("%H:%M:%S")
-#         )
-    
-#     #處理關鍵字
-#     suggested_Videos = []
-#     keywords_list = process_response(response)
-#     print(keywords_list)
-    
-#     #蝶帶關鍵詞列表，並調用 search_YT_video 函数
-#     for keyword in keywords_list:
-#         data = {"keyword" : keyword, "max_results": 5}
-#         app = Flask(__name__)
-#         app.register_blueprint(callGPT_bp)
-#         with app.test_request_context(f'/api/video/search_and_create'):
-            
-#             # 直接調用 search_and_create_videos 並傳入參數
-#             response = search_and_create_videos(data)
-            
-#             # 假設 search_and_create_videos 回傳一個字典
-#             # 將結果轉為字典並取得 all_videos
-#             if response["success"]:
-
-#                 video_ids = [video["video_id"] for video in response["all_videos"]]
-#                 suggested_Videos.append({"Keyword": keyword,
-#                                 "Video_id": video_ids})
-#             else:
-#                 print(response['message'])
-
-#     #清除記憶資料    
-#     memory.clear()
-#     print(suggested_Videos)
-#     return jsonify({"Suggested_Videos": suggested_Videos, "end": "True", "response": message1.get_Message_data()})
-

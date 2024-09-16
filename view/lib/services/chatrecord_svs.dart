@@ -2,14 +2,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/Chat_Record.dart';
 import 'package:view/models/User.dart';
-import 'package:view/models/Video.dart';
 import 'package:view/services/login_svs.dart';
+import 'package:view/constants/config.dart';
 
 class Chatrecord_SVS{
 
   List<ChatRecord> chatrecords = [];
   Chatrecord_SVS({required this.chatrecords});
-  final String baseUrl = 'http://172.20.10.3:8080';
+  final String baseUrl = Config.baseUrl;
   late User user;
   late String token;
 
@@ -30,16 +30,16 @@ class Chatrecord_SVS{
         return ChatRecord.fromJson(data);
       }).toList();
 
-      // 打印结果
-      chatrecords.forEach((record) {
-        print('User ID: ${record.userId}');
-        print('Messages: ${record.message}');
-        print('Suggested Videos: ${record.suggestedVideoIds}');
-        print('Name: ${record.name}');
-        print('Timestamp: ${record.timestamp}');
-      });
+      // // 打印结果
+      // chatrecords.forEach((record) {
+      //   print('User ID: ${record.userId}');
+      //   print('Messages: ${record.message}');
+      //   print('Suggested Videos: ${record.suggestedVideoIds}');
+      //   print('Name: ${record.name}');
+      //   print('Timestamp: ${record.timestamp}');
+      // });
 
-      //print('Data get successfully: ${content}');
+      print('Data get successfully');
     } else {
       print('Failed to get data: ${response.statusCode}');
     }
@@ -60,7 +60,7 @@ class Chatrecord_SVS{
       ),
     );
     if (response.statusCode == 200) {
-      print('Data update successfully: ${ChatRecord.fromJson(jsonDecode(response.body)['response'])}');
+      print('Data update successfully');
     } else {
       print('Failed to update data: ${response.statusCode}');
     }
@@ -84,7 +84,7 @@ class Chatrecord_SVS{
       chatrecords.last.toJson(),
     ));
     if (response.statusCode == 200) {
-      print('Data create successfully: ${response}');
+      print('Data create successfully');
     } else {
       print('Failed to create data: ${response.statusCode}');
     }
@@ -101,7 +101,7 @@ class Chatrecord_SVS{
     );
 
     if (response.statusCode == 200) {
-      print('Data delete successfully: ${response.body}');
+      print('Data delete successfully');
     } else {
       print('Failed to delete data: ${response.statusCode}');
     }

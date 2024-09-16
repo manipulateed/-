@@ -15,6 +15,13 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   List<ChatRecord> chatrecords = [];
 
+  @override
+  void initState() {
+    super.initState();
+    // 在這裡初始化你的聊天紀錄
+    get_ChatRecords();
+  }
+
   // Icon data with asset paths and corresponding information
   final List<Map<String, dynamic>> iconData = [
     {
@@ -68,11 +75,11 @@ class _HomeViewState extends State<HomeView> {
   }
 
 
-  void createChatRecord(ChatRecord chatrecord) async {
+  Future<void> createChatRecord(ChatRecord chatrecord) async {
     chatrecords.add(chatrecord);
     Chatrecord_SVS service = Chatrecord_SVS(chatrecords: chatrecords);
     await service.createChatRecord();
-    setState(() {}); // Update the UI
+    await get_ChatRecords();
   }
 
   @override
@@ -167,7 +174,7 @@ class _HomeViewState extends State<HomeView> {
                           return;
                         }
                         Navigator.pop(context);
-                        createChatRecord(chatRecord);
+                        await createChatRecord(chatRecord);
                         await Future.delayed(const Duration(milliseconds: 300));
                         final result = await Navigator.pushNamed(context, Routes.chatView, arguments: chatrecords.first);
                         if (result == true){

@@ -67,12 +67,13 @@ class CollectionListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color.fromRGBO(250, 255, 251, 1),
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: Colors.grey.shade400,
+          color: Color.fromRGBO(232, 248, 234, 1),
           width: 2,
         ),
+        borderRadius: BorderRadius.circular(40.0)
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -88,37 +89,45 @@ class CollectionListCard extends StatelessWidget {
                 onUpdateCollectionList();
               }
             },
-            leading: Icon(
-              Icons.elderly,
-              size: 40,
-            ),
-            title: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+
+            title: Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      contextData['name'],
-                      style: UI_TextStyle.CL_TextStyle,
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
+                  Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.elderly,
+                      size: 32,
+                      color: Color.fromRGBO(56, 107, 79, 1),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.black),
-                    onPressed: () => _handleDeleteConfirm(context),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        contextData['name'],
+                        style: TextStyle(color: Color.fromRGBO(56, 107, 79, 1), fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 3),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.black, size: 28),
+                      onPressed: () => _handleDeleteConfirm(context),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
           Divider(
-            height: 10,
-            thickness: 2,
+            thickness: 1,
             indent: 15,
             endIndent: 15,
-            color: Colors.grey,
+            color: Color.fromRGBO(56, 107, 79, 1),
           ),
           ListView.builder(
             shrinkWrap: true,
@@ -127,11 +136,11 @@ class CollectionListCard extends StatelessWidget {
             itemBuilder: (context, index) {
               List<String> items = List<String>.from(contextData['collection']);
               return Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                padding: const EdgeInsets.fromLTRB(20, 5, 20, 15),
                 child: Container(
-                  height: 40,
+                  height: 50,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(60)),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
                     color: Color.fromRGBO(233, 245, 239, 1),
                   ),
                   child: Row(

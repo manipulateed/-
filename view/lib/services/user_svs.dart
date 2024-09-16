@@ -2,9 +2,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/User.dart';
 import 'package:view/services/login_svs.dart';
+import 'package:view/constants/config.dart';
 
 class User_SVS {
-  final String baseUrl = 'http://172.20.10.3:8080';
+  final String baseUrl = Config.baseUrl;
 
 
   Future<User?> getUserById() async {

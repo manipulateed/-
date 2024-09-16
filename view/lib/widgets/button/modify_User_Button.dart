@@ -26,6 +26,7 @@ class ModifyUserButton {
           type: QuickAlertType.custom,
           barrierDismissible: true,
           confirmBtnText: '確認修改',
+          cancelBtnText: '取消',
           title: '修改個人資料',
           confirmBtnColor: Colors.green,
           widget: TextFormField(
@@ -38,7 +39,7 @@ class ModifyUserButton {
             onChanged: (value) => message = value,
           ),
           onConfirmBtnTap: () async {
-            if (message.length < 5) {
+            if (message.length < 1) {
               await QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
@@ -63,8 +64,11 @@ class ModifyUserButton {
             await QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
-              text: "Phone number '$message' has been saved!.",
+              text: "'$message' has been saved!.",
             );
+          },
+          onCancelBtnTap: (){
+            Navigator.pop(context);
           },
         );
       },

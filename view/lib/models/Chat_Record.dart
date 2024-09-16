@@ -4,7 +4,7 @@ import 'package:view/models/Video.dart';
 class ChatRecord {
   String id;
   String userId;
-  List<Map<String, String>> message;
+  List<Map<String, dynamic>> message;
   List<Map<String, List<Video>>> suggestedVideoIds;
   String name;
   String timestamp;
@@ -41,16 +41,21 @@ class ChatRecord {
   'name': name?? '',
   'last_update_timestamp': timestamp?? '',
   'finished': finish ?? '',
-};
+  };
 }
 
-factory ChatRecord.fromJson(Map<String, dynamic> json) {
-return ChatRecord(
-id : json['id'],
-userId: json['user_id'],
-      message: List<Map<String, String>>.from(
+  factory ChatRecord.fromJson(Map<String, dynamic> json) {
+    return ChatRecord(
+      id : json['id'],
+      userId: json['user_id'],
+      message: List<Map<String, dynamic>>.from(
         (json['message'] as List).map(
-              (item) => Map<String, String>.from(item),
+              (item) => {
+            'character': item['Role'],
+            'content': item['Content'],
+            'date': item['Date'],  // Assuming this is already a String in ISO format
+            'time': item['Time'],  // Assuming this is also a String in ISO format
+          },
         ),
       ),
       suggestedVideoIds: List<Map<String, List<Video>>>.from(

@@ -167,14 +167,20 @@ class _AccountViewState extends State<AccountView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Center(
-          child: Text(
-              "我的個人資料",
-              style: UI_TextStyle.Title_TextStyle
-          ),
+        title: Text(
+          '我的個人資料',
+          style: TextStyle(
+            color: Color.fromRGBO(56, 107, 79, 1),
+            fontWeight: FontWeight.bold,
+            letterSpacing: 3
+          )
         ),
+        backgroundColor: Colors.green[100],
+        elevation: 3,
+        centerTitle: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,11 +247,6 @@ class _AccountViewState extends State<AccountView> {
               children: [
                 Text(currentUser?.email ?? 'Loading...',
                     style: UI_TextStyle.AccountContext_TextStyle),
-                ModifyUserButton(
-                    orginalData: currentUser?.email ?? '',
-                    onUpdateUser: (newValue) =>
-                        _updateUserField('email', newValue)
-                ).getButton(context),
               ],
             ),
           ),
@@ -286,7 +287,7 @@ class _AccountViewState extends State<AccountView> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                child: Text('登出', style: TextStyle(fontSize: 18)),
+                child: Text('登出', style: TextStyle(fontSize: 18, color: Colors.black, letterSpacing: 5)),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),

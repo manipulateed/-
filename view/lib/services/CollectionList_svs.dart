@@ -4,12 +4,13 @@ import 'package:view/models/CL.dart';
 import 'package:view/models/User.dart';
 import 'package:view/models/Video.dart';
 import 'package:view/services/login_svs.dart';
+import 'package:view/constants/config.dart';
 
 class CollectionList_SVS{
 
   List<CollectList> CL = [];
   CollectionList_SVS({required this.CL});
-  final String baseUrl = 'http://172.20.10.3:8080';
+  final String baseUrl = Config.baseUrl;
   late User user;
 
   Future<List<CollectList>> getAllCL() async {

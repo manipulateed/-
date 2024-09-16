@@ -28,43 +28,14 @@ class _VideoViewState extends State<VideoView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green[100],
         title: Text(
-          '推薦影片',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(95, 178, 132, 0.8),
-          ),
+        '推薦影片',
+        //"Hello",
+        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
+
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Color.fromRGBO(95, 178, 132, 0.8),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '<',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Indie Flower',
-                  fontSize: 32,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
       body: ListView.builder(
           itemCount: videos.length, // videoCards 是包含 VideoCard 數據的列表

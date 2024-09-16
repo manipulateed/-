@@ -32,8 +32,7 @@ def get_all_sour_records_by_user_id():
     user_id = current_user_id
 
     if user_id:
-        return_data = sr_helper.get_All_Sour_Record_by_UserId(user_id)
-        print(return_data);   
+        return_data = sr_helper.get_All_Sour_Record_by_UserId(user_id) 
         return jsonify(success=True, user_id=user_id, response=return_data), 200
     else:
         return jsonify(success=False, message="No data received"), 400
@@ -52,9 +51,20 @@ def get_sour_record_by_id():
 
 
 @Sour_Record_bp.route('/Sour_Record_Controller/create', methods=['POST'])
+@jwt_required()
 def create_sour_record():
     """建立新痠痛紀錄"""
-    user_id = request.args.get('user_id')
+    
+    # 從請求的標頭中提取 Authorization 標頭，並打印 token
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split()[1]  # Authorization: Bearer <token>
+        print(f"JWT Token: {token}")  # 打印獲得的 JWT token
+    
+    current_user_id = get_jwt_identity()
+    print(f"JWT Identity (current_user_id): {current_user_id}")  # 打印取得的 current_user_id
+    user_id = current_user_id
+    
     data = request.get_json()     
     reason = data.get('reason')
     time = data.get('time')
@@ -84,7 +94,6 @@ def create_sour_record():
     sr_helper.create_sour_record(new_Sour_Record)
 
     if data:
-        print(user_id, reason, time)
         return {"success": True, "message": "新增成功"}    
     else:
         print("failed")
@@ -103,7 +112,6 @@ def update_sour_record_data():
     if id:
         result=sr_helper.update_sour_record(id, field_name, new_value)
 
-        print(id, new_value, field_name, result)
         return jsonify(success=True, message = "成功"),200    
     else:
         print("failed")

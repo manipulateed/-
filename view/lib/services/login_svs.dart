@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:view/constants/config.dart';
 
 class Login_SVS{
   String email = '';
@@ -10,7 +11,7 @@ class Login_SVS{
   Login_SVS({required this.email, required this.password});
 
   Future<Map<String, dynamic>> sendData() async {
-    final url = Uri.parse('http://172.20.10.3:8080/user/login');
+    final url = Uri.parse(Config.baseUrl + '/user/login');
     try {
       final response = await http.post(
         url,

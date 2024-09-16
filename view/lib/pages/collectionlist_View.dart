@@ -34,7 +34,7 @@ class _CollectionViewState extends State<CollectionListView> {
     List<CollectList> collectList = await service.getAllCL();
 
     for (var cl in collectList) {
-      print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
+      //print('ID: ${cl.id}, User ID: ${cl.userId}, Name: ${cl.name}, Collection: ${cl.collection}');
 
       // 建立一個新的 list 來存放 Video_Name
       List<String> videoNames = [];
@@ -51,7 +51,7 @@ class _CollectionViewState extends State<CollectionListView> {
             // 使用 Video_SVS 來獲取 video 的名稱
             await videoService.getVideoById(videoId);
             String videoName = videoService.videos.name;
-            print("videoName:"+videoName);
+            //print("videoName:"+videoName);
 
             // 將 videoName 添加到 videoNames 列表中
             videoNames.add(videoName);
@@ -90,12 +90,6 @@ class _CollectionViewState extends State<CollectionListView> {
     }
   }
 
-  // void updateCollectionList(type, new_value) async {
-  //   List<CollectList> CL = [];
-  //   CollectionList_SVS service = CollectionList_SVS(CL: CL);
-  //   await service.updateCL(type, new_value);
-  // }
-
   void removeCollectionList(String cl_id) async {
     CollectionList_SVS service = CollectionList_SVS(CL: []);
     await service.removeCL(cl_id);
@@ -104,22 +98,25 @@ class _CollectionViewState extends State<CollectionListView> {
 
   @override
   Widget build(BuildContext context) {
-    // removeCollectionList("66860a6a6a4b4baac976185c");
     void _updateCL(String addname) {
       createCollectionList(addname);
     }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Color.fromRGBO(250, 255, 251, 1),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            "我的收藏",
-            style: UI_TextStyle.Title_TextStyle,
-          ),
+        title: Text(
+            '我的收藏',
+            style: TextStyle(
+              color: Color.fromRGBO(56, 107, 79, 1),
+              fontWeight: FontWeight.bold,
+              letterSpacing: 3
+            )
         ),
-        backgroundColor: Color.fromRGBO(250, 255, 251, 1),
+        backgroundColor: Colors.green[100],
+        elevation: 3,
+        centerTitle: true,
       ),
       body: Stack(
         children: <Widget>[
@@ -139,12 +136,6 @@ class _CollectionViewState extends State<CollectionListView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(child: collectionListCard),
-                            // IconButton(
-                            //   icon: Icon(Icons.delete, color: Colors.black),
-                            //   onPressed: () {
-                            //     removeCollectionList(collection_List[index]['id']);
-                            //   },
-                            // ),
                           ],
                         ),
                       );

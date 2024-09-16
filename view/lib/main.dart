@@ -4,8 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:view/constants/route.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+import 'package:view/constants/config.dart';
 
 Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +13,8 @@ Future<void> main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.clear();
   var loginState = prefs.getString("jwt_token");
+
+  await Config.load();
 
   await initializeDateFormatting('zh_TW', null);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);

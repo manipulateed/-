@@ -1,11 +1,12 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:view/models/Video.dart';
+import 'package:view/constants/config.dart';
 
 class Video_SVS {
 
   late Video videos;
-  final String baseUrl = 'http://172.20.10.3:8080';
+  final String baseUrl = Config.baseUrl;
   Video_SVS({required this.videos});
   
   Future<void> createVideo(String name, String url) async {
@@ -22,7 +23,7 @@ class Video_SVS {
     );
 
     if (response.statusCode == 201) {
-      print('Video created successfully: ${response.body}');
+      print('Video created successfully');
     } else {
       print('Failed to create video: ${response.statusCode}');
     }
@@ -36,12 +37,12 @@ class Video_SVS {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    print(videoId);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> parsedData = jsonDecode(response.body);
       Map<String, dynamic> responses = parsedData['response'];
       videos = Video.fromJson(responses);
-      print('Video retrieved successfully: ${videos.toJson()}');
+      print('Video retrieved successfully');
     } else {
       print('Failed to retrieve video: ${response.statusCode}');
     }
@@ -62,8 +63,7 @@ class Video_SVS {
     );
 
     if (response.statusCode == 200) {
-      final content = jsonDecode(response.body);
-      print('Videos searched and created successfully: ${content["created_videos"]}');
+      print('Videos searched and created successfully');
     } else {
       print('Failed to search and create videos: ${response.statusCode}');
     }

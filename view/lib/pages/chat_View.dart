@@ -266,7 +266,7 @@ class _ChatViewState extends State<ChatView> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('關閉'),
+              child: Text('關閉', style: TextStyle(color: Colors.green[800]),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -280,16 +280,25 @@ class _ChatViewState extends State<ChatView> {
   //產生影片推薦按鈕
   Widget _buildOptionButton(String label, List<Video> videos) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+      padding: const EdgeInsets.fromLTRB(30,10, 30, 10),
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, Routes.videoView, arguments: videos);
+          // 在這裡處理按鈕點擊事件
+          Navigator.pushNamed(context, Routes.videoView, arguments: videos); // 點擊按鈕後關閉對話框
         },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white, // 設置按鈕背景顏色
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // 設置按鈕內邊距
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), // 設置按鈕圓角
+          ),
+          elevation: 5, // 設置按鈕陰影
+        ),
         child: Text(
           label,
           style: TextStyle(
+            fontSize: 16,
             color: Colors.black,
-            letterSpacing: 2.0
           ),
         ),
       ),

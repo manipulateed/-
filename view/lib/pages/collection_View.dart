@@ -119,22 +119,20 @@ class _CollectionViewState extends State<CollectionView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(88),
-        child: AppBar(
-          title: const Text(""),
-          flexibleSpace: Center(
-            child: Text(
-              clName,
-              style: TextStyle(
-                color: Color.fromRGBO(56, 107, 79, 1),
+      appBar: AppBar(
+          title: Text(clName,
+            style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 25,
+                color: Colors.green[900],
                 letterSpacing: 3
-              ),
-            ),
-          ),
+            ),),
+          centerTitle: true,
           backgroundColor: Colors.green[100],
+          actions: [
+            //新增日記
+            IconButton(onPressed: _editCLName, icon: Icon(Icons.edit))
+          ],
+
           leading: IconButton(
             icon: const Icon(Icons.keyboard_arrow_left),
             onPressed: () {
@@ -142,7 +140,6 @@ class _CollectionViewState extends State<CollectionView> {
             },
           ),
         ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -168,30 +165,11 @@ class _CollectionViewState extends State<CollectionView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        clName,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '運動傷害\n${collections.length}部影片',
+                        '${collections.length}部影片',
                         style: TextStyle(
                           fontSize: 16.0,
                           color: Colors.grey,
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.green),
-                        onPressed: () {
-                          _editCLName();
-                          // 編輯按鈕動作
-                        },
-                        iconSize: 30,
                       ),
                     ],
                   ),

@@ -172,7 +172,7 @@ class _CalendarViewState extends State<CalendarView> {
                 },
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 5),
             if (_selectedDay != null)
               ...[
                 SizedBox(height: 20),
@@ -222,19 +222,48 @@ class _CalendarViewState extends State<CalendarView> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('取消'),
+              child: Text('取消', style: TextStyle(color: Colors.grey),),
             ),
             TextButton(
               onPressed: () async{
-                String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
-                Navigator.pop(context);
-                createSR(user_id, _eventController.text, time);
-                _selectedDay = _selectedDay!;
-                setState(() {
-                  _eventController.clear();
-                });
+                if(_eventController.text.isEmpty){
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(
+                          '不得為空白',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text(
+                              '確認',
+                              style: TextStyle(color: Colors.red[900]),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }else{
+                  String time = DateFormat('yyyy-MM-dd').format(_selectedDay!);
+                  Navigator.pop(context);
+                  createSR(user_id, _eventController.text, time);
+                  _selectedDay = _selectedDay!;
+                  setState(() {
+                    _eventController.clear();
+                  });
+                }
+
+
               },
-              child: Text('新增'),
+              child: Text('新增', style: TextStyle(color: Colors.green[800]),),
             ),
           ],
         );

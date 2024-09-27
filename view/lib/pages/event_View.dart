@@ -44,7 +44,7 @@ class _EventViewState extends State<EventView> {
     });
 
     for (var record in SR) {
-      day = '${record.time.year}-${record.time.month}-${record.time.day}';
+      day = '${record.time.year} 年 ${record.time.month} 月 ${record.time.day} 日';
       reason = '${record.reason}';
       video = record.videos;
       id = '${record.id}';
@@ -54,22 +54,7 @@ class _EventViewState extends State<EventView> {
       }
 
       _controllers.add(TextEditingController(text: reason));
-
-      print("資料"+day+reason+title+video.toString());
     }
-
-    // _updatedEvents = widget.events.map((SR) {
-    //   _controllers.add(TextEditingController(text: reason));
-    //   return SourRecord(
-    //     id: SR.id,
-    //     userId: SR.userId,
-    //     videos: SR.videos,
-    //     title: SR.title,
-    //     reason: SR.reason,
-    //     time: SR.time,
-    //   );
-    // }).toList();
-
   }
 
   void updateSR(String id,String new_value) async {
@@ -88,7 +73,7 @@ class _EventViewState extends State<EventView> {
       await service.updateSR(id,new_value);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Events saved successfully'),
+          content: Text('修改成功'),
           backgroundColor: Colors.green,
         ),
       );
@@ -96,7 +81,7 @@ class _EventViewState extends State<EventView> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Event description cannot be empty'),
+          content: Text('不得為空白'),
           backgroundColor: Colors.red,
         ),
       );
@@ -115,7 +100,7 @@ class _EventViewState extends State<EventView> {
     Navigator.pop(context,true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Events deleted successfully'),
+        content: Text('刪除成功'),
         backgroundColor: Colors.green,
       ),
     );
@@ -126,17 +111,16 @@ class _EventViewState extends State<EventView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('確定要刪除?'),
-          content: Text('你確定要刪除此事件嗎?'),
+          title: Text('你確定要刪除此紀錄嗎?',style: TextStyle(fontSize: 18),),
           actions: <Widget>[
             TextButton(
-              child: Text('取消'),
+              child: Text('取消', style: TextStyle(color: Colors.grey),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('刪除'),
+              child: Text('刪除', style: TextStyle(color: Colors.red),),
               onPressed: () {
                 _deleteEvent(widget.record_id);
                 Navigator.pop(context, true);
@@ -156,12 +140,12 @@ class _EventViewState extends State<EventView> {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFFE9F5EF),
+
         appBar: AppBar(
           backgroundColor: Colors.green[100],
           title: Text(
             day,
-            //"Hello",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[900]),
 
           ),
@@ -205,14 +189,32 @@ class _EventViewState extends State<EventView> {
             ),
           ],
         ),
-        body: Center(
+        body: SingleChildScrollView(
+        child: Center(
           child: Column(
+
             children: <Widget>[
               SizedBox(height: 20),
-              Text(
-                '痠痛原因',
-                style: TextStyle(letterSpacing: 3.0, fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
+              Center(
+                child: Container(
+                  width: 150,
+                  padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                  margin: EdgeInsets.symmetric(vertical: 20.0),
+                  child: Text(
+                    '痠痛原因',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      letterSpacing: 5.0,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green[800]
+                    ),
+                  ),
+                ),
               ),
+
+
+
               Column(
                 children: _controllers.map((controller) {
                   int index = _controllers.indexOf(controller);
@@ -223,27 +225,44 @@ class _EventViewState extends State<EventView> {
                         controller: controller,
                         maxLines: null,
                         decoration: InputDecoration(
-                          hintText: 'Enter reason',
+                          hintText: '請輸入文字',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey, width: 1.0), // 設置未聚焦時的邊框顏色
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green, width: 1.5), // 設置聚焦時的邊框顏色
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
+
                       ),
                     );
                   } else {
                     return Container(
-                      width: 350,
-                      padding: EdgeInsets.fromLTRB(30.0, 16.0, 30.0, 16.0),
-                      margin: EdgeInsets.symmetric(vertical: 30.0),
+                      width: 400,
+                        padding: const EdgeInsets.fromLTRB(30,10, 30, 10),
+                      margin: EdgeInsets.symmetric(vertical: 10.0),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: Color.fromRGBO(233, 245, 239, 1),
+                        color: Colors.white,
+                          boxShadow: [
+                      BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 9,
+                      offset: Offset(3, 5), // changes position of shadow
+                    ),
+                  ]
                       ),
                       child: Text(
                         reason,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           letterSpacing: 2.0
                         ),
                       ),
@@ -252,10 +271,29 @@ class _EventViewState extends State<EventView> {
                 }).toList(),
               ),
 
-              Text(
-                '推薦影片',
-                style: TextStyle(letterSpacing: 3.0, fontSize: 25, fontWeight: FontWeight.bold, color: Color.fromRGBO(96, 178, 133, 1)),
+
+
+
+              Visibility(
+                visible: options.length > 1,
+                child: Container(
+                  width: 150,
+                  padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                  margin: EdgeInsets.symmetric(vertical: 20.0),
+                  child: Text(
+                    '推薦影片',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      letterSpacing: 5.0,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green[800],
+                    ),
+                  ),
+
+                ),
               ),
+
               Column(
                 children:  [
                   Container(
@@ -265,14 +303,17 @@ class _EventViewState extends State<EventView> {
                       itemCount: options.length,
                       itemBuilder: (BuildContext context, int index) {
                         List<Video> nonNullList = video[index][options[index]] ?? [];
-                        return _buildOptionButton(options[index], nonNullList);
+                        return _buildOptionButton(options[index], nonNullList,);
                       },
                     ),
                   ),
                 ],
               ),
+
+              SizedBox(height: 20),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -281,21 +322,30 @@ class _EventViewState extends State<EventView> {
   // 定義 _buildOptionButton 方法
   Widget _buildOptionButton(String label, List<Video> videos ) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 8, 30, 0),
+      padding: const EdgeInsets.fromLTRB(30,10, 30, 10),
       child: ElevatedButton(
         onPressed: () {
           // 在這裡處理按鈕點擊事件
           Navigator.pushNamed(context, Routes.videoView, arguments: videos); // 點擊按鈕後關閉對話框
         },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white, // 設置按鈕背景顏色
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // 設置按鈕內邊距
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15), // 設置按鈕圓角
+          ),
+          elevation: 5, // 設置按鈕陰影
+        ),
         child: Text(
           label,
           style: TextStyle(
+            fontSize: 18,
             color: Colors.black,
-            letterSpacing: 2.0
           ),
         ),
       ),
     );
+
   }
   
   @override

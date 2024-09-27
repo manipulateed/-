@@ -41,7 +41,7 @@ class AddCLButton {
               await QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
-                text: '請輸入有效名稱',
+                text: '不得為空白',
               );
               return;
             }
@@ -72,6 +72,31 @@ class AddCLButton {
       },
       child: Icon(Icons.add),
       backgroundColor: Colors.green[100],
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('我的應用'),
+      ),
+      body: Stack(
+        children: <Widget>[
+          // 你的其他小部件
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AddCLButton(
+              CL: [], // 傳遞你的收藏清單
+              onUpdateCL: (newName) {
+                // 更新收藏清單的邏輯
+              },
+            ).getButton(context),
+          ),
+        ],
+      ),
     );
   }
 }

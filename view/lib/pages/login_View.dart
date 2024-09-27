@@ -46,11 +46,28 @@ class _LoginViewState extends State<LoginView> {
       Navigator.pushReplacementNamed(context, Routes.baseview);
     } else {
       // 登錄失敗，顯示錯誤消息
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message']),
-          backgroundColor: Colors.red,
-        ),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+                '帳號或密碼錯誤',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('確認',
+                style:TextStyle(color: Colors.green[700])
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -113,7 +130,7 @@ class _LoginViewState extends State<LoginView> {
                       obscureText: _obscureText, // 控制密碼顯示或隱藏
                       decoration: const InputDecoration(
                         icon: Padding(
-                          padding: EdgeInsets.fromLTRB(0, 45, 0, 0),
+                          padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                           child: Icon(Icons.lock_outline),
                         ),
                         hintText: 'Give it a password!',

@@ -19,6 +19,7 @@ class CollectionListView extends StatefulWidget {
 
 class _CollectionViewState extends State<CollectionListView> {
   List<Map<String, dynamic>> collection_List = [];
+  TextEditingController _Controller = TextEditingController();
 
   // {'肩膀': ["放鬆動作", "重訓後舒緩"]},
   // {'手腕': ["三招解決", "手腕瑜珈"]}
@@ -104,7 +105,7 @@ class _CollectionViewState extends State<CollectionListView> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFE9F5EF),
       appBar: AppBar(
         title: Text(
             '我的收藏',

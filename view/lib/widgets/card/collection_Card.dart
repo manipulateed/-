@@ -73,7 +73,7 @@ class CollectionListCard extends StatelessWidget {
           color: Color.fromRGBO(232, 248, 234, 1),
           width: 2,
         ),
-        borderRadius: BorderRadius.circular(40.0)
+        borderRadius: BorderRadius.circular(20.0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -94,28 +94,27 @@ class CollectionListCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Icon(
-                      Icons.elderly,
-                      size: 32,
-                      color: Color.fromRGBO(56, 107, 79, 1),
-                    ),
-                  ),
                   Expanded(
-                    child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 5.0), // 設置左邊距離為1
                       child: Text(
                         contextData['name'],
-                        style: TextStyle(color: Color.fromRGBO(56, 107, 79, 1), fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 3),
+                        style: TextStyle(
+                          color: Color.fromRGBO(56, 107, 79, 1),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 3,
+                        ),
                         softWrap: true,
                         overflow: TextOverflow.visible,
                       ),
                     ),
                   ),
+
                   Padding(
                     padding: const EdgeInsets.all(0),
                     child: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.black, size: 28),
+                      icon: Icon(Icons.delete, color: Colors.grey[700], size: 28),
                       onPressed: () => _handleDeleteConfirm(context),
                     ),
                   ),
@@ -136,22 +135,25 @@ class CollectionListCard extends StatelessWidget {
             itemBuilder: (context, index) {
               List<String> items = List<String>.from(contextData['collection']);
               return Padding(
-                padding: const EdgeInsets.fromLTRB(20, 5, 20, 15),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                 child: Container(
                   height: 50,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Color.fromRGBO(233, 245, 239, 1),
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: Colors.white70,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                          padding: const EdgeInsets.fromLTRB(0.0, 0, 0, 0),
                           child: Text(
                             items[index],
-                            style: UI_TextStyle.Collection_TextStyle,
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                            //style: UI_TextStyle.Collection_TextStyle,
                             softWrap: true,
                             overflow: TextOverflow.ellipsis,
                           ),
